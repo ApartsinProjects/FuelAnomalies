@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
-# Regenerate PDF + DOCX from index.html. Run from repo root.
+# Regenerate DOCX (pandoc, native equations) then PDF (LibreOffice from the DOCX). Run from repo root.
 set -e
-EDGE="/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe"
-# PDF (renders SVG + CSS; @media print hides the download box)
-"$EDGE" --headless --disable-gpu --no-pdf-header-footer --run-all-compositor-stages-before-draw \
-  --virtual-time-budget=12000 --print-to-pdf="$PWD/FuelAnomalies.pdf" "file:///$PWD/index.html"
-# DOCX (swap SVG->PNG for Word, strip download box, then pandoc)
+SOFFICE="/c/Program Files/LibreOffice/program/soffice.exe"
+WINROOT="$(pwd -W 2>/dev/null | sed 's#/#\#g')"
+# DOCX: svg->png for Word; strip download box; parse \(..\)/\[..\] math to native OMML equations
 python -c "import re;h=open('index.html',encoding='utf-8').read();h=re.sub(r'<div class=\"downloads\">.*?</div>\s*','',h,flags=re.S,count=1);h=h.replace('.svg\" alt','.png\" alt');open('_paper_docx.html','w',encoding='utf-8').write(h)"
-pandoc _paper_docx.html -o FuelAnomalies.docx --resource-path=.
+pandoc -f html+tex_math_single_backslash _paper_docx.html -o FuelAnomalies.docx --resource-path=.
 rm -f _paper_docx.html
-echo "built FuelAnomalies.pdf and FuelAnomalies.docx"
+# PDF: LibreOffice DOCX->PDF (native equations + figures). Windows-style profile path is REQUIRED
+# (a /tmp-style path makes soffice hang). Kill any running instance first.
+taskkill //F //IM soffice.exe //IM soffice.bin >/dev/null 2>&1 || true
+"$SOFFICE" --headless --norestore --convert-to pdf --outdir "$WINROOT" "$WINROOT\FuelAnomalies.docx" \
+  "-env:UserInstallation=file:///C:/Users/apart/lo_fa_profile" 2>&1 | tail -1
+echo "built FuelAnomalies.docx and FuelAnomalies.pdf"
