@@ -113,3 +113,22 @@ Result: at a realistic (bench-calibrated) fault magnitude the signature attribut
 excess at 96% while fuel magnitude alone is at chance. Directly measures attribution (fixes W6);
 controls the injected effect size, sidestepping the trim-blind-target (W1) and range-restriction (W2)
 critiques.
+
+## P9 — Revision statistics (CIs, W1/W2/W4 rebuttals)
+Cluster-bootstrap CIs (by vehicle, 1000x) + fixes for reviewer W1/W2/W4/W8. Scripts p9_ved_stats.py,
+p9_bench_behav.py. JSON: data/processed/p9_*.json.
+- **CIs**: fuel model R2 0.673 [0.628, 0.709]; MAPE 13.3% [12.3, 14.3]; env share 0.593 [0.542, 0.636];
+  behaviour marginal 0.080 [0.060, 0.102]; vehicle-baseline 0.143 [0.114, 0.174]. Seed-stable (0.672-0.676).
+- **W1 trim-correction**: driver-excess combustion R2 = -0.028 (trim-blind fuel) -> +0.012 (trim-corrected
+  fuel MAF*(1+STFT+LTFT)/14.7). Dissociation SURVIVES; trims too small (median 1.52%, p90 11.04%) to matter.
+- **W2 range restriction**: within-veh LTFT SD 1.79%, between-veh 4.41%. In the highest-trim 47 vehicles,
+  corr(excess, LTFT) = -0.14 -> combustion still silent even where trim varies most.
+- **W4 collinearity of bench 0.903**: single-feature R2 CO=0.734, HC=0.444, AFR=0.123, Lambda=0.121;
+  corr(AFR,Lambda)=1.0. The 0.90 is carried by CO/HC (unburnt-fuel emissions), not one collinear feature;
+  AFR-fuel coupling acknowledged. (NOTE: bench CV must SHUFFLE — Fault column is grouped/ordered; non-shuffled
+  cv=5 spuriously gives -0.34. p6 already shuffled correctly; caught a bug in the p9 check.)
+- **W4 covariate overlap** normal vs rich (standardized mean diff): RPM -0.09, Power -0.27, Speed -0.09
+  (modest). Fault-0 not pristine: lambda 0.957, CO 2.16%.
+- **Behaviour** (n=169, 143 aggressive/26 non): logreg AUC 0.958 [0.927, 0.981], RF 0.79; 1000-perm
+  mean 0.471, p=0.001.
+- **Attribution accuracy** at bench-calibrated S=1.66: 0.959 [0.956, 0.962].
