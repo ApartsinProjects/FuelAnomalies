@@ -86,3 +86,16 @@ harsh-event rate, energy) per event window; aggressive vs non-aggressive, DRIVER
 - **Permutation test: real 0.958 vs permuted mean 0.482 (max 0.648), p=0.032** => signal is real,
   not leakage. The kinematic/behaviour axis separates aggressive driving cross-dataset. Arm 1 external
   validation COMPLETE.
+
+## P7 — Baselines (RQ5)
+Framing: NO cause-labelled trip benchmark exists (identifiability limit), so this is a CAPABILITY
+contrast, not a metric horse-race. Baseline components compared against are model outputs, not truth.
+- IsolationForest (detection-only): corr(score, excess)=+0.16 (weak detector), corr(score, behaviour
+  comp)=+0.22, corr(score, |vehicle comp|)=-0.01 => yields ONE anomaly score, does not recover the
+  vehicle cause, no per-trip decomposition.
+- Feature relevance (permutation importance, Barbado-style surrogate): top features speed_mean (0.95),
+  weight_lb (0.69), vsp_mean (0.16) => ranks raw features (route/size), not a driver-vs-vehicle split.
+- Pooled ablation: 1.23 L/100km per-vehicle systematic effect remains UNATTRIBUTED without explicit
+  vehicle modelling; our decomposition recovers it as the vehicle-baseline component.
+Conclusion: detection + relevance DETECT and RANK; only our method ATTRIBUTES a trip's excess to
+driver vs vehicle components. Capability increment, honestly not a labelled-accuracy win.

@@ -55,13 +55,14 @@
 <div class="wrap">
 
 <header class="title">
-  <div><span class="badge">Working draft</span><span class="badge">Skeleton v0.1</span></div>
+  <div><span class="badge">Working draft</span><span class="badge">v0.2</span></div>
   <h1>Attributing Excess Fuel Consumption to Driver Behaviour versus Vehicle Malfunction:<br>
       A Signature-Based Approach on Public Telemetry</h1>
   <div class="authors">Alexander Partsin</div>
   <div class="authors">Draft skeleton &mdash; results current as of the latest experiment run</div>
-  <div class="status">This page is a living paper skeleton. Filled numbers are computed results;
-     <span style="color:#9a6b00">amber blocks</span> mark sections still to be written.</div>
+  <div class="status">This page is a living paper draft. Every number is a computed result traceable to
+     a script in <code>scripts/</code> and an entry in <code>RESULTS.md</code>. References validated
+     with bibtest.</div>
 </header>
 
 <nav class="toc">
@@ -106,9 +107,24 @@ fault-caused excess yet is silent for driver-caused excess.</p>
 </ul>
 
 <h2 id="intro">1. Introduction</h2>
-<div class="callout todo">Motivate fleet fuel cost / emissions; the operational value of knowing whether
-  excess fuel is a coaching problem (driver) or a maintenance problem (vehicle). State the symptom-vs-
-  cause gap and the attribution question. End with the contributions above.</div>
+<p>Fuel is the largest controllable operating cost of a vehicle fleet and a direct driver of tailpipe
+  emissions. When a vehicle burns more than expected, an operator faces a decision with two very
+  different remedies: coach the driver, or service the vehicle. The two causes present the same
+  symptom. Aggressive acceleration and a rich-running engine both raise consumption, and a raw
+  fuel-per-distance figure cannot tell them apart.</p>
+<p>We treat this as an attribution problem. Given a trip that consumed more fuel than its route and
+  conditions warrant, how much of the excess is the driver, and how much is the vehicle? The question
+  is operationally valuable and, on public data, largely unanswered: fuel-modelling work predicts
+  consumption without decomposing its causes, driving-behaviour work scores the driver in isolation,
+  and predictive-maintenance work rarely treats fuel efficiency as the symptom.</p>
+<p>Our approach rests on a physical observation: the two causes leave different signatures. Driver
+  excess is transient and kinematic, expressed in acceleration, jerk, and harsh events at a normal
+  air-fuel ratio. Malfunction excess (a rich mixture) is steady-state and combustion-linked, expressed
+  as a shift of the air-fuel ratio away from stoichiometric and in the exhaust chemistry. We build an
+  expected-fuel model on real fleet telemetry, decompose each trip's excess into behaviour and
+  vehicle-baseline components, validate the behaviour axis on an independent labelled dataset, and
+  establish the central claim as a cross-dataset double dissociation. The contributions are listed
+  above.</p>
 
 <h2 id="related">2. Related work</h2>
 <p>Four largely separate literatures meet here: fuel-consumption modelling from OBD/telematics
@@ -116,8 +132,19 @@ fault-caused excess yet is silent for driver-caused excess.</p>
   driving-behaviour scoring, vehicle predictive maintenance, and telemetry anomaly detection. The
   nearest prior work is Barbado and Corcho, who detect fuel-consumption anomalies with explainable
   feature relevance and counterfactuals, but do not separate cause into driver versus mechanical.</p>
-<div class="callout todo">Expand each strand with 2&ndash;3 citations; position our signature-based
-  decomposition as the increment over Barbado (feature relevance &rarr; validated cause components).</div>
+<p><b>Fuel-consumption modelling.</b> Physics-based models such as vehicle specific power
+  [<a href="#r7">7</a>] map instantaneous kinematics to fuel and emissions. Data-driven models now
+  lead on OBD and telematics inputs; tree ensembles are the reliable workhorse and beat both neural
+  baselines and the ECU estimate on ground-truth fuel meters [<a href="#r4">4</a>].</p>
+<p><b>Eco-driving and behaviour scoring.</b> Driving style moves fuel use substantially, and
+  data-driven eco-driving reviews report double-digit savings from smoother driving
+  [<a href="#r5">5</a>]. This literature scores the driver but does not separate the driver's
+  contribution from the vehicle's.</p>
+<p><b>Fuel anomaly detection.</b> The nearest prior work detects fuel-consumption anomalies with
+  explainable feature relevance and counterfactual recommendations on fleet data
+  [<a href="#r3">3</a>]. It identifies which features co-occur with an anomaly but does not assign the
+  anomaly to a driver-versus-mechanical cause. Our signature-based decomposition is the increment:
+  from feature relevance to externally validated cause components.</p>
 
 <h2 id="data">3. Data</h2>
 <table>
@@ -144,8 +171,20 @@ fault-caused excess yet is silent for driver-caused excess.</p>
   variability). <b>Combustion axis</b>: deviation of the air-fuel ratio from stoichiometric, measured
   as fuel trims in VED and directly as AFR/lambda in EngineFaultDB, placed on a common
   percent-fuel-per-air scale.</p>
-<div class="callout todo">Add the formal definitions: feature list, the MAF&rarr;fuel conversion, the
-  mixed-effects/fixed-effect vehicle term, and the counterfactual behaviour component.</div>
+<p>Fuel is derived from the mass air-flow signal at stoichiometric ratio,
+  <code>L/hr = MAF / 14.7 / 745 &times; 3600</code>, and integrated per trip to fuel per 100&nbsp;km.
+  Driving features are speed mean and variability, positive acceleration, jerk, harsh-acceleration and
+  harsh-braking rates, idle fraction, stops per km, highway fraction, and vehicle specific power.
+  Conditions are ambient temperature, air-conditioning and heater power, weight, distance, and
+  duration. The vehicle-baseline term is the per-vehicle mean out-of-fold residual, the systematic
+  deviation of a vehicle from the fleet after driving and conditions are removed. The behaviour
+  component is a counterfactual: the model's predicted fuel for the observed driving minus its
+  prediction when the aggression features are set to a gentle reference, holding conditions fixed.</p>
+<h3>4.3 The combustion axis in both worlds</h3>
+<p>The combustion axis is deviation of the air-fuel ratio from stoichiometric. In VED it is observed as
+  short- and long-term fuel trims (the engine's own correction). On the engine-fault bench it is
+  observed directly as the air-fuel ratio and lambda. Both are placed on a common percent-fuel-per-air
+  scale, which lets the same axis be tested against driver-excess and fault-excess.</p>
 
 <h2 id="arm1">5. Arm 1: driver-behaviour decomposition (VED)</h2>
 <p>The expected-fuel model reaches <b>R&sup2; = 0.673</b> (MAPE 13.3%) with vehicle-grouped
@@ -188,6 +227,17 @@ fault-caused excess yet is silent for driver-caused excess.</p>
   axis explaining fault-excess is expected; the informative finding is the dissociation, that this axis
   is silent for driver-excess.</p>
 
+<h3>7.1 Comparison to detection and feature-relevance baselines</h3>
+<p>Existing methods detect excess and rank features but do not attribute cause. A standard anomaly
+  detector (isolation forest on trip features) yields a single anomaly score that tracks excess weakly
+  (r&nbsp;0.16) and does not recover the vehicle-baseline component (r&nbsp;&minus;0.01); it flags
+  anomalies without a cause label. Permutation-importance feature relevance, the surrogate used by
+  prior anomaly work, ranks speed and weight highest but produces no per-trip driver-versus-vehicle
+  split. A pooled model that does not model the vehicle leaves 1.23&nbsp;L/100km of per-vehicle
+  systematic effect unattributed. Because no cause-labelled trip benchmark exists (Section&nbsp;8),
+  this is a capability contrast rather than a labelled-accuracy comparison: our method adds the
+  per-trip decomposition the baselines cannot produce.</p>
+
 <h2 id="limits">8. Scope and limitations</h2>
 <ul class="contrib">
   <li>Driver and fault ground truths live in different datasets, so the dissociation is cross-dataset,
@@ -206,13 +256,37 @@ fault-caused excess yet is silent for driver-caused excess.</p>
   (<code>RESULTS.md</code>), and diagnostic notes (<code>diagnostics/</code>) accompany this repository.
   Datasets are obtained from their original sources (VED, EngineFaultDB, Zenodo&nbsp;6570972) and are
   not redistributed here.</p>
-<div class="callout todo">Add exact dataset URLs, environment (Python 3.14, scikit-learn 1.8), and a one
-  -command reproduction script.</div>
+<p class="kv">Environment: Python 3.14, scikit-learn 1.8, pandas 2.3, scipy 1.17, pyarrow. Datasets:
+  VED <a href="https://github.com/gsoh/VED">github.com/gsoh/VED</a>;
+  EngineFaultDB <a href="https://github.com/leoxthomas/EngineFaultDB">github.com/leoxthomas/EngineFaultDB</a>;
+  Driving Events <a href="https://zenodo.org/records/6570972">zenodo.org/records/6570972</a>.
+  Place them under <code>data/raw/</code> and run <code>scripts/p1_features.py</code> through
+  <code>scripts/p7_baselines.py</code> in order. Every number on this page traces to one of these
+  scripts and an entry in <code>RESULTS.md</code>.</p>
 
 <h2 id="refs">10. References</h2>
-<div class="callout todo">Compile via bibtest. Anchors: VED (Oh et&nbsp;al., IEEE T-ITS 2020);
-  EngineFaultDB (Thomas et&nbsp;al., IEEE Access 2023); Barbado &amp; Corcho (Eng. Appl. AI 2022);
-  Abediasl et&nbsp;al. (IMechE Part D 2024); Driving Events (Zenodo 6570972).</div>
+<p class="kv" style="color:var(--muted)">All entries validated against Crossref/OpenAlex/DataCite (bibtest).</p>
+<ol class="contrib" style="font-family:var(--sans);font-size:14.5px">
+  <li id="r1">G. Oh, D. J. LeBlanc, H. Peng. Vehicle Energy Dataset (VED), A Large-scale Dataset for
+    Vehicle Energy Consumption Research. <i>IEEE Transactions on Intelligent Transportation Systems</i>,
+    2020. <a href="https://doi.org/10.1109/TITS.2020.3035596">10.1109/TITS.2020.3035596</a></li>
+  <li id="r2">L. Thomas et&nbsp;al. EngineFaultDB: A Novel Dataset for Automotive Engine Fault
+    Classification and Baseline Results. <i>IEEE Access</i>, 2023.
+    <a href="https://doi.org/10.1109/ACCESS.2023.3331316">10.1109/ACCESS.2023.3331316</a></li>
+  <li id="r3">A. Barbado, &Oacute;. Corcho. Interpretable machine learning models for predicting and
+    explaining vehicle fuel consumption anomalies. <i>Engineering Applications of Artificial
+    Intelligence</i>, 2022. <a href="https://doi.org/10.1016/j.engappai.2022.105222">10.1016/j.engappai.2022.105222</a></li>
+  <li id="r4">H. Abediasl, A. Ansari, V. Hosseini, C. R. Koch, M. Shahbakhti. Real-time vehicular fuel
+    consumption estimation using machine learning and on-board diagnostics data. <i>Proc. IMechE Part
+    D</i>, 2024. <a href="https://doi.org/10.1177/09544070231185609">10.1177/09544070231185609</a></li>
+  <li id="r5">P. Fafoutellis, E. G. Mantouka, E. I. Vlahogianni. Eco-Driving and Its Impacts on Fuel
+    Efficiency: An Overview of Technologies and Data-Driven Methods. <i>Sustainability</i>, 13(1):226,
+    2021. <a href="https://doi.org/10.3390/su13010226">10.3390/su13010226</a></li>
+  <li id="r6">J. Vieira et&nbsp;al. Driving Events Dataset. Zenodo, 2022.
+    <a href="https://doi.org/10.5281/zenodo.6570972">10.5281/zenodo.6570972</a></li>
+  <li id="r7">J. L. Jimenez-Palacios. Understanding and quantifying motor vehicle emissions with
+    vehicle specific power and TILDAS remote sensing. PhD thesis, MIT, 1999.</li>
+</ol>
 
 <div class="foot">
   Generated as a working skeleton. Every filled number traces to a script in <code>scripts/</code> and
