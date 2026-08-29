@@ -147,26 +147,41 @@ account for 8% and 14% of trip-fuel variance respectively.</p>
   driving-behaviour scoring, vehicle predictive maintenance, and telemetry anomaly detection. The
   nearest prior work is Barbado and Corcho, who detect fuel-consumption anomalies with explainable
   feature relevance and counterfactuals, but do not separate cause into driver versus mechanical.</p>
-<p><b>Fuel-consumption modelling.</b> Physics-based models such as vehicle specific power
-  [<a href="#r7">7</a>] map instantaneous kinematics to fuel and emissions. Data-driven models now
-  lead on OBD and telematics inputs; tree ensembles are the reliable workhorse and beat both neural
+<p><b>Fuel-consumption modelling.</b> Physics-based models map instantaneous kinematics to fuel and
+  emissions: vehicle specific power [<a href="#r7">7</a>], the VT-Micro regression family
+  [<a href="#r8">8</a>], and the power-based VT-CPFM [<a href="#r11">11</a>]. Data-driven models now lead
+  on OBD and telematics inputs; tree ensembles are the reliable workhorse and beat both neural
   baselines and the ECU estimate on ground-truth fuel meters [<a href="#r4">4</a>], and kernel methods
-  map engine parameters to fuel rate from OBD-II [<a href="#r9">9</a>]. A related but distinct anomaly
-  is fuel theft or leakage, detected as an abrupt change point [<a href="#r10">10</a>]; that is a sudden
-  step, whereas the excess we attribute is a sustained efficiency shift.</p>
-<p><b>Eco-driving and behaviour scoring.</b> Driving style moves fuel use substantially, and
-  data-driven eco-driving reviews report double-digit savings from smoother driving
-  [<a href="#r5">5</a>]. This literature scores the driver but does not separate the driver's
-  contribution from the vehicle's.</p>
-<p><b>Fuel anomaly detection.</b> The nearest prior work detects fuel-consumption anomalies with
-  explainable feature relevance and counterfactual recommendations on fleet data
-  [<a href="#r3">3</a>]. It identifies which features co-occur with an anomaly but does not assign the
-  anomaly to a driver-versus-mechanical cause. Our signature-based decomposition is the increment:
-  from feature relevance to externally validated cause components.</p>
-<p><b>Predictive maintenance and telemetry anomaly detection.</b> These provide the detector toolbox
-  (isolation forest, one-class SVM, autoencoders, change-point detection) but treat fuel efficiency as
-  an input rather than the symptom to be explained, and do not attribute an anomaly to a driver-versus
-  -vehicle cause.</p>
+  map engine parameters to fuel rate from OBD-II [<a href="#r9">9</a>]. These models predict consumption
+  accurately but do not decompose its causes.</p>
+<p><b>Eco-driving and behaviour scoring.</b> Driving style moves fuel use substantially; data-driven
+  eco-driving reviews report double-digit savings from smoother driving [<a href="#r5">5</a>], and
+  recent reviews survey behaviour-to-fuel machine learning specifically [<a href="#r15">15</a>].
+  Driver behaviour has been classified from OBD and used to predict fuel use [<a href="#r12">12</a>],
+  recognized as a driving style from smartphone inertial sensors [<a href="#r14">14</a>], and linked to
+  efficiency through drive-cycle simulation [<a href="#r13">13</a>]. This literature scores the driver
+  in isolation and does not separate the driver's contribution from the vehicle's.</p>
+<p><b>Predictive maintenance and engine-fault diagnosis.</b> Fault-diagnosis work detects sensor and
+  actuator faults in the air-fuel path from telemetry, including neural detection and isolation of
+  multiple engine-sensor faults [<a href="#r16">16</a>], fault-tolerant handling of the mass-air-flow
+  sensor [<a href="#r17">17</a>], and deep-learning fault diagnosis from driving signals
+  [<a href="#r18">18</a>]. These target the fault directly but treat fuel efficiency as an input, not as
+  the symptom to be attributed.</p>
+<p><b>Telemetry anomaly detection.</b> The detector toolbox is mature: isolation forest
+  [<a href="#r19">19</a>], one-class methods, and autoencoder or recurrent models. In the automotive
+  setting most of this work targets CAN-bus intrusion and safety rather than fuel efficiency, for
+  example LSTM autoencoders [<a href="#r20">20</a>], recurrent autoencoders [<a href="#r21">21</a>], and
+  spatiotemporal detection for connected vehicles [<a href="#r22">22</a>]. These methods flag anomalies
+  but do not assign a fuel anomaly to a driver-versus-vehicle cause.</p>
+<p><b>Explainable attribution and the nearest prior work.</b> Feature-attribution methods such as SHAP
+  [<a href="#r23">23</a>] explain a model's output in terms of its inputs. The nearest prior work applies
+  this to our exact problem: Barbado and Corcho detect fuel-consumption anomalies with explainable
+  feature relevance and counterfactual recommendations on fleet data [<a href="#r3">3</a>]. It
+  identifies which features co-occur with an anomaly but does not assign the anomaly to a
+  driver-versus-mechanical cause. Fuel theft or leakage is a related but distinct anomaly, detected as
+  an abrupt change point [<a href="#r10">10</a>], a sudden step rather than the sustained efficiency
+  shift we attribute. Our signature-based decomposition is the increment: from feature relevance to
+  externally validated, cause-labelled components.</p>
 <table>
   <tr><th>Approach</th><th>Detects excess</th><th>Ranks features</th><th>Attributes cause<br>(driver vs vehicle)</th></tr>
   <tr><td>Fuel modelling + residual threshold [<a href="#r4">4</a>]</td><td>yes</td><td>no</td><td>no</td></tr>
@@ -424,6 +439,42 @@ account for 8% and 14% of trip-fuel variance respectively.</p>
   <li id="r10">R. Chu, W. H. Chik, J. Song, J. Chan, X. Li. Real-time Fuel Leakage Detection via Online
     Change Point Detection. arXiv:2410.09741, 2024.
     <a href="https://doi.org/10.48550/arXiv.2410.09741">10.48550/arXiv.2410.09741</a></li>
+  <li id="r11">H. A. Rakha, K. Ahn, K. Moran, B. Saerens, E. Van den Bulck. Virginia Tech Comprehensive
+    Power-Based Fuel Consumption Model (VT-CPFM). <i>Transportation Research Part D</i>, 16(7):492&ndash;503,
+    2011. <a href="https://doi.org/10.1016/j.trd.2011.05.008">10.1016/j.trd.2011.05.008</a></li>
+  <li id="r12">P. Ping, W. Qin, Y. Xu, C. Miyajima, K. Takeda. Impact of Driver Behavior on Fuel
+    Consumption: Classification, Evaluation and Prediction Using Machine Learning. <i>IEEE Access</i>, 7,
+    2019. <a href="https://doi.org/10.1109/ACCESS.2019.2920489">10.1109/ACCESS.2019.2920489</a></li>
+  <li id="r13">A. Mohammadnazar, Z. H. Khattak, A. J. Khattak. Assessing driving behavior influence on
+    fuel efficiency using machine learning and drive-cycle simulations. <i>Transportation Research Part
+    D</i>, 126:104025, 2024. <a href="https://doi.org/10.1016/j.trd.2023.104025">10.1016/j.trd.2023.104025</a></li>
+  <li id="r14">D. A. Johnson, M. M. Trivedi. Driving style recognition using a smartphone as a sensor
+    platform. <i>IEEE ITSC</i>, 2011. <a href="https://doi.org/10.1109/ITSC.2011.6083078">10.1109/ITSC.2011.6083078</a></li>
+  <li id="r15">S. S. Haghshenas, A. Kouvelas, V. Astarita, S. S. Haghshenas, G. Guido. Driver behavior
+    classification and its impact on fuel consumption using machine learning: A comprehensive review.
+    <i>Transportation Engineering</i>, 2026. <a href="https://doi.org/10.1016/j.treng.2026.100436">10.1016/j.treng.2026.100436</a></li>
+  <li id="r16">M. Cervantes-Bobadilla et&nbsp;al. Multiple fault detection and isolation using artificial
+    neural networks in sensors of an internal combustion engine. <i>Engineering Applications of AI</i>,
+    117:105524, 2023. <a href="https://doi.org/10.1016/j.engappai.2022.105524">10.1016/j.engappai.2022.105524</a></li>
+  <li id="r17">P. Guti&eacute;rrez Le&oacute;n et&nbsp;al. Implementation of a fault tolerant system for
+    the internal combustion engine's MAF sensor. <i>Measurement</i>, 122, 2018.
+    <a href="https://doi.org/10.1016/j.measurement.2018.03.006">10.1016/j.measurement.2018.03.006</a></li>
+  <li id="r18">C.-S. A. Gong, C.-H. S. Su, Y.-E. Liu, D.-Y. Guu, Y.-H. Chen. Deep Learning with LPC and
+    Wavelet Algorithms for Driving Fault Diagnosis. <i>Sensors</i>, 22(18):7072, 2022.
+    <a href="https://doi.org/10.3390/s22187072">10.3390/s22187072</a></li>
+  <li id="r19">F. T. Liu, K. M. Ting, Z.-H. Zhou. Isolation Forest. <i>IEEE ICDM</i>, 2008.
+    <a href="https://doi.org/10.1109/ICDM.2008.17">10.1109/ICDM.2008.17</a></li>
+  <li id="r20">S. Longari, D. H. Nova Valcarcel, M. Zago, M. Carminati, S. Zanero. CANnolo: An Anomaly
+    Detection System Based on LSTM Autoencoders for Controller Area Network. <i>IEEE Trans. Network and
+    Service Management</i>, 18(2), 2021. <a href="https://doi.org/10.1109/TNSM.2020.3038991">10.1109/TNSM.2020.3038991</a></li>
+  <li id="r21">V. K. Kukkala, S. V. Thiruloga, S. Pasricha. INDRA: Intrusion Detection Using Recurrent
+    Autoencoders in Automotive Embedded Systems. <i>IEEE Trans. CAD of Integrated Circuits and
+    Systems</i>, 39(11), 2020. <a href="https://doi.org/10.1109/TCAD.2020.3012749">10.1109/TCAD.2020.3012749</a></li>
+  <li id="r22">P. Mansourian, N. Zhang, A. Jaekel, M. Kneppers. Deep Learning-Based Anomaly Detection for
+    Connected Autonomous Vehicles Using Spatiotemporal Information. <i>IEEE Trans. Intelligent
+    Transportation Systems</i>, 2023. <a href="https://doi.org/10.1109/TITS.2023.3286611">10.1109/TITS.2023.3286611</a></li>
+  <li id="r23">S. M. Lundberg, S.-I. Lee. A Unified Approach to Interpreting Model Predictions (SHAP).
+    arXiv:1705.07874, 2017. <a href="https://doi.org/10.48550/arXiv.1705.07874">10.48550/arXiv.1705.07874</a></li>
 </ol>
 
 <div class="foot">
