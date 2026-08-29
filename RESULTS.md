@@ -132,3 +132,16 @@ p9_bench_behav.py. JSON: data/processed/p9_*.json.
 - **Behaviour** (n=169, 143 aggressive/26 non): logreg AUC 0.958 [0.927, 0.981], RF 0.79; 1000-perm
   mean 0.471, p=0.001.
 - **Attribution accuracy** at bench-calibrated S=1.66: 0.959 [0.956, 0.962].
+
+## P10 — Consolidated one-pass VED numbers (revision consistency; scripts/p10_consolidated.py)
+Single config HistGBM(300,0.05,depth5,seed0), GroupKFold(5) by vehicle, on the 14,170-trip/194-vehicle
+decomposition panel (the featurization panel before 1-99% fuel clipping is 14,460 trips / 197 vehicles).
+All shares from ONE artifact and sum to 1.0:
+- R2_full 0.673, R2_env 0.593, R2_behav 0.368, behaviour-marginal 0.080, env-marginal 0.305,
+  vehicle-baseline 0.143, unexplained 0.184 (sum = 1.000).
+- Combustion axis on driver-excess (ONE reconciled value): trim-blind R2 = -0.028, trim-corrected +0.012;
+  kinematic axis on driver-excess R2 = 0.084.
+- Axis orthogonality: corr(kinematic, combustion) within-vehicle = -0.012 (p=0.21, n=11,609) -> ~orthogonal.
+- S_bench = 1.66 (from unrounded 2.98% shift / 1.79% median within-vehicle LTFT SD; rounded inputs 3.0/1.79=1.68).
+- Decile monotonicity Spearman rho=0.964, p=7.3e-6 (< 1e-5).
+NOTE: supersedes the earlier -0.039 (P6) combustion value; use -0.028 everywhere.
