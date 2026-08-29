@@ -49,6 +49,12 @@
           border-radius:8px;padding:14px 18px;margin:24px 0}
   nav.toc a{color:#333;border:none} nav.toc a:hover{color:var(--accent)}
   nav.toc ol{margin:6px 0;padding-left:22px}
+  figure{margin:24px 0;text-align:center}
+  figure img{max-width:100%;height:auto;border:1px solid var(--line);border-radius:6px;
+             background:#fff;padding:10px}
+  figcaption{font-family:var(--sans);font-size:13px;color:var(--muted);margin-top:8px;
+             text-align:left;line-height:1.5}
+  figcaption b{color:#333}
 </style>
 </head>
 <body>
@@ -196,21 +202,41 @@ fault-caused excess yet is silent for driver-caused excess.</p>
   <tr><td>Vehicle-baseline (persistent per-vehicle effect)</td><td class="num">0.142</td></tr>
   <tr><td>Unexplained</td><td class="num">0.185</td></tr>
 </table>
+<figure>
+  <img src="figures/fig1_variance_decomposition.svg" alt="Variance decomposition of trip fuel">
+  <figcaption><b>Figure 1.</b> Variance decomposition of trip fuel on VED. Route and environment
+    dominate; driving behaviour adds a unique 8%, and a persistent vehicle-baseline accounts for 14%.</figcaption>
+</figure>
 <p>The vehicle-baseline is real and largely not size-driven: regressing the per-vehicle effect on
   engine displacement and weight explains only <b>23%</b> of it. A gentle-driving counterfactual saves
   a median <b>0.47&nbsp;L/100km</b> (about 5% of median fuel), rising monotonically across aggression
   deciles.</p>
+<figure>
+  <img src="figures/fig3_behaviour_monotonicity.svg" alt="Behaviour component by aggression decile">
+  <figcaption><b>Figure 2.</b> The counterfactual behaviour component (fuel above a gentle-driving
+    reference) rises monotonically from gentle to harsh driving deciles.</figcaption>
+</figure>
 <h3>5.1 Behaviour-axis external validation</h3>
 <p>On the independent Driving Events dataset, kinematic features separate aggressive from
   non-aggressive events with the driver held out: <b>logistic-regression AUC = 0.958</b> (per-driver
   0.98 / 0.93 / 0.99). A label-permutation test collapses this to chance (mean 0.482, p = 0.032),
   confirming the signal.</p>
+<figure>
+  <img src="figures/fig4_behaviour_roc.svg" alt="Behaviour-axis ROC curve">
+  <figcaption><b>Figure 3.</b> Kinematic features separate aggressive from normal driving on an
+    independent dataset with the driver held out (AUC 0.958).</figcaption>
+</figure>
 
 <h2 id="arm2">6. Arm 2: malfunction fuel signature (EngineFaultDB)</h2>
 <p>Training the fuel model on normal operating points and scoring faults at matched operating point,
   the <b>rich-mixture fault burns +6.2% excess fuel</b> (AFR 13.68 vs 14.07; brake-specific fuel
   consumption +10.6%). Lean and ignition faults are not excess-fuel faults. The rich-fault excess
   correlates with the combustion signature (CO, HC, AFR), not with kinematics.</p>
+<figure>
+  <img src="figures/fig5_fault_signature.svg" alt="Excess fuel by fault class">
+  <figcaption><b>Figure 4.</b> Excess fuel at matched operating point by fault class. Only the rich
+    mixture (low AFR) burns measurably more; lean and ignition faults do not.</figcaption>
+</figure>
 
 <h2 id="attrib">7. Attribution: signature double dissociation</h2>
 <p>The central result. Excess is defined net of context in each dataset; each axis is regressed on the
@@ -220,6 +246,12 @@ fault-caused excess yet is silent for driver-caused excess.</p>
   <tr><td>Kinematic (transient aggression)</td><td class="num">0.107</td><td class="num">n/a (steady-state)</td></tr>
   <tr><td>Combustion (AFR / fuel trim)</td><td class="num">&minus;0.039</td><td class="num">0.903</td></tr>
 </table>
+<figure>
+  <img src="figures/fig2_double_dissociation.svg" alt="Signature double dissociation">
+  <figcaption><b>Figure 5.</b> The central result. The combustion axis explains malfunction-caused
+    excess (R&sup2; 0.90) but is silent for driver-caused excess (R&sup2; ~0); the kinematic axis
+    carries the driver signal. The two causes separate by signature.</figcaption>
+</figure>
 <div class="callout win"><b>The combustion axis explains ~90% of malfunction-caused excess and ~0% of
   driver-caused excess.</b> The same axis that is diagnostic of a fault is silent for aggressive
   driving; the kinematic axis carries the driver signal. The two causes are separable by signature.</div>
