@@ -108,6 +108,8 @@ fault-caused excess yet is silent for driver-caused excess.</p>
       vehicle-baseline, and environment components.</li>
   <li>A cross-dataset <b>double dissociation</b> showing the combustion axis explains malfunction-caused
       excess (R&sup2;&nbsp;0.90) but not driver-caused excess (R&sup2;&nbsp;0).</li>
+  <li>A measured <b>attribution accuracy of 96%</b> on semi-synthetic ground truth (at a
+      bench-calibrated fault magnitude), where fuel magnitude alone is at chance.</li>
   <li>External validation of the behaviour axis (driver-held-out AUC&nbsp;0.96, permutation p&nbsp;0.03)
       and an honest account of the field-wide absence of any joint fuel+fault+behaviour dataset.</li>
 </ul>
@@ -269,6 +271,26 @@ fault-caused excess yet is silent for driver-caused excess.</p>
   systematic effect unattributed. Because no cause-labelled trip benchmark exists (Section&nbsp;8),
   this is a capability contrast rather than a labelled-accuracy comparison: our method adds the
   per-trip decomposition the baselines cannot produce.</p>
+
+<h3>7.2 Attribution accuracy (semi-synthetic ground truth)</h3>
+<p>To measure attribution directly, we inject driver-caused and fault-caused excess into 11,520 real
+  VED trips (139 vehicles) with the <b>same fuel increase for both</b>, so fuel magnitude alone carries
+  no information about the cause. Driver excess adds signal to the kinematic axis; fault excess adds
+  signal to the combustion axis; real-trip deviations supply the confounding noise, and the injected
+  strength S is expressed in units of natural within-vehicle variation. A signature attributor
+  (kinematic and combustion deviations from the vehicle baseline, cross-validated with the vehicle held
+  out) recovers the cause; a fuel-magnitude baseline cannot.</p>
+<figure>
+  <img src="figures/fig6_attribution_accuracy.svg" alt="Attribution accuracy vs signature strength">
+  <figcaption><b>Figure 6.</b> Attribution accuracy rises with signature strength and reaches
+    <b>96%</b> at the effect size calibrated to the measured rich-mixture fault (S&nbsp;&asymp;&nbsp;1.66),
+    while the fuel-magnitude baseline stays at chance (50%). Fuel tells you <i>that</i> a trip is
+    anomalous; the signature tells you <i>why</i>.</figcaption>
+</figure>
+<p>At the bench-calibrated fault magnitude the signature attributor reaches <b>96% accuracy</b>
+  (F1&nbsp;0.959, near-symmetric errors), against a fuel-only baseline pinned at chance. This measures
+  attribution rather than asserting it, and by controlling the injected effect size it sidesteps the
+  trim-blindness of the fleet fuel target and the healthy-fleet range restriction discussed next.</p>
 
 <h2 id="limits">8. Scope and limitations</h2>
 <ul class="contrib">

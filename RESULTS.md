@@ -99,3 +99,17 @@ contrast, not a metric horse-race. Baseline components compared against are mode
   vehicle modelling; our decomposition recovers it as the vehicle-baseline component.
 Conclusion: detection + relevance DETECT and RANK; only our method ATTRIBUTES a trip's excess to
 driver vs vehicle components. Capability increment, honestly not a labelled-accuracy win.
+
+## P8 — Semi-synthetic ATTRIBUTION ACCURACY (must-fix #3 / reviewer W6)
+Inject driver-caused vs fault-caused excess into 11,520 real VED trips (139 vehicles) with the SAME
+fuel increase for both (so fuel magnitude alone cannot attribute). Signature attributor = kinematic +
+combustion deviations vs vehicle baseline; GroupKFold by vehicle. Fuel-only baseline = chance control.
+- Accuracy vs signature strength S (within-vehicle SD units): S0.5=0.713, S1=0.866, S1.5=0.946,
+  S2=0.979, S2.5=0.992, S3=0.998. Fuel-only baseline pinned at ~0.50 throughout (as designed).
+- **Bench-calibrated operating point**: bench rich fault = 3.0% fuel/air shift; VED within-vehicle LTFT
+  SD (median) = 1.79% => S_bench ~= 1.66. **Attribution accuracy at S_bench = 0.959 (F1 0.959)**,
+  near-symmetric confusion (~4% error each way).
+Result: at a realistic (bench-calibrated) fault magnitude the signature attributes driver-vs-fault
+excess at 96% while fuel magnitude alone is at chance. Directly measures attribution (fixes W6);
+controls the injected effect size, sidestepping the trim-blind-target (W1) and range-restriction (W2)
+critiques.
