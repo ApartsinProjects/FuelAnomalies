@@ -1,0 +1,13 @@
+# Datasets are obtained from original sources, not redistributed (size + license)
+data/
+*.7z
+*.zip
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.ipynb_checkpoints/
+
+# scratch
+*.tmp

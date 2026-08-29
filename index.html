@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Attributing Excess Fuel Consumption to Driver Behaviour vs Vehicle Malfunction</title>
+<style>
+  :root{
+    --ink:#1a1a1a; --muted:#555; --line:#d9d9d9; --bg:#fbfbfa; --card:#fff;
+    --accent:#7a2020; --accent2:#0b5;
+    --serif:Georgia,"Times New Roman",serif;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--serif);
+       line-height:1.6;font-size:18px}
+  .wrap{max-width:820px;margin:0 auto;padding:48px 24px 96px}
+  header.title{border-bottom:2px solid var(--ink);padding-bottom:24px;margin-bottom:8px}
+  h1{font-size:30px;line-height:1.25;margin:0 0 12px}
+  .authors{font-family:var(--sans);font-size:16px;color:var(--muted);margin:6px 0}
+  .badge{display:inline-block;font-family:var(--sans);font-size:12px;letter-spacing:.04em;
+         text-transform:uppercase;background:#efe7e7;color:var(--accent);border:1px solid #e3d2d2;
+         border-radius:4px;padding:2px 8px;margin-right:6px}
+  .status{font-family:var(--sans);font-size:13px;color:var(--muted);margin-top:14px}
+  h2{font-family:var(--sans);font-size:21px;margin:44px 0 10px;padding-bottom:6px;
+     border-bottom:1px solid var(--line)}
+  h3{font-family:var(--sans);font-size:16px;margin:26px 0 6px;color:#333}
+  p{margin:10px 0}
+  .lead{font-size:19px}
+  code{font-family:var(--mono);font-size:.85em;background:#f0f0ee;padding:1px 5px;border-radius:3px}
+  a{color:var(--accent);text-decoration:none;border-bottom:1px solid #d9c4c4}
+  a:hover{border-bottom-color:var(--accent)}
+  table{width:100%;border-collapse:collapse;margin:16px 0;font-family:var(--sans);font-size:14.5px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+  th{background:#f4f1f1;font-weight:600}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  .callout{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--accent);
+           border-radius:6px;padding:14px 18px;margin:18px 0;font-size:16.5px}
+  .todo{color:#9a6b00;background:#fff7e6;border-left-color:#d9a000}
+  .todo::before{content:"TODO  ";font-family:var(--sans);font-weight:700;font-size:12px;color:#b47f00}
+  .win{border-left-color:var(--accent2)}
+  ul.contrib{margin:10px 0;padding-left:22px} ul.contrib li{margin:8px 0}
+  .foot{margin-top:64px;padding-top:18px;border-top:1px solid var(--line);
+        font-family:var(--sans);font-size:13px;color:var(--muted)}
+  .kv{font-family:var(--sans);font-size:14px}
+  .kv b{color:#333}
+  nav.toc{font-family:var(--sans);font-size:14px;background:var(--card);border:1px solid var(--line);
+          border-radius:8px;padding:14px 18px;margin:24px 0}
+  nav.toc a{color:#333;border:none} nav.toc a:hover{color:var(--accent)}
+  nav.toc ol{margin:6px 0;padding-left:22px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="title">
+  <div><span class="badge">Working draft</span><span class="badge">Skeleton v0.1</span></div>
+  <h1>Attributing Excess Fuel Consumption to Driver Behaviour versus Vehicle Malfunction:<br>
+      A Signature-Based Approach on Public Telemetry</h1>
+  <div class="authors">Alexander Partsin</div>
+  <div class="authors">Draft skeleton &mdash; results current as of the latest experiment run</div>
+  <div class="status">This page is a living paper skeleton. Filled numbers are computed results;
+     <span style="color:#9a6b00">amber blocks</span> mark sections still to be written.</div>
+</header>
+
+<nav class="toc">
+  <b>Contents</b>
+  <ol>
+    <li><a href="#abstract">Abstract</a></li>
+    <li><a href="#intro">Introduction</a></li>
+    <li><a href="#related">Related work</a></li>
+    <li><a href="#data">Data</a></li>
+    <li><a href="#method">Method</a></li>
+    <li><a href="#arm1">Arm 1: driver-behaviour decomposition (VED)</a></li>
+    <li><a href="#arm2">Arm 2: malfunction fuel signature (EngineFaultDB)</a></li>
+    <li><a href="#attrib">Attribution: signature double dissociation</a></li>
+    <li><a href="#limits">Scope and limitations</a></li>
+    <li><a href="#repro">Reproducibility</a></li>
+    <li><a href="#refs">References</a></li>
+  </ol>
+</nav>
+
+<h2 id="abstract">Abstract</h2>
+<p class="lead">Excess fuel consumption has two very different causes with the same symptom: a driver
+who accelerates hard and a vehicle that is running rich both burn more than they should. We show that
+the two causes leave separable signatures. Driver-caused excess is transient and kinematic; malfunction
+-caused excess is steady-state and combustion-linked. We build an expected-fuel model on real fleet
+telemetry (Vehicle Energy Dataset, VED), decompose each trip's excess into a driver-behaviour component
+and a persistent vehicle-baseline component, and validate the behaviour component on an independent
+labelled driving dataset. On a controlled engine-fault dataset (EngineFaultDB) we show a rich-mixture
+fault produces measurable excess fuel with an emissions/AFR signature. A cross-dataset double
+dissociation establishes the central claim: a combustion axis, measurable in both worlds, explains the
+fault-caused excess yet is silent for driver-caused excess.</p>
+
+<h3>Contributions</h3>
+<ul class="contrib">
+  <li>A signature-based framework that attributes excess fuel to <b>driver behaviour</b> vs
+      <b>vehicle malfunction</b> using only public data.</li>
+  <li>A variance decomposition of trip fuel on a 197-vehicle, 14.5k-trip public fleet into behaviour,
+      vehicle-baseline, and environment components.</li>
+  <li>A cross-dataset <b>double dissociation</b> showing the combustion axis explains malfunction-caused
+      excess (R&sup2;&nbsp;0.90) but not driver-caused excess (R&sup2;&nbsp;0).</li>
+  <li>External validation of the behaviour axis (driver-held-out AUC&nbsp;0.96, permutation p&nbsp;0.03)
+      and an honest account of the field-wide absence of any joint fuel+fault+behaviour dataset.</li>
+</ul>
+
+<h2 id="intro">1. Introduction</h2>
+<div class="callout todo">Motivate fleet fuel cost / emissions; the operational value of knowing whether
+  excess fuel is a coaching problem (driver) or a maintenance problem (vehicle). State the symptom-vs-
+  cause gap and the attribution question. End with the contributions above.</div>
+
+<h2 id="related">2. Related work</h2>
+<p>Four largely separate literatures meet here: fuel-consumption modelling from OBD/telematics
+  (physics models VSP and VT-Micro; modern ML where tree ensembles lead), eco-driving and
+  driving-behaviour scoring, vehicle predictive maintenance, and telemetry anomaly detection. The
+  nearest prior work is Barbado and Corcho, who detect fuel-consumption anomalies with explainable
+  feature relevance and counterfactuals, but do not separate cause into driver versus mechanical.</p>
+<div class="callout todo">Expand each strand with 2&ndash;3 citations; position our signature-based
+  decomposition as the increment over Barbado (feature relevance &rarr; validated cause components).</div>
+
+<h2 id="data">3. Data</h2>
+<table>
+  <tr><th>Dataset</th><th>Role</th><th>Ground truth</th><th class="num">Scale used</th><th>License</th></tr>
+  <tr><td>Vehicle Energy Dataset (VED)</td><td>Driver arm</td><td>Real fleet, driving behaviour</td>
+      <td class="num">197 ICE cars / 14,460 trips</td><td>Apache-2.0</td></tr>
+  <tr><td>EngineFaultDB</td><td>Malfunction arm</td><td>Labelled engine faults</td>
+      <td class="num">55,999 samples</td><td>GPL-3.0</td></tr>
+  <tr><td>Driving Events (Zenodo 6570972)</td><td>Behaviour validation</td>
+      <td>Aggressive vs non-aggressive</td><td class="num">3 drivers / 169 events</td><td>CC-BY-4.0</td></tr>
+</table>
+<p class="kv">No single public dataset carries fuel consumption, mechanical-fault labels, and driver
+  behaviour together; this documented gap motivates the two-arm design. VED fuel is derived from the
+  mass air-flow signal (the OBD fuel-rate PID is unpopulated); the analysis is restricted to gasoline
+  (ICE) vehicles and trips are resampled to 1&nbsp;Hz.</p>
+
+<h2 id="method">4. Method</h2>
+<h3>4.1 Expected-fuel model and excess</h3>
+<p>Per trip we predict fuel per 100&nbsp;km from trajectory-derived driving features and trip
+  conditions using gradient boosting, with out-of-fold predictions grouped by vehicle so no vehicle
+  is scored by a model that has seen it. Excess is the positive residual against this expectation.</p>
+<h3>4.2 Two axes</h3>
+<p><b>Kinematic axis</b>: transient aggression (positive acceleration, jerk, harsh-event rate, speed
+  variability). <b>Combustion axis</b>: deviation of the air-fuel ratio from stoichiometric, measured
+  as fuel trims in VED and directly as AFR/lambda in EngineFaultDB, placed on a common
+  percent-fuel-per-air scale.</p>
+<div class="callout todo">Add the formal definitions: feature list, the MAF&rarr;fuel conversion, the
+  mixed-effects/fixed-effect vehicle term, and the counterfactual behaviour component.</div>
+
+<h2 id="arm1">5. Arm 1: driver-behaviour decomposition (VED)</h2>
+<p>The expected-fuel model reaches <b>R&sup2; = 0.673</b> (MAPE 13.3%) with vehicle-grouped
+  cross-validation. Variance decomposition of trip fuel:</p>
+<table>
+  <tr><th>Component</th><th class="num">Share of fuel variance</th></tr>
+  <tr><td>Environment / route (distance, speed regime, temperature, weight)</td><td class="num">0.592</td></tr>
+  <tr><td>Driving behaviour (unique marginal over environment)</td><td class="num">0.081</td></tr>
+  <tr><td>Vehicle-baseline (persistent per-vehicle effect)</td><td class="num">0.142</td></tr>
+  <tr><td>Unexplained</td><td class="num">0.185</td></tr>
+</table>
+<p>The vehicle-baseline is real and largely not size-driven: regressing the per-vehicle effect on
+  engine displacement and weight explains only <b>23%</b> of it. A gentle-driving counterfactual saves
+  a median <b>0.47&nbsp;L/100km</b> (about 5% of median fuel), rising monotonically across aggression
+  deciles.</p>
+<h3>5.1 Behaviour-axis external validation</h3>
+<p>On the independent Driving Events dataset, kinematic features separate aggressive from
+  non-aggressive events with the driver held out: <b>logistic-regression AUC = 0.958</b> (per-driver
+  0.98 / 0.93 / 0.99). A label-permutation test collapses this to chance (mean 0.482, p = 0.032),
+  confirming the signal.</p>
+
+<h2 id="arm2">6. Arm 2: malfunction fuel signature (EngineFaultDB)</h2>
+<p>Training the fuel model on normal operating points and scoring faults at matched operating point,
+  the <b>rich-mixture fault burns +6.2% excess fuel</b> (AFR 13.68 vs 14.07; brake-specific fuel
+  consumption +10.6%). Lean and ignition faults are not excess-fuel faults. The rich-fault excess
+  correlates with the combustion signature (CO, HC, AFR), not with kinematics.</p>
+
+<h2 id="attrib">7. Attribution: signature double dissociation</h2>
+<p>The central result. Excess is defined net of context in each dataset; each axis is regressed on the
+  excess it is meant to explain.</p>
+<table>
+  <tr><th>Axis</th><th class="num">Driver-excess (VED)</th><th class="num">Fault-excess (bench)</th></tr>
+  <tr><td>Kinematic (transient aggression)</td><td class="num">0.107</td><td class="num">n/a (steady-state)</td></tr>
+  <tr><td>Combustion (AFR / fuel trim)</td><td class="num">&minus;0.039</td><td class="num">0.903</td></tr>
+</table>
+<div class="callout win"><b>The combustion axis explains ~90% of malfunction-caused excess and ~0% of
+  driver-caused excess.</b> The same axis that is diagnostic of a fault is silent for aggressive
+  driving; the kinematic axis carries the driver signal. The two causes are separable by signature.</div>
+<p class="kv">Note stated plainly: on the bench AFR and fuel are physically coupled, so the combustion
+  axis explaining fault-excess is expected; the informative finding is the dissociation, that this axis
+  is silent for driver-excess.</p>
+
+<h2 id="limits">8. Scope and limitations</h2>
+<ul class="contrib">
+  <li>Driver and fault ground truths live in different datasets, so the dissociation is cross-dataset,
+      not a single-trip competing-cause classifier. This is the boundary set by available public data.</li>
+  <li>VED has effectively one driver per vehicle, so per-trip driver-versus-vehicle causation is not
+      identifiable at the unit level; the decomposition is model-based and validated by convergent
+      external evidence.</li>
+  <li>EngineFaultDB is a controlled test bench with no driver context; the fuel-relevant fault is the
+      rich mixture. The lean-versus-ignition label mapping is taken from the source paper's text.</li>
+  <li>Telematics are resampled to 1&nbsp;Hz; fine transient dynamics are smoothed.</li>
+</ul>
+
+<h2 id="repro">9. Reproducibility</h2>
+<p class="kv">Pipeline scripts (<code>scripts/p1_features.py</code> through
+  <code>scripts/p6_attribution.py</code>), the phase plan (<code>PLAN.md</code>), the full results log
+  (<code>RESULTS.md</code>), and diagnostic notes (<code>diagnostics/</code>) accompany this repository.
+  Datasets are obtained from their original sources (VED, EngineFaultDB, Zenodo&nbsp;6570972) and are
+  not redistributed here.</p>
+<div class="callout todo">Add exact dataset URLs, environment (Python 3.14, scikit-learn 1.8), and a one
+  -command reproduction script.</div>
+
+<h2 id="refs">10. References</h2>
+<div class="callout todo">Compile via bibtest. Anchors: VED (Oh et&nbsp;al., IEEE T-ITS 2020);
+  EngineFaultDB (Thomas et&nbsp;al., IEEE Access 2023); Barbado &amp; Corcho (Eng. Appl. AI 2022);
+  Abediasl et&nbsp;al. (IMechE Part D 2024); Driving Events (Zenodo 6570972).</div>
+
+<div class="foot">
+  Generated as a working skeleton. Every filled number traces to a script in <code>scripts/</code> and
+  an entry in <code>RESULTS.md</code>. &copy; 2026 Alexander Partsin.
+</div>
+
+</div>
+</body>
+</html>
