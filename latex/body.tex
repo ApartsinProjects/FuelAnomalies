@@ -60,12 +60,14 @@ behaviour axis is validated to transfer to an independent dataset; the
 rich-mixture fault is shown to produce measurable excess fuel with an
 emissions signature; a signature contrast shows the combustion axis is
 silent for driver-caused excess; and the semi-synthetic experiment shows
-that, when fuel magnitude is made uninformative, the signature recovers
-the cause at 95.9\% accuracy. The remainder of the paper is organized as
-related work (Section 2), data (Section 3), method and equations
-(Section 4), experimental setup (Section 5), results for the two arms
-and the attribution (Sections 6-8), discussion (Section 9), limitations
-(Section 10), and conclusion (Section 11).
+that, when fuel magnitude is made uninformative, signatures frozen from
+their source domains recover the cause at 88.6\% accuracy (95.9\% for a
+classifier trained on the injected labels), while fuel magnitude alone
+is at chance. The remainder of the paper is organized as related work
+(Section 2), data (Section 3), method and equations (Section 4),
+experimental setup (Section 5), results for the two arms and the
+attribution (Sections 6-8), discussion (Section 9), limitations (Section
+10), and conclusion (Section 11).
 
 \subsection{2. Related work}\label{related}
 
@@ -206,7 +208,7 @@ Engine-fault diagnosis {[}\hyperref[r16]{16}{]} & vehicle only & partial
 Anomaly detection + feature relevance {[}\hyperref[r3]{3}{]} & yes & yes
 & no & no \\
 \textbf{This work} & \textbf{yes} & \textbf{yes} & \textbf{yes
-(measured, 95.9\%)} & \textbf{yes} \\
+(measured, 88.6--95.9\%)} & \textbf{yes} \\
 \end{longtable}
 
 \textbf{Table 1.} Positioning against the four adjacent literatures and
@@ -348,7 +350,7 @@ confidence.
 
 \item
   Fit expected-outcome model \(M\) on \(D_T\) (grouped OOF); excess
-  \(e_i = y_i - M(x_i)\).
+  \(e_i = y_i - M(x_i)\), grouped out-of-fold.
 \item
   Learn signature \(s_A\) on \(D_A\) and \(s_B\) on \(D_B\);
   \textbf{freeze} both (no target labels used).
@@ -367,9 +369,10 @@ confidence.
 For excess fuel, \(M\) is the expected-fuel model (Section 4.3), cause A
 is aggressive driving with a kinematic signature validated on labelled
 driving (Section 6.3), and cause B is a rich-mixture fault with a
-fueling/combustion signature validated on the engine bench (Section 7).
-The frozen attribution and its abstention behaviour are evaluated in
-Section 8.4.
+fueling/combustion signature validated on the engine bench (Section 7);
+in the notation of Section 4.6, \(z^A = z^k\) and \(z^B = z^c\). The
+frozen attribution and its abstention behaviour are evaluated in Section
+8.4.
 
 \subsubsection{4.2 Fuel target}\label{fuel-target}
 
@@ -528,9 +531,9 @@ effect is left unattributed when the vehicle is not modelled.
 \subsection{5. Experimental setup}\label{setup}
 
 The expected-fuel model is a histogram gradient-boosted regression tree
-ensemble (400 boosting iterations, learning rate 0.05, maximum depth 6;
-the auxiliary conditions-only and behaviour-only models use 300
-iterations and depth 5), trained under 5-fold GroupKFold by vehicle with
+ensemble (300 boosting iterations, learning rate 0.05, and maximum depth
+5; the headline coefficient of determination is unchanged at 400
+iterations and depth 6), trained under 5-fold GroupKFold by vehicle with
 a fixed random seed. The fuel-model coefficient of determination is
 stable across five seeds, ranging 0.672 to 0.676. Confidence intervals
 throughout are cluster bootstraps that resample whole vehicles with
@@ -864,24 +867,26 @@ combustion axis, whose direction and effect size come from the bench.
 Each VED trip receives a frozen kinematic score and a frozen combustion
 score, and the attribution rule is simply which standardized score is
 larger, a fixed rule with no fitted parameters. At the bench-calibrated
-magnitude this zero-shot rule reaches \textbf{88.6\% accuracy},
-essentially equal to the trained upper bound (0.886 vs 0.886) and far
-above the fuel-only chance level; the two track across effect sizes
-(0.86 at S = 1.5, 0.92 at S = 2.0). Because the scoring functions are
-learned in their source domains and combined on the target without joint
-supervision, this is the multi-source transfer the framework claims, not
-a rediscovery of the injection rule.
+magnitude this zero-shot rule reaches \textbf{88.6\% accuracy} (Table
+7), matching a logistic classifier trained on the injected labels over
+the same two scores (0.886 vs 0.886) and far above the fuel-only chance
+level; the full-feature classifier of Section 8.3 sets the upper bound
+at 95.9\%, and the frozen and same-score curves track across effect
+sizes (0.86 at S = 1.5, 0.92 at S = 2.0). Because the scoring functions
+are learned in their source domains and combined on the target without
+joint supervision, this is the multi-source transfer the framework
+claims, not a rediscovery of the injection rule.
 
 The frozen rule also supports abstention. Withholding a decision when
-the two scores are close trades coverage for accuracy: at the bench
-magnitude, deciding on the 71\% of trips with the clearest evidence
-raises accuracy from 88.6\% to 95.7\%, and on the clearest 41\% to
-98.2\%. In a maintenance setting an explicit "uncertain" verdict is
-preferable to a confident wrong intervention.
+the two scores are close (a margin \(\tau\)) trades coverage for
+accuracy: at the bench magnitude, deciding on the 71\% of trips with the
+clearest evidence raises accuracy from 88.6\% to 95.7\%, and on the
+clearest 41\% to 98.2\%. In a maintenance setting an explicit
+"uncertain" verdict is preferable to a confident wrong intervention.
 
 \begin{longtable}[]{@{}llll@{}}
 \toprule\noalign{}
-Signature strength S & Frozen transfer & Trained upper bound &
+Signature strength S & Frozen transfer & Trained on same scores &
 Fuel-only \\
 \midrule\noalign{}
 \endhead
@@ -895,8 +900,9 @@ Fuel-only \\
 \end{longtable}
 
 \textbf{Table 7.} Attribution accuracy by signature strength. The frozen
-source-derived rule (no injection-label training) matches the trained
-upper bound; fuel magnitude alone stays at chance.
+source-derived rule (no injection-label training) matches a classifier
+trained on the same two scores with the injection labels; fuel magnitude
+alone stays at chance.
 
 The real world does not present pure one-axis changes, so we stress the
 frozen rule. When both causes act at once, we score dominant-cause
@@ -1113,7 +1119,7 @@ Apache-2.0); EngineFaultDB
 GPL-3.0); Driving Events
 (\href{https://zenodo.org/records/6570972}{zenodo.org/records/6570972},
 CC-BY-4.0). The full pipeline (\texttt{scripts/p1\_features.py} through
-\texttt{scripts/p10\_consolidated.py}), results log
+\texttt{scripts/p14\_stress\_baselines.py}), results log
 (\texttt{RESULTS.md}), and this manuscript are in the project
 repository; every number traces to a script. Environment: Python 3.14,
 scikit-learn 1.8, pandas 2.3, scipy 1.17, pyarrow.
