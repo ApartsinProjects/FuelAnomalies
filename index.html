@@ -64,6 +64,12 @@
   @media print{.downloads{display:none}}
   @media (max-width:600px){.downloads{position:static;justify-content:flex-end;margin:0 0 8px}}
   mjx-container{overflow-x:auto;overflow-y:hidden}
+  .algo{border:1px solid var(--line);border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);
+        border-radius:2px;background:var(--card);padding:14px 18px;margin:18px 0;
+        font-family:var(--sans);font-size:14px;line-height:1.5}
+  .algo .aname{font-weight:700;margin-bottom:6px}
+  .algo ol{margin:6px 0;padding-left:22px} .algo li{margin:3px 0}
+  .algo code{font-size:.9em}
 </style>
 </head>
 <body>
@@ -105,8 +111,11 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
 
 <h3>Contributions</h3>
 <ul class="contrib">
-  <li>A signature-based framework that attributes excess fuel to <b>driver behaviour</b> versus
-      <b>vehicle malfunction</b> using only public data, resolved into a kinematic and a combustion axis.</li>
+  <li>A method for <b>multi-source signature attribution under missing joint cause labels</b>
+      (Algorithm 1): when no dataset labels the competing causes jointly, learn a signature for each
+      cause in its own source domain, freeze them, and attribute on the target with abstention. We
+      instantiate it to attribute excess fuel to <b>driver behaviour</b> versus <b>vehicle malfunction</b>
+      from public data, resolved into a kinematic and a combustion axis.</li>
   <li>A variance decomposition of trip fuel on a public fleet of 194 vehicles (14,170 trips after fuel-quality filtering of the 197-vehicle, 14,460-trip panel) into behaviour, vehicle-baseline, and environment components, each with
       bootstrap confidence intervals.</li>
   <li>A cross-dataset <b>signature contrast</b>: the combustion axis is silent for driver-caused excess
@@ -171,7 +180,7 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   knowing the cause of the excess, not merely its size.</p>
 <p>We treat this as an attribution problem. For a trip that consumed more fuel than its route and
   conditions warrant, let the excess be the difference between observed and expected consumption; the
-  task is to decompose that excess into a driver-behaviour component and a vehicle component (the vehicle-baseline defined in Section 4.3). Raw fuel
+  task is to decompose that excess into a driver-behaviour component and a vehicle component (the vehicle-baseline defined in Section 4.4). Raw fuel
   per distance cannot perform this decomposition, because both an aggressive driving style and a
   degraded engine inflate the same scalar. The question is operationally valuable and, on public data,
   largely unanswered: fuel-consumption models predict the scalar accurately without decomposing its
@@ -353,7 +362,40 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
 
 <h2 id="method">4. Method</h2>
 
-<h3>4.1 Fuel target</h3>
+<h3>4.1 Problem formulation: attribution under missing joint cause labels</h3>
+<p>We state the task abstractly, because the difficulty is general and not specific to fuel. A target
+  domain \(D_T\) contains an engineering outcome \(y\) and telemetry \(x\) but <em>no</em> labels for the
+  competing causes. Two competing causes, A (driver behaviour) and B (a vehicle fault), are each
+  labelled only in a separate source domain, \(D_A\) and \(D_B\), which do not share the target's raw
+  feature space. The goal is to attribute a target-domain excess to A or B, or to abstain, without any
+  jointly labelled example ever existing. Domain knowledge supplies, for each cause, a transferable
+  <em>signature</em>: a scoring function of the observables that rises when that cause is present. The
+  method (Algorithm 1) fits an expected-outcome model to define excess on the target, learns each
+  signature in its own source domain and freezes it, places the two signatures on a common standardized
+  scale on the target, validates each against its source, and attributes by comparing the two frozen
+  scores with an abstention margin. The remaining subsections instantiate each step for excess fuel; the
+  formulation itself is a form of weak supervision across heterogeneous sources
+  [<a href="#r25">25</a>].</p>
+<div class="algo">
+  <div class="aname">Algorithm 1 &mdash; Multi-source signature attribution under missing joint labels</div>
+  <b>Input:</b> target \(D_T=\{(x_i,y_i)\}\) (no cause labels); sources \(D_A,D_B\) labelling causes A, B;
+  signature families \(s_A,s_B\); abstention margin \(\tau\).<br>
+  <b>Output:</b> per-unit cause \(\in\{A,B,\text{abstain}\}\) with a confidence.
+  <ol>
+    <li>Fit expected-outcome model \(M\) on \(D_T\) (grouped OOF); excess \(e_i = y_i - M(x_i)\).</li>
+    <li>Learn signature \(s_A\) on \(D_A\) and \(s_B\) on \(D_B\); <b>freeze</b> both (no target labels used).</li>
+    <li>Score each target unit and standardize within the target: \(z^A_i, z^B_i\) (unsupervised).</li>
+    <li>Validate: confirm \(s_A\) separates cause A in \(D_A\) and \(s_B\) separates cause B in \(D_B\).</li>
+    <li>Attribute: \(A\) if \(z^A_i - z^B_i > \tau\); \(B\) if \(z^B_i - z^A_i > \tau\); else <b>abstain</b>.
+        Confidence \(= |z^A_i - z^B_i|\).</li>
+  </ol>
+</div>
+<p>For excess fuel, \(M\) is the expected-fuel model (Section 4.3), cause A is aggressive driving with a
+  kinematic signature validated on labelled driving (Section 6.3), and cause B is a rich-mixture fault
+  with a fueling/combustion signature validated on the engine bench (Section 7). The frozen attribution
+  and its abstention behaviour are evaluated in Section 8.4.</p>
+
+<h3>4.2 Fuel target</h3>
 <p>Because the OBD fuel-rate parameter is unpopulated in VED, we derive the instantaneous fuel rate
   from mass air-flow \(\dot m_{\text{air}}\) (g/s) assuming a stoichiometric gasoline air-fuel ratio of
   14.7 and a fuel density of 745 g/L,</p>
@@ -364,7 +406,7 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
 \[ \dot V^{\text{corr}}_{\text{fuel}} \;=\; \dot V_{\text{fuel}}\left(1 + \frac{\text{STFT}+\text{LTFT}}{100}\right), \tag{2}\]
 <p>where STFT and LTFT are the short- and long-term fuel trims in percent.</p>
 
-<h3>4.2 Expected-fuel model and excess</h3>
+<h3>4.3 Expected-fuel model and excess</h3>
 <p>We predict trip fuel from a behaviour feature block \(x^{\text{beh}}\) and a conditions block
   \(x^{\text{env}}\) (Table 3) with a gradient-boosted regression tree ensemble \(M\),</p>
 \[ \hat f_i \;=\; M\!\left(x^{\text{beh}}_i,\, x^{\text{env}}_i\right), \tag{3}\]
@@ -393,7 +435,7 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   threshold; idle is speed below 3 km/h. Engine-state channels (RPM, load) are deliberately excluded
   from the expected-fuel model so that the residual is free to reflect vehicle condition.</div>
 
-<h3>4.3 Decomposition</h3>
+<h3>4.4 Decomposition</h3>
 <p>The persistent per-vehicle deviation, the <em>vehicle-baseline</em>, is the mean out-of-fold
   residual of vehicle \(j\),</p>
 \[ v_j \;=\; \frac{1}{n_j}\sum_{i \in j} e_i . \tag{5}\]
@@ -410,7 +452,7 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
 \[ s_{\text{veh}} \;=\; \frac{\sum_i (v_{j(i)}-\bar e)^2}{\sum_i (f_i-\bar f)^2}, \tag{7}\]
 <p>and the unexplained share is \(1-R^2_{\text{full}}-s_{\text{veh}}\); here \(\bar e\) and \(\bar f\) are the fleet-mean residual and fleet-mean trip fuel.</p>
 
-<h3>4.4 The two axes and the signature contrast</h3>
+<h3>4.5 The two axes and the signature contrast</h3>
 <p>The <em>kinematic axis</em> summarizes transient aggression through the behaviour features above;
   the <em>combustion axis</em> measures the deviation of the air-fuel ratio from stoichiometric. On the bench the axis is the air-fuel-ratio deviation directly. In VED the observable is the short- and long-term fuel trims, which are the engine control unit's feedback corrections to the base fuel schedule rather than a direct air-fuel-ratio measurement; we therefore treat the VED side as a fueling-correction signal, \(c^{\text{VED}} = \text{STFT}+\text{LTFT}\), placed on a common percent-fuel-per-air scale with the bench,</p>
 \[ c^{\text{bench}} \;=\; \left(\frac{14.7}{\text{AFR}}-1\right)\times 100 . \tag{8}\]
@@ -418,7 +460,7 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   determination. The informative comparison is whether the combustion axis, which by construction tracks
   fault-caused excess, also tracks driver-caused excess; the claim is that it does not.</p>
 
-<h3>4.5 Semi-synthetic attribution</h3>
+<h3>4.6 Semi-synthetic attribution</h3>
 <p>Because no real dataset labels a trip's excess by cause, we construct ground truth by injection. From
   each real base trip we form a driver-caused and a fault-caused variant that raise fuel by the
   <em>same</em> amount \(\Delta f\), so that fuel magnitude carries no information about the cause. The
@@ -433,7 +475,7 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   \(S_{\text{bench}} = 1.66\) (from the unrounded shift and standard deviation). A logistic attributor is trained on the two axis-deviations \((z^k, z^c)\) together with the vehicle baseline, under GroupKFold by vehicle; a control classifier that sees only the fuel excess
   \(\Delta f\) is the chance baseline.</p>
 
-<h3>4.6 Baselines</h3>
+<h3>4.7 Baselines</h3>
 <p>We compare against the detection and feature-relevance methods the literature offers: an isolation
   forest [<a href="#r19">19</a>] over trip features as an unsupervised anomaly detector; permutation
   importance over the fuel model as the feature-relevance surrogate used by explainable anomaly work
