@@ -100,7 +100,7 @@ acceleration, jerk, and harsh events at a normal air-fuel ratio; malfunction-cau
 by a rich mixture, is steady-state and combustion-linked, expressed as an air-fuel-ratio shift and in
 the unburnt-fuel emission products. No public dataset carries fuel, mechanical-fault labels, and driver behaviour jointly. We therefore adopt a two-arm design on real data: a fleet-telemetry arm on the
 Vehicle Energy Dataset (VED; 197 gasoline vehicles, 14,460 trips) and a controlled engine-fault arm on
-EngineFaultDB, with the behaviour axis externally validated on an independent labelled driving dataset.
+EngineFaultDB, with the behaviour axis externally validated on two independent labelled driving datasets.
 An expected-fuel model reaches held-out \(R^2 = 0.673\) (95% CI [0.628, 0.709]); driving behaviour and
 a persistent vehicle-baseline explain 8% and 14% of trip-fuel variance. The rich-mixture fault burns
 +6.2% excess fuel with an emissions signature, while the combustion axis remains silent for
@@ -130,7 +130,7 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
 <figure>
 <img src="figures/overview.svg" alt="Overview of the two-arm design">
 <figcaption><b>Figure 1.</b> Overview. Two public datasets each carry one ground truth (driver
-  behaviour in VED, engine faults on the bench); an independent dataset validates the behaviour axis.
+  behaviour in VED, engine faults on the bench); two independent datasets validate the behaviour axis.
   Excess fuel is resolved onto a kinematic and a combustion axis, and a semi-synthetic bridge measures
   attribution accuracy where no single real dataset can.</figcaption>
 </figure>
@@ -169,11 +169,10 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   each carry one ground truth, and bridge them with a semi-synthetic experiment that supplies the
   competing-cause labels no real dataset provides. The fleet-telemetry arm (VED) grounds the
   decomposition and the driver side; the engine-fault arm (EngineFaultDB) grounds the malfunction
-  signature; an independent labelled driving dataset validates the kinematic axis; and the
+  signature; two independent labelled driving datasets validate the kinematic axis; and the
   semi-synthetic injection measures attribution accuracy directly.</p>
 <p>The evidence chain (Figure 1) runs as follows: an expected-fuel model and its variance decomposition establish
-  that behaviour and a persistent vehicle-baseline are separable, measurable shares of trip fuel; the
-  behaviour axis is validated to transfer to an independent dataset; the rich-mixture fault is shown to
+  that behaviour and a persistent vehicle-baseline are separable, measurable shares of trip fuel; the behaviour axis is validated to transfer to two independent datasets; the rich-mixture fault is shown to
   produce measurable excess fuel with an emissions signature; a signature contrast shows the combustion
   axis is silent for driver-caused excess; and the semi-synthetic experiment shows that, when fuel
   magnitude is made uninformative, signatures frozen from their source domains recover the cause at 88.6% accuracy (95.9% for a classifier trained on the injected labels), while fuel magnitude alone is at chance. The remainder of
@@ -321,8 +320,9 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   <tr><td>VED [<a href="#r1">1</a>]</td><td>Driver arm</td><td>Real fleet, behaviour</td><td class="num">197 cars / 14,460 trips</td><td>1 Hz</td><td>Apache-2.0</td></tr>
   <tr><td>EngineFaultDB [<a href="#r2">2</a>]</td><td>Malfunction arm</td><td>Labelled engine faults</td><td class="num">55,999 samples</td><td>bench</td><td>GPL-3.0</td></tr>
   <tr><td>Driving Events [<a href="#r6">6</a>]</td><td>Behaviour validation</td><td>Aggressive vs normal</td><td class="num">3 drivers / 169 events</td><td>400 Hz</td><td>CC-BY-4.0</td></tr>
+  <tr><td>UAH-DriveSet [<a href="#r26">26</a>]</td><td>Behaviour validation (1 Hz)</td><td>Normal/drowsy/aggressive</td><td class="num">6 drivers / 940 windows</td><td>1 Hz</td><td>research use</td></tr>
 </table>
-<div class="tcap"><b>Table 2.</b> The three public datasets, none of which carries fuel, fault, and
+<div class="tcap"><b>Table 2.</b> The four public datasets, none of which carries fuel, fault, and
   behaviour ground truth together.</div>
 
 <h2 id="method">4. Method</h2>
@@ -546,12 +546,10 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
 <p>To test transfer at the fleet's own sampling rate and across more drivers, we repeat the validation
   on a second, independent behaviour dataset: the UAH-DriveSet [<a href="#r26">26</a>], whose processed streams are logged at
   <b>1 Hz</b> (matching VED) for <b>six drivers</b> with normal, drowsy, and aggressive labels. Over 940
-  thirty-second windows (172 aggressive, 768 normal), kinematic features computed at 1 Hz separate
+  thirty-second windows (172 aggressive, 768 normal; drowsy windows excluded from the binary contrast), kinematic features computed at 1 Hz separate
   aggressive from normal driving with the driver held out at <b>AUC 0.829</b> (logistic; 0.808 random
   forest; per-driver 0.76&ndash;0.92; 1,000-permutation \(p = 0.001\)). The lower value than the 400 Hz
-  set is expected for the coarser sampling, and it is the more deployment-relevant result: the behaviour
-  axis transfers to a different fleet, twice as many drivers, at the 1 Hz rate OBD telematics actually
-  provide.</p>
+  set is expected for the coarser sampling, and it is the more deployment-relevant result: the behaviour axis transfers to a different driver population, twice as many drivers, at 1 Hz, the rate OBD telematics actually provide.</p>
 
 <h2 id="arm2">7. Results: malfunction arm (EngineFaultDB)</h2>
 <p>We fit the expected-fuel model on the normal (fault-0) operating points only and score the faults at
@@ -794,9 +792,7 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   malfunction arm is a controlled test bench with no driver context, and its fuel-relevant fault is the
   rich mixture; the lean-versus-ignition label mapping follows the source paper. VED is a single-city,
   single-climate, gasoline-only fleet, and its telematics are resampled to 1 Hz, so fine transient
-  dynamics are smoothed; the behaviour-axis transfer is shown for amplitude features across sensing
-  regimes rather than for the exact VED feature set, and a dedicated 1 Hz-versus-high-rate sensitivity
-  analysis is left to future work.</p>
+  dynamics are smoothed; the behaviour-axis transfer is shown on two labelled datasets, at 400 Hz for amplitude features and at the fleet’s own 1 Hz rate for VED-like kinematic features, rather than for the exact VED feature set.</p>
 <h3>10.1 Responsible use</h3>
 <p>Driver-side attribution is, in fleet practice, a form of worker monitoring, and an attribution error
   that blames a driver for a mechanical fault, or the reverse, has real consequences for pay and
@@ -818,15 +814,13 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
 <p class="kv">Datasets are obtained from their original sources and not redistributed: VED
   (<a href="https://github.com/gsoh/VED">github.com/gsoh/VED</a>, Apache-2.0); EngineFaultDB
   (<a href="https://github.com/leoxthomas/EngineFaultDB">github.com/leoxthomas/EngineFaultDB</a>,
-  GPL-3.0); Driving Events (<a href="https://zenodo.org/records/6570972">zenodo.org/records/6570972</a>,
-  CC-BY-4.0). The full pipeline (<code>scripts/p1_features.py</code> through
-  <code>scripts/p14_stress_baselines.py</code>), results log (<code>RESULTS.md</code>), and this manuscript
+  GPL-3.0); Driving Events (<a href="https://zenodo.org/records/6570972">zenodo.org/records/6570972</a>, CC-BY-4.0); UAH-DriveSet [<a href="#r26">26</a>] (free for research use; obtained from a public mirror as the original server was unavailable, and not redistributed here). The full pipeline (<code>scripts/p1_features.py</code> through
+  <code>scripts/p15_uah_e6.py</code>), results log (<code>RESULTS.md</code>), and this manuscript
   are in the project repository; every number traces to a script. Environment: Python 3.14,
   scikit-learn 1.8, pandas 2.3, scipy 1.17, pyarrow.</p>
 <p class="kv"><b>Author contributions.</b> A. Apartsin conceived and implemented the study and drafted
   the manuscript; Y. Aperstein contributed to the study design and critically revised the manuscript.
-  <b>Acknowledgements.</b> We thank the creators of VED, EngineFaultDB, and the Driving Events dataset
-  for releasing their data openly.</p>
+  <b>Acknowledgements.</b> We thank the creators of VED, EngineFaultDB, the Driving Events dataset, and UAH-DriveSet for releasing their data openly.</p>
 
 <h2 id="refs">References</h2>
 

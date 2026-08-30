@@ -49,14 +49,14 @@ that each carry one ground truth, and bridge them with a semi-synthetic
 experiment that supplies the competing-cause labels no real dataset
 provides. The fleet-telemetry arm (VED) grounds the decomposition and
 the driver side; the engine-fault arm (EngineFaultDB) grounds the
-malfunction signature; an independent labelled driving dataset validates
-the kinematic axis; and the semi-synthetic injection measures
+malfunction signature; two independent labelled driving datasets
+validate the kinematic axis; and the semi-synthetic injection measures
 attribution accuracy directly.
 
 The evidence chain (Figure 1) runs as follows: an expected-fuel model
 and its variance decomposition establish that behaviour and a persistent
 vehicle-baseline are separable, measurable shares of trip fuel; the
-behaviour axis is validated to transfer to an independent dataset; the
+behaviour axis is validated to transfer to two independent datasets; the
 rich-mixture fault is shown to produce measurable excess fuel with an
 emissions signature; a signature contrast shows the combustion axis is
 silent for driver-caused excess; and the semi-synthetic experiment shows
@@ -307,9 +307,12 @@ EngineFaultDB {[}\hyperref[r2]{2}{]} & Malfunction arm & Labelled engine
 faults & 55,999 samples & bench & GPL-3.0 \\
 Driving Events {[}\hyperref[r6]{6}{]} & Behaviour validation &
 Aggressive vs normal & 3 drivers / 169 events & 400 Hz & CC-BY-4.0 \\
+UAH-DriveSet {[}\hyperref[r26]{26}{]} & Behaviour validation (1 Hz) &
+Normal/drowsy/aggressive & 6 drivers / 940 windows & 1 Hz & research
+use \\
 \end{longtable}
 
-\textbf{Table 2.} The three public datasets, none of which carries fuel,
+\textbf{Table 2.} The four public datasets, none of which carries fuel,
 fault, and behaviour ground truth together.
 
 \subsection{4. Method}\label{method}
@@ -691,14 +694,15 @@ across more drivers, we repeat the validation on a second, independent
 behaviour dataset: the UAH-DriveSet {[}\hyperref[r26]{26}{]}, whose
 processed streams are logged at \textbf{1 Hz} (matching VED) for
 \textbf{six drivers} with normal, drowsy, and aggressive labels. Over
-940 thirty-second windows (172 aggressive, 768 normal), kinematic
-features computed at 1 Hz separate aggressive from normal driving with
-the driver held out at \textbf{AUC 0.829} (logistic; 0.808 random
-forest; per-driver 0.76--0.92; 1,000-permutation \(p = 0.001\)). The
-lower value than the 400 Hz set is expected for the coarser sampling,
-and it is the more deployment-relevant result: the behaviour axis
-transfers to a different fleet, twice as many drivers, at the 1 Hz rate
-OBD telematics actually provide.
+940 thirty-second windows (172 aggressive, 768 normal; drowsy windows
+excluded from the binary contrast), kinematic features computed at 1 Hz
+separate aggressive from normal driving with the driver held out at
+\textbf{AUC 0.829} (logistic; 0.808 random forest; per-driver
+0.76--0.92; 1,000-permutation \(p = 0.001\)). The lower value than the
+400 Hz set is expected for the coarser sampling, and it is the more
+deployment-relevant result: the behaviour axis transfers to a different
+driver population, twice as many drivers, at 1 Hz, the rate OBD
+telematics actually provide.
 
 \subsection{7. Results: malfunction arm (EngineFaultDB)}\label{arm2}
 
@@ -1089,10 +1093,10 @@ controlled test bench with no driver context, and its fuel-relevant
 fault is the rich mixture; the lean-versus-ignition label mapping
 follows the source paper. VED is a single-city, single-climate,
 gasoline-only fleet, and its telematics are resampled to 1 Hz, so fine
-transient dynamics are smoothed; the behaviour-axis transfer is shown
-for amplitude features across sensing regimes rather than for the exact
-VED feature set, and a dedicated 1 Hz-versus-high-rate sensitivity
-analysis is left to future work.
+transient dynamics are smoothed; the behaviour-axis transfer is shown on
+two labelled datasets, at 400 Hz for amplitude features and at the
+fleet's own 1 Hz rate for VED-like kinematic features, rather than for
+the exact VED feature set.
 
 \subsubsection{10.1 Responsible use}\label{responsible-use}
 
@@ -1132,17 +1136,20 @@ Apache-2.0); EngineFaultDB
 (\href{https://github.com/leoxthomas/EngineFaultDB}{github.com/leoxthomas/EngineFaultDB},
 GPL-3.0); Driving Events
 (\href{https://zenodo.org/records/6570972}{zenodo.org/records/6570972},
-CC-BY-4.0). The full pipeline (\texttt{scripts/p1\_features.py} through
-\texttt{scripts/p14\_stress\_baselines.py}), results log
-(\texttt{RESULTS.md}), and this manuscript are in the project
-repository; every number traces to a script. Environment: Python 3.14,
-scikit-learn 1.8, pandas 2.3, scipy 1.17, pyarrow.
+CC-BY-4.0); UAH-DriveSet {[}\hyperref[r26]{26}{]} (free for research
+use; obtained from a public mirror as the original server was
+unavailable, and not redistributed here). The full pipeline
+(\texttt{scripts/p1\_features.py} through
+\texttt{scripts/p15\_uah\_e6.py}), results log (\texttt{RESULTS.md}),
+and this manuscript are in the project repository; every number traces
+to a script. Environment: Python 3.14, scikit-learn 1.8, pandas 2.3,
+scipy 1.17, pyarrow.
 
 \textbf{Author contributions.} A. Apartsin conceived and implemented the
 study and drafted the manuscript; Y. Aperstein contributed to the study
 design and critically revised the manuscript. \textbf{Acknowledgements.}
-We thank the creators of VED, EngineFaultDB, and the Driving Events
-dataset for releasing their data openly.
+We thank the creators of VED, EngineFaultDB, the Driving Events dataset,
+and UAH-DriveSet for releasing their data openly.
 
 \subsection{References}\label{refs}
 
