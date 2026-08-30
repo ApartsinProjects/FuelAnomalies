@@ -26,8 +26,8 @@ def save(fig,name):
     plt.close(fig); print("wrote",name)
 
 # ---- Fig 1: variance decomposition (p3) ----
-parts=[("Environment / route",0.592,GRAY),("Driving behaviour (marginal)",0.081,RED),
-       ("Vehicle-baseline",0.142,BLUE),("Unexplained",0.185,SAND)]
+parts=[("Environment / route",0.593,GRAY),("Driving behaviour (marginal)",0.080,RED),
+       ("Vehicle-baseline",0.143,BLUE),("Unexplained",0.184,SAND)]
 fig,ax=plt.subplots(figsize=(7,2.5)); left=0
 for lab,val,col in parts:
     ax.barh(0,val,left=left,color=col,edgecolor="white",height=0.6)
@@ -43,7 +43,7 @@ save(fig,"fig1_variance_decomposition")
 
 # ---- Fig 2: double dissociation (p6) ----
 x=np.arange(2); w=0.36
-kin=[0.107,np.nan]; comb=[0.0,0.903]   # ved_comb=-0.039 -> shown as 0 (silent)
+kin=[0.084,np.nan]; comb=[0.0,0.903]   # ved_comb=-0.028 -> shown as 0 (silent)
 fig,ax=plt.subplots(figsize=(5.6,3.6))
 b1=ax.bar(x-w/2,kin,w,color=RED,label="Kinematic axis")
 b2=ax.bar(x+w/2,comb,w,color=BLUE,label="Combustion axis")
@@ -53,10 +53,10 @@ for b,val in zip(b1,kin):
     if np.isfinite(val): ax.text(b.get_x()+b.get_width()/2,val+.02,f"{val:.2f}",ha="center",fontsize=9,fontweight="bold")
 ax.text(b2[1].get_x()+b2[1].get_width()/2,comb[1]+.02,f"{comb[1]:.2f}",ha="center",fontsize=9,fontweight="bold")
 ax.set_xticks(x); ax.set_xticklabels(["Driver-excess\n(VED)","Fault-excess\n(bench)"]); ax.set_ylim(0,1.0)
-ax.set_ylabel("variance of excess explained (R²)"); ax.set_title("Signature double dissociation")
+ax.set_ylabel("variance of excess explained (R²)"); ax.set_title("Signature contrast")
 ax.legend(fontsize=9,frameon=False,loc="upper left")
 for s in ["top","right"]: ax.spines[s].set_visible(False)
-save(fig,"fig2_double_dissociation")
+save(fig,"signature_contrast")
 
 # ---- Fig 3: behaviour counterfactual by aggression decile (p3) ----
 mono=[0.34,0.42,0.39,0.41,0.49,0.58,0.65,0.78,0.99,1.55]

@@ -76,16 +76,14 @@
 <div class="wrap">
 
 <header class="title">
-  <div><span class="badge">Working draft</span><span class="badge">v0.4 (full)</span></div>
+  
   <h1>Driver or Vehicle? Signature-Based Attribution of Excess Fuel Consumption<br>
       Using Public Fleet Telemetry and an Engine-Fault Bench</h1>
   <div class="authors">Alexander Apartsin<sup>1</sup>, Yehudit Aperstein<sup>2</sup></div>
   <div class="authors" style="font-size:14px"><sup>1</sup>School of Computer Science, Faculty of
     Sciences, Holon Institute of Technology (HIT), Holon, Israel<br>
     <sup>2</sup>Intelligent Systems, Afeka Academic College of Engineering, Tel-Aviv, Israel</div>
-  <div class="status">Full-length draft. Every number is a computed result traceable to a script in
-     <code>scripts/</code> and an entry in <code>RESULTS.md</code>; confidence intervals are cluster
-     bootstraps. References validated with bibtest.</div>
+  
 </header>
 
 <h2 id="abstract">Abstract</h2>
@@ -95,14 +93,13 @@ coaching and the other for maintenance. A fuel-per-distance figure cannot tell t
 two causes leave separable signatures. Driver-caused excess is transient and kinematic, expressed in
 acceleration, jerk, and harsh events at a normal air-fuel ratio; malfunction-caused excess, exemplified
 by a rich mixture, is steady-state and combustion-linked, expressed as an air-fuel-ratio shift and in
-the unburnt-fuel emission products. Because no public dataset carries fuel, mechanical-fault labels,
-and driver behaviour jointly, we adopt a two-arm design on real data: a fleet-telemetry arm on the
+the unburnt-fuel emission products. No public dataset carries fuel, mechanical-fault labels, and driver behaviour jointly. We therefore adopt a two-arm design on real data: a fleet-telemetry arm on the
 Vehicle Energy Dataset (VED; 197 gasoline vehicles, 14,460 trips) and a controlled engine-fault arm on
 EngineFaultDB, with the behaviour axis externally validated on an independent labelled driving dataset.
 An expected-fuel model reaches held-out \(R^2 = 0.673\) (95% CI [0.628, 0.709]); driving behaviour and
 a persistent vehicle-baseline explain 8% and 14% of trip-fuel variance. The rich-mixture fault burns
 +6.2% excess fuel with an emissions signature, while the combustion axis remains silent for
-driver-caused excess (held-out \(R^2\) within 0.02 of zero), a silence that survives a trim-corrected
+driver-caused excess (held-out \(R^2 = -0.03\)), a silence that survives a trim-corrected
 fuel target and holds within the highest-trim vehicles. On semi-synthetic ground truth, where both
 causes raise fuel by the same amount so that magnitude is uninformative, the signature attributes
 driver-versus-fault excess at 95.9% accuracy (95% CI [95.6, 96.2]) against a fuel-only baseline at
@@ -113,16 +110,14 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
 <ul class="contrib">
   <li>A signature-based framework that attributes excess fuel to <b>driver behaviour</b> versus
       <b>vehicle malfunction</b> using only public data, resolved into a kinematic and a combustion axis.</li>
-  <li>A variance decomposition of trip fuel on a 197-vehicle public fleet (14,170 trips after
-      fuel-quality filtering) into behaviour, vehicle-baseline, and environment components, each with
+  <li>A variance decomposition of trip fuel on a public fleet of 194 vehicles (14,170 trips after fuel-quality filtering of the 197-vehicle, 14,460-trip panel) into behaviour, vehicle-baseline, and environment components, each with
       bootstrap confidence intervals.</li>
   <li>A cross-dataset <b>signature contrast</b>: the combustion axis is silent for driver-caused excess
-      (held-out \(R^2\) within 0.02 of zero), a silence that survives trim-corrected fuel and the
+      (held-out \(R^2 = -0.03\)), a silence that survives trim-corrected fuel and the
       highest-trim vehicles, ruling out a measurement artifact.</li>
   <li>A measured <b>attribution accuracy of 95.9%</b> (95% CI [95.6, 96.2]) on semi-synthetic ground
       truth at a bench-calibrated fault magnitude, where fuel magnitude alone is at chance.</li>
-  <li>An account of the field-wide absence of any joint fuel + fault + behaviour dataset, and a
-      reproducible pipeline and paper in which every number traces to a script.</li>
+  <li>A documented survey of the joint fuel + fault + behaviour data gap, and a reproducible pipeline and paper in which every number traces to a script.</li>
 </ul>
 
 <figure>
@@ -154,7 +149,7 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   <rect x="588" y="92" width="214" height="76" rx="6" fill="#eef5ee" stroke="#0b8a4b"/>
   <text x="695" y="116" text-anchor="middle" font-weight="700" fill="#0b8a4b">Attribution</text>
   <text x="695" y="134" text-anchor="middle" fill="#333">driver vs vehicle</text>
-  <text x="695" y="152" text-anchor="middle" fill="#333">96% on ground truth</text>
+  <text x="695" y="152" text-anchor="middle" fill="#333">95.9% on ground truth</text>
   <!-- arrows -->
   <line x1="214" y1="53" x2="298" y2="82" stroke="#555" marker-end="url(#ar)"/>
   <line x1="214" y1="200" x2="298" y2="98" stroke="#555" marker-end="url(#ar)"/>
@@ -178,7 +173,7 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   knowing the cause of the excess, not merely its size.</p>
 <p>We treat this as an attribution problem. For a trip that consumed more fuel than its route and
   conditions warrant, let the excess be the difference between observed and expected consumption; the
-  task is to decompose that excess into a driver-behaviour component and a vehicle component. Raw fuel
+  task is to decompose that excess into a driver-behaviour component and a vehicle component (the vehicle-baseline defined in Section 4.3). Raw fuel
   per distance cannot perform this decomposition, because both an aggressive driving style and a
   degraded engine inflate the same scalar. The question is operationally valuable and, on public data,
   largely unanswered: fuel-consumption models predict the scalar accurately without decomposing its
@@ -197,14 +192,14 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   air-fuel ratio directly.</p>
 <p>The obstacle to demonstrating this on real data is that no public dataset carries fuel consumption,
   mechanical-fault labels, and driver behaviour together. A dedicated search (Section 3.4) confirms the
-  gap: the datasets that pair fuel with fault labels lack driver context or ship dimensionality-reduced,
+  gap: the datasets that pair fuel with fault labels lack driver context or ship only dimensionality-reduced features,
   and the driving-behaviour datasets lack fuel. We therefore adopt a two-arm design on the datasets that
   each carry one ground truth, and bridge them with a semi-synthetic experiment that supplies the
   competing-cause labels no real dataset provides. The fleet-telemetry arm (VED) grounds the
   decomposition and the driver side; the engine-fault arm (EngineFaultDB) grounds the malfunction
   signature; an independent labelled driving dataset validates the kinematic axis; and the
   semi-synthetic injection measures attribution accuracy directly.</p>
-<p>The evidence chain runs as follows: an expected-fuel model and its variance decomposition establish
+<p>The evidence chain (Figure 1) runs as follows: an expected-fuel model and its variance decomposition establish
   that behaviour and a persistent vehicle-baseline are separable, measurable shares of trip fuel; the
   behaviour axis is validated to transfer to an independent dataset; the rich-mixture fault is shown to
   produce measurable excess fuel with an emissions signature; a signature contrast shows the combustion
@@ -283,7 +278,7 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   <tr><td>Eco-driving / behaviour scoring [<a href="#r5">5</a>,<a href="#r12">12</a>]</td><td>driver only</td><td>partial</td><td>no</td><td>n/a</td></tr>
   <tr><td>Engine-fault diagnosis [<a href="#r16">16</a>]</td><td>vehicle only</td><td>partial</td><td>no</td><td>fault label</td></tr>
   <tr><td>Anomaly detection + feature relevance [<a href="#r3">3</a>]</td><td>yes</td><td>yes</td><td>no</td><td>no</td></tr>
-  <tr><td><b>This work</b></td><td><b>yes</b></td><td><b>yes</b></td><td><b>yes (measured, 96%)</b></td><td><b>yes</b></td></tr>
+  <tr><td><b>This work</b></td><td><b>yes</b></td><td><b>yes</b></td><td><b>yes (measured, 95.9%)</b></td><td><b>yes</b></td></tr>
 </table>
 <div class="tcap"><b>Table 1.</b> Positioning against the four adjacent literatures and the nearest prior
   work. Only the present method both attributes the driver-versus-vehicle cause and validates its
@@ -341,8 +336,7 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   but fully anonymized signals with no identifiable fuel variable, and the NASA C-MAPSS prognostics
   benchmark is a simulated turbofan with no real malfunction and no driver context. EngineFaultDB is the
   only openly downloadable dataset that pairs fuel consumption with fault labels, and it is a bench
-  without drivers. This documented gap is the reason for the two-arm design and the semi-synthetic
-  bridge.</p>
+  without drivers. This documented gap (Table 2) is the reason for the two-arm design and the semi-synthetic bridge.</p>
 
 <table>
   <tr><th>Dataset</th><th>Role</th><th>Ground truth</th><th class="num">Scale used</th><th>Sampling</th><th>License</th></tr>
@@ -410,7 +404,7 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   vehicle-baseline share is the between-vehicle sum of squares of the residual expanded over trips,
   divided by the total sum of squares,</p>
 \[ s_{\text{veh}} \;=\; \frac{\sum_i (v_{j(i)}-\bar e)^2}{\sum_i (f_i-\bar f)^2}, \tag{7}\]
-<p>and the unexplained share is \(1-R^2_{\text{full}}-s_{\text{veh}}\).</p>
+<p>and the unexplained share is \(1-R^2_{\text{full}}-s_{\text{veh}}\); here \(\bar e\) and \(\bar f\) are the fleet-mean residual and fleet-mean trip fuel.</p>
 
 <h3>4.4 The two axes and the signature contrast</h3>
 <p>The <em>kinematic axis</em> summarizes transient aggression through the behaviour features above;
@@ -435,8 +429,7 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
 \[ \text{driver:}\;(z^k+S,\;z^c), \qquad \text{fault:}\;(z^k,\;z^c+S). \tag{9}\]
 <p>We calibrate \(S\) to the measured rich-mixture fault: its combustion shift of 3.0% fuel-per-air,
   divided by the median within-vehicle long-term-trim standard deviation of 1.79%, gives
-  \(S_{\text{bench}} = 1.66\) (from the unrounded shift and standard deviation). A logistic attributor is trained on the two axis-deviations,
-  \((z^k, z^c)\), under GroupKFold by vehicle; a control classifier that sees only the fuel excess
+  \(S_{\text{bench}} = 1.66\) (from the unrounded shift and standard deviation). A logistic attributor is trained on the two axis-deviations \((z^k, z^c)\) together with the vehicle baseline, under GroupKFold by vehicle; a control classifier that sees only the fuel excess
   \(\Delta f\) is the chance baseline.</p>
 
 <h3>4.6 Baselines</h3>
@@ -444,9 +437,7 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   forest [<a href="#r19">19</a>] over trip features as an unsupervised anomaly detector; permutation
   importance over the fuel model as the feature-relevance surrogate used by explainable anomaly work
   [<a href="#r3">3</a>]; and a pooled model that omits any vehicle term, to show how much per-vehicle
-  systematic effect is left unattributed when the vehicle is not modelled. Because no cause-labelled
-  trip benchmark exists on real data, these comparisons establish a capability contrast; the
-  quantitative accuracy comparison is the semi-synthetic experiment of Section 4.5.</p>
+  systematic effect is left unattributed when the vehicle is not modelled. </p>
 
 <h2 id="setup">5. Experimental setup</h2>
 <p>The expected-fuel model is a histogram gradient-boosted regression tree ensemble (400 boosting
@@ -475,7 +466,7 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   measured, not to set a new accuracy record.</p>
 
 <h3>6.2 Variance decomposition and the vehicle-baseline</h3>
-<p>Decomposing the variance of trip fuel (Table 4) shows that route and environment dominate, that
+<p>Decomposing the variance of trip fuel (Table 4, Figure 2) shows that route and environment dominate, that
   driving behaviour contributes a unique 8% beyond conditions and up to 37% counting the variance it
   shares with route, and that a persistent vehicle-baseline accounts for a further 14%. The
   vehicle-baseline is a real, size-independent effect: regressing the per-vehicle fixed effect on engine
@@ -524,9 +515,8 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   rate 0.639; all Mann-Whitney \(p<0.05\)), while raw jerk at 400 Hz does not (AUC 0.48), consistent
   with amplitude rather than derivative carrying the signal at that sampling rate. A logistic classifier
   over the amplitude features reaches a leave-one-driver-out AUC of <b>0.958</b> (95% CI [0.927, 0.981];
-  per-driver 0.984, 0.934, 0.992). A random forest reaches 0.79; with only two training drivers per fold
-  the linear model generalizes across drivers better, and we report both. A 1,000-permutation test
-  collapses the AUC to chance (permuted mean 0.471, \(p \le 0.001\)). This validates that the kinematic
+  per-driver 0.984, 0.934, 0.992; Figure 4). A random forest reaches 0.79; with only two training drivers per fold
+  the linear model generalizes across drivers better, and we report both. Under a 1,000-permutation test the label-permuted AUC falls to chance (mean 0.471), placing the real AUC at \(p = 0.001\). This validates that the kinematic
   amplitude features transfer to an independent accelerometer dataset; it is a different sensing regime
   (400 Hz smartphone inertial versus 1 Hz OBD), so it corroborates the axis rather than the exact VED
   feature set or the counterfactual magnitude.</p>
@@ -540,8 +530,7 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
 <h2 id="arm2">7. Results: malfunction arm (EngineFaultDB)</h2>
 <p>We fit the expected-fuel model on the normal (fault-0) operating points only and score the faults at
   matched operating point. On normal data the out-of-fold residual is centred at zero with a standard
-  deviation of 0.20 L/100km, so the baseline is well calibrated. Scoring the faults (Table 5), only the
-  rich mixture burns measurably more: <b>+0.498 L/100km, or +6.2%</b> of median fuel, consistent with its
+  deviation of 0.20 L/100km, so the baseline is well calibrated. Scoring the faults (Table 5, Figure 5), only the rich mixture burns measurably more: <b>+0.50 L/100km, or +6.2%</b> of median fuel, consistent with its
   air-fuel ratio of 13.68 against the normal 14.07 (a 7.5% enrichment of fuel per unit air) and a
   brake-specific fuel consumption 10.6% above normal. The lean and low-voltage-ignition faults are not
   excess-fuel faults. The rich-fault excess correlates with the combustion signature, not with
@@ -550,7 +539,7 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
 <table>
   <tr><th>Fault</th><th class="num">Excess (L/100km)</th><th class="num">% of median fuel</th><th class="num">AFR</th><th class="num">BSFC vs normal</th></tr>
   <tr><td>Normal (0)</td><td class="num">0.00</td><td class="num">n/a</td><td class="num">14.07</td><td class="num">n/a</td></tr>
-  <tr><td>Rich mixture (1)</td><td class="num">+0.498</td><td class="num">+6.2%</td><td class="num">13.68</td><td class="num">+10.6%</td></tr>
+  <tr><td>Rich mixture (1)</td><td class="num">+0.50</td><td class="num">+6.2%</td><td class="num">13.68</td><td class="num">+10.6%</td></tr>
   <tr><td>Lean mixture (2)</td><td class="num">&minus;0.06</td><td class="num">&minus;0.7%</td><td class="num">14.43</td><td class="num">n/a</td></tr>
   <tr><td>Ignition (3)</td><td class="num">+0.15</td><td class="num">+1.8%</td><td class="num">14.39</td><td class="num">n/a</td></tr>
 </table>
@@ -576,17 +565,15 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
 <h2 id="attrib">8. Attribution</h2>
 
 <h3>8.1 Signature contrast</h3>
-<p>Regressing each excess on each axis (Table 6) gives the central qualitative result. The kinematic
-  axis explains driver-caused excess (held-out \(R^2 = 0.107\)) but is structurally unavailable on the
+<p>Regressing each excess on each axis (Table 6, Figure 6) gives the central qualitative result. The kinematic axis explains driver-caused excess (held-out \(R^2 = 0.084\)) but is structurally unavailable on the
   steady-state bench. The combustion axis explains fault-caused excess strongly, but this cell is
   physically forced rather than discovered, and the informative cell is its counterpart: the combustion
   axis is <b>silent for driver-caused excess</b> (\(R^2 = -0.028\); univariate correlation \(-0.106\)).
-  This reproduces, as an independent consistency check, an earlier finding that per-vehicle fuel
-  residual does not track fuel-trim drift on VED.</p>
+  </p>
 
 <table>
   <tr><th>Axis</th><th class="num">Driver-excess (VED)</th><th class="num">Fault-excess (bench)</th></tr>
-  <tr><td>Kinematic (transient aggression)</td><td class="num">0.107</td><td class="num">n/a (steady-state)</td></tr>
+  <tr><td>Kinematic (transient aggression)</td><td class="num">0.084</td><td class="num">n/a (steady-state)</td></tr>
   <tr><td>Combustion (AFR / fuel trim)</td><td class="num">&minus;0.028</td><td class="num">0.903*</td></tr>
   <tr><td>&nbsp;&nbsp;univariate correlation</td><td class="num">&minus;0.106</td><td class="num">+0.333</td></tr>
 </table>
@@ -606,7 +593,7 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   driver signal; we therefore call this a signature contrast rather than a full double dissociation.</p>
 
 <figure>
-  <img src="figures/fig2_double_dissociation.svg" alt="Signature contrast">
+  <img src="figures/signature_contrast.svg" alt="Signature contrast">
   <figcaption><b>Figure 6.</b> Signature contrast. The combustion axis is silent for driver-caused
     excess while the kinematic axis carries it; the starred bench cell is physically expected.</figcaption>
 </figure>
@@ -695,14 +682,10 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
 <h3>9.3 What the vehicle-baseline is</h3>
 <p>The vehicle-baseline is a real 14% of trip-fuel variance, three-quarters of it unexplained by engine
   size or weight. Its mechanism is not labelled in VED and plausibly bundles tuning, tire pressure,
-  accumulated wear, and accessory load. That VED cannot resolve this further is itself informative: the
-  fleet is healthy, its fuel trims are small, and the trims do not track efficiency, which is why the
-  malfunction side of the attribution is anchored on a controlled bench rather than observed in the
-  fleet. Attribution here identifies <em>that</em> a vehicle deviates persistently, not the specific
+  accumulated wear, and accessory load. That VED cannot resolve this further is itself informative: the fleet is healthy, which is why the malfunction side of the attribution is anchored on a controlled bench rather than observed in the fleet. Attribution here identifies <em>that</em> a vehicle deviates persistently, not the specific
   mechanical fault, which remains a diagnosis step.</p>
 <h3>9.4 The benchmark the field needs</h3>
-<p>The two-arm design is a response to a missing dataset, and naming what would close the gap turns the
-  limitation into an agenda: a fleet logged with true fuel-flow meters, OBD trims, driver identifiers,
+<p>Naming what would close the joint-data gap (Section 3.4) turns it into an agenda: a fleet logged with true fuel-flow meters, OBD trims, driver identifiers,
   and verified maintenance or fault records on the same vehicles and trips. Such a dataset would allow
   single-trip competing-cause attribution to be trained and measured directly, and the semi-synthetic
   bridge to be replaced by real ground truth.</p>
@@ -729,9 +712,7 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
 <h2 id="conclusion">11. Conclusion</h2>
 <p>Excess fuel consumption has two causes with one symptom, and a fuel-per-distance figure cannot tell
   a heavy-footed driver from a thirsty vehicle. We showed that the causes separate by signature: driver
-  excess is transient and kinematic, malfunction excess is steady-state and combustion-linked. On a
-  197-vehicle public fleet, behaviour and a persistent vehicle-baseline account for measurable 8% and
-  14% shares of trip-fuel variance; on a controlled bench, a rich-mixture fault burns 6.2% more with an
+  excess is transient and kinematic, malfunction excess is steady-state and combustion-linked. On a 194-vehicle public fleet, behaviour and a persistent vehicle-baseline account for measurable 8% and 14% shares of trip-fuel variance; on a controlled bench, a rich-mixture fault burns 6.2% more with an
   emissions signature; the combustion axis is silent for driver-caused excess, and that silence survives
   both a trim-corrected fuel target and the highest-trim vehicles. When fuel magnitude is made
   uninformative, the signature attributes the cause at 95.9% accuracy where magnitude alone is at chance.
@@ -744,8 +725,7 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   (<a href="https://github.com/gsoh/VED">github.com/gsoh/VED</a>, Apache-2.0); EngineFaultDB
   (<a href="https://github.com/leoxthomas/EngineFaultDB">github.com/leoxthomas/EngineFaultDB</a>,
   GPL-3.0); Driving Events (<a href="https://zenodo.org/records/6570972">zenodo.org/records/6570972</a>,
-  CC-BY-4.0). The full pipeline (<code>scripts/p1_features.py</code> through
-  <code>scripts/p9_bench_behav.py</code>), results log (<code>RESULTS.md</code>), and this manuscript
+  CC-BY-4.0). The full pipeline (<code>scripts/p1_features.py</code> through <code>scripts/p10_consolidated.py</code>), results log (<code>RESULTS.md</code>), and this manuscript
   are in the project repository; every number traces to a script. Environment: Python 3.14,
   scikit-learn 1.8, pandas 2.3, scipy 1.17, pyarrow.</p>
 <p class="kv"><b>Author contributions.</b> A. Apartsin conceived and implemented the study and drafted
@@ -754,7 +734,7 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   for releasing their data openly.</p>
 
 <h2 id="refs">References</h2>
-<p class="kv" style="color:var(--muted)">All entries validated against Crossref/OpenAlex/DataCite (bibtest).</p>
+
 <ol class="contrib" style="font-family:var(--sans);font-size:14.5px">
   <li id="r1">G. Oh, D. J. LeBlanc, H. Peng. Vehicle Energy Dataset (VED), A Large-scale Dataset for
     Vehicle Energy Consumption Research. <i>IEEE Transactions on Intelligent Transportation Systems</i>,
@@ -824,8 +804,7 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
 </ol>
 
 <div class="foot">
-  Full-length working draft. Every filled number traces to a script in <code>scripts/</code> and an
-  entry in <code>RESULTS.md</code>. &copy; 2026 Alexander Apartsin and Yehudit Aperstein.
+  &copy; 2026 Alexander Apartsin and Yehudit Aperstein.
 </div>
 
 </div>
