@@ -189,3 +189,13 @@ Built on the frozen source-derived scores (p13). All zero-shot unless noted.
 - E5 baselines at S_bench: frozen argmax 0.886; raw-threshold rule 0.891; likelihood-ratio prototype 0.886;
   trained full-feature logistic (upper bound) 0.952; fuel-only 0.506 (chance). => multiple signature-based
   attributors all ~0.88-0.89 zero-shot; fuel magnitude at chance. Robust to attributor choice (W10).
+
+## P15 — E6: second behaviour dataset at VED-like 1 Hz (UAH-DriveSet, 6 drivers)
+Credential-free UAH-DriveSet processed 1 Hz streams from a public GitHub mirror (official server down;
+NOT redistributed - data/ gitignored; cite UAH-DriveSet as source). 940 windows (30 s), 172 aggressive
+/ 768 normal, 6 drivers. Kinematic features (accel magnitude std/p95, lateral/longitudinal std, jerk,
+harsh-lat rate, speed std/mean) at 1 Hz; aggressive-vs-normal, leave-one-driver-out (6 folds).
+- Univariate AUC: lon_std 0.81, mag_p95 0.71, mag_std 0.70, jerk_rms 0.69, speed_std/mean 0.67.
+- **LODO AUC: logreg 0.829, RF 0.808; per-driver 0.76-0.92; permutation mean 0.50, p=0.001.**
+=> Kinematic/behaviour axis transfers to a SECOND dataset, 6 drivers, at VED-like 1 Hz (lower than
+Zenodo's 400 Hz 0.958, as expected for the coarser regime). Addresses reviewer W7/E6.

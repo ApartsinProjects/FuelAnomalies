@@ -543,6 +543,15 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   <figcaption><b>Figure 4.</b> Kinematic features separate aggressive from normal driving on an
     independent dataset with the driver held out (AUC 0.958, 95% CI [0.927, 0.981]).</figcaption>
 </figure>
+<p>To test transfer at the fleet's own sampling rate and across more drivers, we repeat the validation
+  on a second, independent behaviour dataset: the UAH-DriveSet [<a href="#r26">26</a>], whose processed streams are logged at
+  <b>1 Hz</b> (matching VED) for <b>six drivers</b> with normal, drowsy, and aggressive labels. Over 940
+  thirty-second windows (172 aggressive, 768 normal), kinematic features computed at 1 Hz separate
+  aggressive from normal driving with the driver held out at <b>AUC 0.829</b> (logistic; 0.808 random
+  forest; per-driver 0.76&ndash;0.92; 1,000-permutation \(p = 0.001\)). The lower value than the 400 Hz
+  set is expected for the coarser sampling, and it is the more deployment-relevant result: the behaviour
+  axis transfers to a different fleet, twice as many drivers, at the 1 Hz rate OBD telematics actually
+  provide.</p>
 
 <h2 id="arm2">7. Results: malfunction arm (EngineFaultDB)</h2>
 <p>We fit the expected-fuel model on the normal (fault-0) operating points only and score the faults at
@@ -892,6 +901,9 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
     <a href="https://doi.org/10.1109/ACCESS.2026.3664118">10.1109/ACCESS.2026.3664118</a></li>
   <li id="r25">Z.-H. Zhou. A brief introduction to weakly supervised learning. <i>National Science
     Review</i>, 5(1):44&ndash;53, 2018. <a href="https://doi.org/10.1093/nsr/nwx106">10.1093/nsr/nwx106</a></li>
+  <li id="r26">E. Romera, L. M. Bergasa, R. Arroyo. Need Data for Driver Behaviour Analysis? Presenting
+    the Public UAH-DriveSet. <i>IEEE ITSC</i>, 387&ndash;392, 2016.
+    <a href="https://doi.org/10.1109/ITSC.2016.7795584">10.1109/ITSC.2016.7795584</a></li>
 </ol>
 
 <div class="foot">

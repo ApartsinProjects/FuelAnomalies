@@ -686,6 +686,20 @@ normal driving on an independent dataset with the driver held out (AUC
 0.958, 95\% CI {[}0.927, 0.981{]}).}
 \end{figure}
 
+To test transfer at the fleet\textquotesingle s own sampling rate and
+across more drivers, we repeat the validation on a second, independent
+behaviour dataset: the UAH-DriveSet {[}\hyperref[r26]{26}{]}, whose
+processed streams are logged at \textbf{1 Hz} (matching VED) for
+\textbf{six drivers} with normal, drowsy, and aggressive labels. Over
+940 thirty-second windows (172 aggressive, 768 normal), kinematic
+features computed at 1 Hz separate aggressive from normal driving with
+the driver held out at \textbf{AUC 0.829} (logistic; 0.808 random
+forest; per-driver 0.76--0.92; 1,000-permutation \(p = 0.001\)). The
+lower value than the 400 Hz set is expected for the coarser sampling,
+and it is the more deployment-relevant result: the behaviour axis
+transfers to a different fleet, twice as many drivers, at the 1 Hz rate
+OBD telematics actually provide.
+
 \subsection{7. Results: malfunction arm (EngineFaultDB)}\label{arm2}
 
 We fit the expected-fuel model on the normal (fault-0) operating points
@@ -1268,4 +1282,9 @@ dataset for releasing their data openly.
   \phantomsection\label{r25}{Z.-H. Zhou. A brief introduction to weakly
   supervised learning. \emph{National Science Review}, 5(1):44--53,
   2018. \href{https://doi.org/10.1093/nsr/nwx106}{10.1093/nsr/nwx106}}
+\item
+  \phantomsection\label{r26}{E. Romera, L. M. Bergasa, R. Arroyo. Need
+  Data for Driver Behaviour Analysis? Presenting the Public
+  UAH-DriveSet. \emph{IEEE ITSC}, 387--392, 2016.
+  \href{https://doi.org/10.1109/ITSC.2016.7795584}{10.1109/ITSC.2016.7795584}}
 \end{enumerate}

@@ -131,5 +131,16 @@
     "lr_prototype": 0.886,
     "trained_full": 0.952,
     "fuel_only": 0.506
+  },
+  "behaviour_validation_uah_e6": {
+    "dataset": "UAH-DriveSet 1Hz, 6 drivers",
+    "n_windows": 940,
+    "auc_logreg_LODO": 0.829,
+    "auc_rf_LODO": 0.808,
+    "perm_p": 0.001,
+    "per_driver_range": [
+      0.758,
+      0.915
+    ]
   }
 }
