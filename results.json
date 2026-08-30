@@ -1,0 +1,116 @@
+{
+  "panel": {
+    "featurized_trips": 14460,
+    "featurized_vehicles": 197,
+    "decomposition_trips": 14170,
+    "decomposition_vehicles": 194,
+    "trim_subset_vehicles": 139
+  },
+  "expected_fuel": {
+    "r2": 0.673,
+    "r2_ci": [
+      0.628,
+      0.709
+    ],
+    "mape_pct": 13.3,
+    "mape_ci": [
+      12.3,
+      14.3
+    ],
+    "seed_range": [
+      0.672,
+      0.676
+    ],
+    "model_compare": {
+      "mean": -0.005,
+      "ridge": 0.663,
+      "rf": 0.64,
+      "hgb": 0.673
+    },
+    "r2_with_rpm_load": 0.738
+  },
+  "variance_shares": {
+    "env": 0.593,
+    "behaviour_only": 0.368,
+    "full": 0.673,
+    "behaviour_marginal": 0.08,
+    "env_marginal": 0.305,
+    "vehicle_baseline": 0.143,
+    "unexplained": 0.184
+  },
+  "vehicle_baseline": {
+    "insample": 0.143,
+    "crossfit_heldout": [
+      0.136,
+      0.138,
+      0.136,
+      0.138
+    ],
+    "splithalf_reliability_r": 0.949,
+    "shrinkage": 0.138,
+    "static_explained_r2": 0.231
+  },
+  "behaviour_counterfactual": {
+    "median_L_per_100km": 0.47,
+    "p90": 1.59,
+    "decile_spearman_rho": 0.964,
+    "decile_spearman_p": 7.3e-06,
+    "ref_pct_sensitivity": {
+      "q10": 0.41,
+      "q20": 0.49,
+      "q30": 0.25
+    }
+  },
+  "behaviour_validation": {
+    "n_events": 169,
+    "aggressive": 143,
+    "nonaggr": 26,
+    "auc_logreg": 0.958,
+    "auc_ci": [
+      0.927,
+      0.981
+    ],
+    "auc_rf": 0.79,
+    "perm_mean": 0.471,
+    "perm_p": 0.001
+  },
+  "bench_fault": {
+    "rich_excess_L_per_100km": 0.5,
+    "rich_excess_pct": 6.2,
+    "afr_rich": 13.68,
+    "afr_normal": 14.07,
+    "bsfc_pct": 10.6,
+    "combustion_r2_shuffled_all": 0.903,
+    "combustion_r2_blocked_all": -0.483,
+    "combustion_r2_shuffled_deploy": 0.918,
+    "combustion_r2_blocked_deploy": 0.123
+  },
+  "signature_contrast": {
+    "kinematic_driverexcess_r2": 0.084,
+    "combustion_driverexcess_r2": -0.028,
+    "combustion_driverexcess_trimcorr": 0.012,
+    "stft_only": 0.019,
+    "ltft_only": -0.051,
+    "axis_corr": -0.012,
+    "univariate_corr_ved": -0.106,
+    "univariate_corr_bench": 0.333
+  },
+  "attribution": {
+    "accuracy_at_Sbench": 0.959,
+    "accuracy_ci": [
+      0.956,
+      0.962
+    ],
+    "S_bench": 1.66,
+    "fuel_only_baseline": 0.5,
+    "curve": {
+      "0.5": 0.713,
+      "1.0": 0.866,
+      "1.5": 0.946,
+      "2.0": 0.979,
+      "2.5": 0.992,
+      "3.0": 0.998
+    }
+  },
+  "provenance": "Generated from scripts/p1..p12; see RESULTS.md. All figures/tables/text derive from these values."
+}

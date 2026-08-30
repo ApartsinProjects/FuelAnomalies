@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Driver or Vehicle? Signature-Based Attribution of Excess Fuel Consumption</title>
+<title>Driver or Vehicle? Multi-Source Signature Attribution of Excess Fuel</title>
 <script>
   window.MathJax = { tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']], tags: 'ams' },
                      svg: { fontCache: 'global' } };
@@ -77,8 +77,7 @@
 
 <header class="title">
   
-  <h1>Driver or Vehicle? Signature-Based Attribution of Excess Fuel Consumption<br>
-      Using Public Fleet Telemetry and an Engine-Fault Bench</h1>
+  <h1>Driver or Vehicle? Multi-Source Signature Attribution of Excess Fuel Consumption<br> Under Missing Joint Cause Labels</h1>
   <div class="authors">Alexander Apartsin<sup>1</sup>, Yehudit Aperstein<sup>2</sup></div>
   <div class="authors" style="font-size:14px"><sup>1</sup>School of Computer Science, Faculty of
     Sciences, Holon Institute of Technology (HIT), Holon, Israel<br>
@@ -101,9 +100,7 @@ a persistent vehicle-baseline explain 8% and 14% of trip-fuel variance. The rich
 +6.2% excess fuel with an emissions signature, while the combustion axis remains silent for
 driver-caused excess (held-out \(R^2 = -0.03\)), a silence that survives a trim-corrected
 fuel target and holds within the highest-trim vehicles. On semi-synthetic ground truth, where both
-causes raise fuel by the same amount so that magnitude is uninformative, the signature attributes
-driver-versus-fault excess at 95.9% accuracy (95% CI [95.6, 96.2]) against a fuel-only baseline at
-chance. Both axes derive from
+causes raise fuel by the same amount so that magnitude is uninformative, the signature attributes driver-versus-fault excess at 95.9% accuracy (95% CI [95.6, 96.2]) in a calibrated semi-synthetic test, against a fuel-only baseline at chance. Both axes derive from
 standard on-board-diagnostics channels, making per-trip attribution deployable on existing telematics.</p>
 
 <h3>Contributions</h3>
@@ -256,9 +253,12 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   autoencoders [<a href="#r20">20</a>], recurrent autoencoders for embedded intrusion detection
   [<a href="#r21">21</a>], and spatiotemporal detection for connected vehicles [<a href="#r22">22</a>].
   These methods flag that a trip is anomalous; they do not assign a fuel anomaly to a driver-versus
-  -vehicle cause. Fuel theft or leakage is a related but distinct anomaly, detected as an abrupt change
-  point [<a href="#r10">10</a>]; that is a sudden step in fuel level, whereas the excess we attribute is
-  a sustained efficiency shift.</p>
+  -vehicle cause. Closest in spirit, recent work detects anomalies in OBD snapshots and adds a
+  SHAP-based cause investigation with synthetically generated anomalies [<a href="#r24">24</a>]; it
+  investigates which features drive a flagged anomaly, whereas we attribute the competing driver-versus
+  -vehicle cause across heterogeneous datasets that carry no joint naturalistic cause labels. Fuel theft
+  or leakage is a related but distinct anomaly, detected as an abrupt change point [<a href="#r10">10</a>];
+  that is a sudden step in fuel level, whereas the excess we attribute is a sustained efficiency shift.</p>
 
 <h3>2.5 Explainable attribution and the nearest prior work</h3>
 <p>Feature-attribution methods such as SHAP [<a href="#r23">23</a>] explain a model's output in terms of
@@ -270,7 +270,10 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   the vehicle, and its feature relevances are not validated against an external ground truth for either
   cause. Our signature-based decomposition is the increment: we group observables into two physically
   motivated axes, validate each against an independent signal, and measure the resulting cause
-  attribution.</p>
+  attribution. Methodologically the setting is a form of weak supervision [<a href="#r25">25</a>]: the
+  target fleet carries the outcome but no cause labels, while each competing cause is labelled only in a
+  separate source domain with its own feature space, so cause-specific signatures must be learned from
+  the sources and combined on the target without joint supervision.</p>
 
 <table>
   <tr><th>Approach</th><th>Detects excess</th><th>Ranks features</th><th>Attributes<br>driver vs vehicle</th><th>Externally<br>validated</th></tr>
@@ -408,10 +411,7 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
 
 <h3>4.4 The two axes and the signature contrast</h3>
 <p>The <em>kinematic axis</em> summarizes transient aggression through the behaviour features above;
-  the <em>combustion axis</em> measures the deviation of the air-fuel ratio from stoichiometric. The
-  combustion axis is observable in both worlds and placed on a common percent-fuel-per-air scale: in
-  VED as the fuel trims, \(c^{\text{VED}} = \text{STFT}+\text{LTFT}\), and on the bench directly from the
-  air-fuel ratio,</p>
+  the <em>combustion axis</em> measures the deviation of the air-fuel ratio from stoichiometric. On the bench the axis is the air-fuel-ratio deviation directly. In VED the observable is the short- and long-term fuel trims, which are the engine control unit's feedback corrections to the base fuel schedule rather than a direct air-fuel-ratio measurement; we therefore treat the VED side as a fueling-correction signal, \(c^{\text{VED}} = \text{STFT}+\text{LTFT}\), placed on a common percent-fuel-per-air scale with the bench,</p>
 \[ c^{\text{bench}} \;=\; \left(\frac{14.7}{\text{AFR}}-1\right)\times 100 . \tag{8}\]
 <p>The signature contrast regresses each excess on each axis, reporting the held-out coefficient of
   determination. The informative comparison is whether the combustion axis, which by construction tracks
@@ -453,7 +453,12 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   returns a spuriously negative coefficient of determination; the rows are exchangeable for this
   regression, so shuffled folds are correct. Software: Python 3.14, scikit-learn 1.8, pandas 2.3, scipy
   1.17, and pyarrow. Datasets are obtained from their original sources and are not redistributed; the
-  pipeline scripts regenerate every number.</p>
+  pipeline scripts regenerate every number. The expected-fuel conclusions are not specific to the
+  gradient-boosted model: under the same vehicle-grouped protocol a ridge baseline reaches
+  \(R^2 = 0.663\) and a random forest 0.640, against the boosted model's 0.673 and a mean predictor's
+  0.00. Engine-state channels (RPM, load) are deliberately excluded from the expected-fuel model; adding
+  them raises predictive \(R^2\) to 0.738 but they are engine outputs rather than driver inputs, and
+  their inclusion would let the predictor absorb part of the diagnostic signature we aim to isolate.</p>
 
 <h2 id="arm1">6. Results: driver arm (VED)</h2>
 
@@ -473,6 +478,17 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   displacement and weight explains only 23% of it, leaving roughly three-quarters unexplained by vehicle
   size. This is the component that an operator would want to route to inspection, and it is invisible to
   a model that does not represent the vehicle.</p>
+<p>The vehicle-baseline is not an in-sample artifact of estimating a group mean from the same trips it is
+  scored on. Estimating each vehicle's offset on one random half of its trips and evaluating the fuel
+  variance it explains on the held-out half gives a cross-fitted share of <b>0.136&ndash;0.138</b>
+  (stable across a minimum of 5, 10, 15, or 20 trips per vehicle), essentially unchanged from the
+  0.143 in-sample value, and an empirical-Bayes shrinkage estimate agrees (0.138). The offsets are
+  highly reliable: the split-half correlation of per-vehicle baselines is <b>r = 0.95</b> (160 vehicles
+  with at least ten trips). A persistent, statistically stable per-vehicle component therefore survives
+  honest out-of-sample estimation. We label it a persistent vehicle-associated residual, not a verified
+  malfunction: VED has effectively one driver per vehicle, so it cannot separate a vehicle's mechanical
+  state from its habitual driver and routes (Section 10); the malfunction side of the attribution is
+  anchored on the controlled bench, where the fault is actually induced.</p>
 
 <table>
   <tr><th>Component</th><th class="num">Share of fuel variance</th><th class="num">95% CI</th></tr>
@@ -491,10 +507,7 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
 
 <p>The behaviour counterfactual quantifies the driver component in physical units. Relative to a
   gentle-driving reference, the median trip carries an excess of <b>0.47 L/100km</b> (about 5% of median
-  fuel), rising to 1.59 at the 90th percentile. The component increases with independently measured
-  aggression: across deciles of harsh-event rate its mean rises from 0.34 to 1.55 L/100km (Figure 3),
-  monotone from the median upward, with a Spearman rank correlation of 0.96 across deciles
-  (\(p < 10^{-5}\)). The magnitude is consistent with the 5-15% eco-driving range in the literature
+  fuel), rising to 1.59 at the 90th percentile. The component increases across deciles of the harsh-event rate (Figure 3): its mean rises from 0.34 to 1.55 L/100km, monotone from the median upward, with a Spearman rank correlation of 0.96 across deciles (\(p < 10^{-4}\)). Because the harsh-event rate is itself an input to the behaviour features, this is an internal face-validity check; the independent validation is the external dataset of Section 6.3. The magnitude is consistent with the 5-15% eco-driving range in the literature
   [<a href="#r5">5</a>,<a href="#r15">15</a>].</p>
 
 <figure>
@@ -586,7 +599,11 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   \(R^2\) of 0.903 is carried mainly by carbon monoxide (\(R^2 = 0.73\)) and hydrocarbons (0.44), the
   unburnt-fuel emission products, with air-fuel ratio and lambda perfectly collinear (\(r = 1.0\)) at
   0.12 each; the univariate correlation of 0.33 understates the multivariate fit because a single
-  air-fuel-ratio transform misses the emission channels. We therefore treat this cell as a physical
+  air-fuel-ratio transform misses the emission channels. It is also interpolation, not generalization:
+  under leave-operating-region-out cross-validation (RPM&times;power terciles) the all-sensor fit falls
+  to \(R^2 = -0.48\) and a deployment-transferable subset (air-fuel ratio, lambda, oxygen; excluding the
+  bench-only CO and HC analyzers) to 0.12, so the 0.903 reflects near-neighbour operating points rather
+  than a portable predictor. We therefore treat this cell as a physical
   consistency check and rest the claim on the silent driver-excess cell and the attribution accuracy
   below. Of the \(2\times2\), one cell is physically forced, one is structurally absent, and the two
   evidential cells are the silent combustion axis on driver-excess and the kinematic axis carrying the
@@ -641,7 +658,10 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   the trim-driven fuel fraction and could suppress the combustion axis by construction. Re-deriving fuel
   with the trim correction of Eq. 2 moves the combustion axis on driver-excess only from
   \(R^2 = -0.028\) to \(+0.012\); it stays silent, because the ignored fraction is small in this healthy
-  fleet (median 1.5%, 90th percentile 11%).</p>
+  fleet (median 1.5%, 90th percentile 11%). The result is also robust to how the fueling-correction
+  signal is treated: the short- and long-term trims are individually uninformative for driver-excess
+  (\(R^2 = 0.019\) and \(-0.051\)), and an additive versus multiplicative trim correction changes the
+  fuel target by a median of 0.002 L/100km and the combustion \(R^2\) by less than 0.01.</p>
 <h4>Range restriction</h4>
 <p>If VED simply had no combustion variance, the axis could not correlate with anything. It does have
   variance (within-vehicle long-term-trim standard deviation 1.79%, between-vehicle 4.41%). Restricting
@@ -715,7 +735,7 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   excess is transient and kinematic, malfunction excess is steady-state and combustion-linked. On a 194-vehicle public fleet, behaviour and a persistent vehicle-baseline account for measurable 8% and 14% shares of trip-fuel variance; on a controlled bench, a rich-mixture fault burns 6.2% more with an
   emissions signature; the combustion axis is silent for driver-caused excess, and that silence survives
   both a trim-corrected fuel target and the highest-trim vehicles. When fuel magnitude is made
-  uninformative, the signature attributes the cause at 95.9% accuracy where magnitude alone is at chance.
+  uninformative, the signature attributes the cause at 95.9% accuracy in a calibrated semi-synthetic evaluation, where magnitude alone is at chance.
   Because both axes derive from standard on-board-diagnostics channels, per-trip attribution is
   deployable on existing telematics, and the main obstacle to pushing it further is the absence of a
   public dataset that carries fuel, faults, and behaviour together.</p>
@@ -801,6 +821,11 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
     Transportation Systems</i>, 2023. <a href="https://doi.org/10.1109/TITS.2023.3286611">10.1109/TITS.2023.3286611</a></li>
   <li id="r23">S. M. Lundberg, S.-I. Lee. A Unified Approach to Interpreting Model Predictions (SHAP).
     arXiv:1705.07874, 2017. <a href="https://doi.org/10.48550/arXiv.1705.07874">10.48550/arXiv.1705.07874</a></li>
+  <li id="r24">V. Vu&ccaron;ini&cacute; et&nbsp;al. Anomaly Detection for Vehicle Diagnostics Based on OBD
+    Snapshots With Cause Investigation. <i>IEEE Access</i>, 14:24765&ndash;24785, 2026.
+    <a href="https://doi.org/10.1109/ACCESS.2026.3664118">10.1109/ACCESS.2026.3664118</a></li>
+  <li id="r25">Z.-H. Zhou. A brief introduction to weakly supervised learning. <i>National Science
+    Review</i>, 5(1):44&ndash;53, 2018. <a href="https://doi.org/10.1093/nsr/nwx106">10.1093/nsr/nwx106</a></li>
 </ol>
 
 <div class="foot">

@@ -145,3 +145,22 @@ All shares from ONE artifact and sum to 1.0:
 - S_bench = 1.66 (from unrounded 2.98% shift / 1.79% median within-vehicle LTFT SD; rounded inputs 3.0/1.79=1.68).
 - Decile monotonicity Spearman rho=0.964, p=7.3e-6 (< 1e-5).
 NOTE: supersedes the earlier -0.039 (P6) combustion value; use -0.028 everywhere.
+
+## P11/P12 — EAAI-review revision experiments (scripts/p11_eaai_ved.py, p12_eaai_trim_bench.py)
+- **E1 cross-fitted vehicle-baseline (W2)**: in-sample share 0.143; HELD-OUT (split-half, estimate on
+  half A, evaluate on half B) share 0.136-0.138 across min-trips 5/10/15/20; split-half reliability
+  r=0.949 (160 veh, >=10 trips); shrinkage share 0.138. => vehicle component is REAL and stable, not an
+  in-sample group-mean artifact.
+- **E9 model comparison (expected fuel)**: mean -0.005, ridge 0.663, RF 0.640, HGB 0.673 => conclusions
+  not specific to HGB (ridge nearly matches).
+- **E10 leakage ablation**: operational (no RPM/load) R2=0.673; max-prediction (+RPM/load) R2=0.738
+  (+0.065). Vehicle-share stable (0.143 vs 0.153). RPM/load are engine outputs, excluded for attribution.
+- **E2 fuel-trim semantics (W3)**: driver-excess combustion R2: STFT-only 0.019, LTFT-only -0.051,
+  both -0.028; trim-corrected additive 0.012 vs multiplicative 0.018 (median fuel diff 0.002 L/100km,
+  negligible). Silence robust to STFT/LTFT split and correction form. Reframe axis as FUELING-CORRECTION.
+- **E7 bench blocked CV (W9)**: rich-fault combustion R2: all-sensors shuffled 0.903 vs
+  leave-operating-region-out (RPMxPower terciles) -0.483; deployable subset {AFR,Lambda,O2} shuffled
+  0.918 vs blocked 0.123. => the 0.903 is within-region interpolation; it does NOT generalize across
+  operating regions. The +6.2% matched-mean rich effect is a group comparison and is unaffected.
+- **E8 counterfactual reference sensitivity**: behaviour-component median at gentle-reference percentile
+  q10/q20/q30 = 0.41 / 0.49 / 0.25 L/100km (same order of magnitude; q20 used in paper).
