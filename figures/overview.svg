@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="583.2pt" height="208.8pt" viewBox="0 0 583.2 208.8" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-08-30T08:42:20.420800</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.10.8, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 208.8 
+L 583.2 208.8 
+L 583.2 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 17.4384 77.184 
+L 150.5376 77.184 
+Q 157.3632 77.184 157.3632 71.352 
+L 157.3632 20.808 
+Q 157.3632 14.976 150.5376 14.976 
+L 17.4384 14.976 
+Q 10.6128 14.976 10.6128 20.808 
+L 10.6128 71.352 
+Q 10.6128 77.184 17.4384 77.184 
+z
+" clip-path="url(#p2a41050fbf)" style="fill: #f3eded; stroke: #7a2020; stroke-width: 1.3; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 17.4384 135.504 
+L 150.5376 135.504 
+Q 157.3632 135.504 157.3632 129.672 
+L 157.3632 88.848 
+Q 157.3632 83.016 150.5376 83.016 
+L 17.4384 83.016 
+Q 10.6128 83.016 10.6128 88.848 
+L 10.6128 129.672 
+Q 10.6128 135.504 17.4384 135.504 
+z
+" clip-path="url(#p2a41050fbf)" style="fill: #eef2f6; stroke: #2c5f8a; stroke-width: 1.3; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 17.4384 193.824 
+L 150.5376 193.824 
+Q 157.3632 193.824 157.3632 187.992 
+L 157.3632 152.028 
+Q 157.3632 146.196 150.5376 146.196 
+L 17.4384 146.196 
+Q 10.6128 146.196 10.6128 152.028 
+L 10.6128 187.992 
+Q 10.6128 193.824 17.4384 193.824 
+z
+" clip-path="url(#p2a41050fbf)" style="fill: #eef5ee; stroke: #0b8a4b; stroke-width: 1.3; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 227.8944 96.624 
+L 366.6816 96.624 
+Q 373.5072 96.624 373.5072 90.792 
+L 373.5072 45.108 
+Q 373.5072 39.276 366.6816 39.276 
+L 227.8944 39.276 
+Q 221.0688 39.276 221.0688 45.108 
+L 221.0688 90.792 
+Q 221.0688 96.624 227.8944 96.624 
+z
+" clip-path="url(#p2a41050fbf)" style="fill: #ffffff; stroke: #7a2020; stroke-width: 1.3; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 227.8944 164.664 
+L 366.6816 164.664 
+Q 373.5072 164.664 373.5072 158.832 
+L 373.5072 113.148 
+Q 373.5072 107.316 366.6816 107.316 
+L 227.8944 107.316 
+Q 221.0688 107.316 221.0688 113.148 
+L 221.0688 158.832 
+Q 221.0688 164.664 227.8944 164.664 
+z
+" clip-path="url(#p2a41050fbf)" style="fill: #ffffff; stroke: #2c5f8a; stroke-width: 1.3; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 432.6624 140.364 
+L 565.7616 140.364 
+Q 572.5872 140.364 572.5872 134.532 
+L 572.5872 74.268 
+Q 572.5872 68.436 565.7616 68.436 
+L 432.6624 68.436 
+Q 425.8368 68.436 425.8368 74.268 
+L 425.8368 134.532 
+Q 425.8368 140.364 432.6624 140.364 
+z
+" clip-path="url(#p2a41050fbf)" style="fill: #eef5ee; stroke: #0b8a4b; stroke-width: 1.3; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_8">
+    <path d="M 156.912541 46.893362 
+Q 187.792279 60.659233 217.650854 73.96988 
+" clip-path="url(#p2a41050fbf)" style="fill: none; stroke: #555555; stroke-linecap: round"/>
+    <path d="M 214.527854 70.168976 
+L 217.650854 73.96988 
+L 212.736331 74.187738 
+z
+" clip-path="url(#p2a41050fbf)" style="fill: #555555; stroke: #555555; stroke-linecap: round"/>
+   </g>
+   <g id="patch_9">
+    <path d="M 156.375559 151.469385 
+Q 187.794931 114.118894 218.494588 77.62398 
+" clip-path="url(#p2a41050fbf)" style="fill: none; stroke: #555555; stroke-linecap: round"/>
+    <path d="M 213.978615 79.574874 
+L 218.494588 77.62398 
+L 217.345719 82.407294 
+z
+" clip-path="url(#p2a41050fbf)" style="fill: #555555; stroke: #555555; stroke-linecap: round"/>
+   </g>
+   <g id="patch_10">
+    <path d="M 156.96045 109.955599 
+Q 187.793653 121.409871 217.578804 132.4748 
+" clip-path="url(#p2a41050fbf)" style="fill: none; stroke: #555555; stroke-linecap: round"/>
+    <path d="M 214.220341 128.880258 
+L 217.578804 132.4748 
+L 212.688093 133.004845 
+z
+" clip-path="url(#p2a41050fbf)" style="fill: #555555; stroke: #555555; stroke-linecap: round"/>
+   </g>
+   <g id="patch_11">
+    <path d="M 373.055847 71.200184 
+Q 398.248912 82.529511 422.422303 93.40029 
+" clip-path="url(#p2a41050fbf)" style="fill: none; stroke: #555555; stroke-linecap: round"/>
+    <path d="M 419.311701 89.589233 
+L 422.422303 93.40029 
+L 417.507096 93.602138 
+z
+" clip-path="url(#p2a41050fbf)" style="fill: #555555; stroke: #555555; stroke-linecap: round"/>
+   </g>
+   <g id="patch_12">
+    <path d="M 373.055847 137.599816 
+Q 398.248912 126.270489 422.422303 115.39971 
+" clip-path="url(#p2a41050fbf)" style="fill: none; stroke: #555555; stroke-linecap: round"/>
+    <path d="M 417.507096 115.197862 
+L 422.422303 115.39971 
+L 419.311701 119.210767 
+z
+" clip-path="url(#p2a41050fbf)" style="fill: #555555; stroke: #555555; stroke-linecap: round"/>
+   </g>
+   <g id="text_1">
+    <text style="font-weight: 700; font-size: 10px; font-family: 'Segoe UI', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #7a2020" x="83.988" y="40.847125" transform="rotate(-0 83.988 40.847125)">Arm 1 — VED fleet</text>
+   </g>
+   <g id="text_2">
+    <text style="font-size: 8px; font-family: 'Segoe UI', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #1a1a1a" x="83.988" y="57.8345" transform="rotate(-0 83.988 57.8345)">197 ICE cars, 14,460 trips</text>
+   </g>
+   <g id="text_3">
+    <text style="font-size: 8px; font-family: 'Segoe UI', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #1a1a1a" x="83.988" y="74.3585" transform="rotate(-0 83.988 74.3585)">GPS + OBD, fuel from MAF</text>
+   </g>
+   <g id="text_4">
+    <text style="font-weight: 700; font-size: 10px; font-family: 'Segoe UI', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #2c5f8a" x="83.988" y="108.887125" transform="rotate(-0 83.988 108.887125)">Arm 2 — EngineFaultDB</text>
+   </g>
+   <g id="text_5">
+    <text style="font-size: 8px; font-family: 'Segoe UI', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #1a1a1a" x="83.988" y="125.9595" transform="rotate(-0 83.988 125.9595)">engine-fault bench</text>
+   </g>
+   <g id="text_6">
+    <text style="font-size: 8px; font-family: 'Segoe UI', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #1a1a1a" x="83.988" y="142.3985" transform="rotate(-0 83.988 142.3985)">rich / lean / ignition</text>
+   </g>
+   <g id="text_7">
+    <text style="font-weight: 700; font-size: 10px; font-family: 'Segoe UI', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #0b8a4b" x="83.988" y="172.042125" transform="rotate(-0 83.988 172.042125)">Driving Events</text>
+   </g>
+   <g id="text_8">
+    <text style="font-size: 8px; font-family: 'Segoe UI', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #1a1a1a" x="83.988" y="189.0545" transform="rotate(-0 83.988 189.0545)">aggressive/normal labels</text>
+   </g>
+   <g id="text_9">
+    <text style="font-weight: 700; font-size: 10px; font-family: 'Segoe UI', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #7a2020" x="297.288" y="65.147125" transform="rotate(-0 297.288 65.147125)">Kinematic axis</text>
+   </g>
+   <g id="text_10">
+    <text style="font-size: 8px; font-family: 'Segoe UI', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #1a1a1a" x="297.288" y="82.1345" transform="rotate(-0 297.288 82.1345)">accel, jerk, harsh events</text>
+   </g>
+   <g id="text_11">
+    <text style="font-weight: 700; font-size: 10px; font-family: 'Segoe UI', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #2c5f8a" x="297.288" y="133.187125" transform="rotate(-0 297.288 133.187125)">Combustion axis</text>
+   </g>
+   <g id="text_12">
+    <text style="font-size: 8px; font-family: 'Segoe UI', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #1a1a1a" x="297.288" y="150.1745" transform="rotate(-0 297.288 150.1745)">fuel trims / AFR, CO, HC</text>
+   </g>
+   <g id="text_13">
+    <text style="font-weight: 700; font-size: 10px; font-family: 'Segoe UI', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #0b8a4b" x="499.212" y="94.307125" transform="rotate(-0 499.212 94.307125)">Attribution</text>
+   </g>
+   <g id="text_14">
+    <text style="font-size: 8px; font-family: 'Segoe UI', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #1a1a1a" x="499.212" y="111.2945" transform="rotate(-0 499.212 111.2945)">driver vs vehicle</text>
+   </g>
+   <g id="text_15">
+    <text style="font-size: 8px; font-family: 'Segoe UI', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #1a1a1a" x="499.212" y="127.9035" transform="rotate(-0 499.212 127.9035)">frozen signatures</text>
+   </g>
+   <g id="text_16">
+    <text style="font-size: 8px; font-family: 'Segoe UI', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #1a1a1a" x="499.212" y="144.3425" transform="rotate(-0 499.212 144.3425)">88.6% (bench)</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p2a41050fbf">
+   <rect x="7.2" y="7.2" width="568.8" height="194.4"/>
+  </clipPath>
+ </defs>
+</svg>

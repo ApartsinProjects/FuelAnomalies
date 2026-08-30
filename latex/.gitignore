@@ -1,0 +1,11 @@
+*.aux
+*.log
+*.out
+*.spl
+*.fdb_latexmk
+*.fls
+*.bbl
+*.blg
+_frag.html
+pass*.log
+lua*.log
