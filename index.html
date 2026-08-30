@@ -100,7 +100,7 @@ a persistent vehicle-baseline explain 8% and 14% of trip-fuel variance. The rich
 +6.2% excess fuel with an emissions signature, while the combustion axis remains silent for
 driver-caused excess (held-out \(R^2 = -0.03\)), a silence that survives a trim-corrected
 fuel target and holds within the highest-trim vehicles. On semi-synthetic ground truth, where both
-causes raise fuel by the same amount so that magnitude is uninformative, the signature attributes driver-versus-fault excess at 95.9% accuracy (95% CI [95.6, 96.2]) in a calibrated semi-synthetic test, against a fuel-only baseline at chance. Both axes derive from
+causes raise fuel by the same amount so that magnitude is uninformative, signatures learned only in their source domains, frozen and combined on the target without joint supervision, attribute driver-versus-fault excess at 88.6% at the bench-calibrated effect size (a classifier trained on the injected labels reaches an upper bound of 95.9%), while fuel magnitude alone is at chance. Both axes derive from
 standard on-board-diagnostics channels, making per-trip attribution deployable on existing telematics.</p>
 
 <h3>Contributions</h3>
@@ -112,8 +112,9 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   <li>A cross-dataset <b>signature contrast</b>: the combustion axis is silent for driver-caused excess
       (held-out \(R^2 = -0.03\)), a silence that survives trim-corrected fuel and the
       highest-trim vehicles, ruling out a measurement artifact.</li>
-  <li>A measured <b>attribution accuracy of 95.9%</b> (95% CI [95.6, 96.2]) on semi-synthetic ground
-      truth at a bench-calibrated fault magnitude, where fuel magnitude alone is at chance.</li>
+  <li><b>Frozen source-derived signatures</b> learned in separate domains attribute driver-versus-fault
+      excess at 88.6% at a bench-calibrated magnitude (trained upper bound 95.9%) with no joint
+      supervision, where fuel magnitude alone is at chance.</li>
   <li>A documented survey of the joint fuel + fault + behaviour data gap, and a reproducible pipeline and paper in which every number traces to a script.</li>
 </ul>
 
@@ -358,7 +359,7 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   14.7 and a fuel density of 745 g/L,</p>
 \[ \dot V_{\text{fuel}}\;[\text{L/h}] \;=\; \frac{\dot m_{\text{air}}}{14.7 \times 745}\times 3600, \tag{1}\]
 <p>and integrate over the 1 Hz trip grid, normalizing by trip distance to obtain the trip target
-  \(f\) in litres per 100 km. For the robustness analysis of Section 8.4 we also form a trim-corrected
+  \(f\) in litres per 100 km. For the robustness analysis of Section 8.5 we also form a trim-corrected
   target that restores the fuel the stoichiometric assumption ignores,</p>
 \[ \dot V^{\text{corr}}_{\text{fuel}} \;=\; \dot V_{\text{fuel}}\left(1 + \frac{\text{STFT}+\text{LTFT}}{100}\right), \tag{2}\]
 <p>where STFT and LTFT are the short- and long-term fuel trims in percent.</p>
@@ -647,10 +648,42 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
 <figure>
   <img src="figures/fig6_attribution_accuracy.svg" alt="Attribution accuracy vs signature strength">
   <figcaption><b>Figure 7.</b> Attribution accuracy versus signature strength, reaching 95.9% at the
-    bench-calibrated fault magnitude while the fuel-magnitude baseline stays at chance.</figcaption>
+    bench-calibrated fault magnitude while the fuel-magnitude baseline stays at chance. This classifier
+    is trained on the injected labels and is therefore an upper bound; Section 8.4 reports the transfer
+    result that does not use them.</figcaption>
 </figure>
 
-<h3>8.4 Robustness of the silent-combustion result</h3>
+<h3>8.4 Transfer with frozen source-derived signatures</h3>
+<p>The classifier above is trained on the same injection labels it recovers, so it measures
+  recoverability rather than transfer. We therefore repeat the evaluation with <b>frozen</b> signatures
+  that never see the VED injection labels: the driver signature is a logistic model learned only on the
+  external aggressive-driving dataset (over kinematic features matched to VED: acceleration variability,
+  its 95th percentile, and harsh-event rate), and the fault signature is the combustion axis, whose
+  direction and effect size come from the bench. Each VED trip receives a frozen kinematic score and a
+  frozen combustion score, and the attribution rule is simply which standardized score is larger, a
+  fixed rule with no fitted parameters. At the bench-calibrated magnitude this zero-shot rule reaches
+  <b>88.6% accuracy</b>, essentially equal to the trained upper bound (0.886 vs 0.886) and far above the
+  fuel-only chance level; the two track across effect sizes (0.86 at S = 1.5, 0.92 at S = 2.0). Because
+  the scoring functions are learned in their source domains and combined on the target without joint
+  supervision, this is the multi-source transfer the framework claims, not a rediscovery of the
+  injection rule.</p>
+<p>The frozen rule also supports abstention. Withholding a decision when the two scores are close trades
+  coverage for accuracy: at the bench magnitude, deciding on the 71% of trips with the clearest evidence
+  raises accuracy from 88.6% to 95.7%, and on the clearest 41% to 98.2%. In a maintenance setting an
+  explicit "uncertain" verdict is preferable to a confident wrong intervention.</p>
+
+<table>
+  <tr><th class="num">Signature strength S</th><th class="num">Frozen transfer</th><th class="num">Trained upper bound</th><th class="num">Fuel-only</th></tr>
+  <tr><td class="num">1.0</td><td class="num">0.769</td><td class="num">0.768</td><td class="num">0.50</td></tr>
+  <tr><td class="num">1.5</td><td class="num">0.863</td><td class="num">0.863</td><td class="num">0.50</td></tr>
+  <tr><td class="num">1.66 (bench)</td><td class="num">0.886</td><td class="num">0.886</td><td class="num">0.50</td></tr>
+  <tr><td class="num">2.0</td><td class="num">0.924</td><td class="num">0.925</td><td class="num">0.50</td></tr>
+  <tr><td class="num">3.0</td><td class="num">0.980</td><td class="num">0.981</td><td class="num">0.51</td></tr>
+</table>
+<div class="tcap"><b>Table 7.</b> Attribution accuracy by signature strength. The frozen source-derived rule
+  (no injection-label training) matches the trained upper bound; fuel magnitude alone stays at chance.</div>
+
+<h3>8.5 Robustness of the silent-combustion result</h3>
 <p>Two threats could make the silent combustion cell an artifact rather than a finding; both are ruled
   out.</p>
 <h4>Trim-blindness of the fuel target</h4>
@@ -669,7 +702,7 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   correlation (\(r = -0.14\)). The silence therefore reflects that driver-caused excess is genuinely not
   combustion-linked, not a measurement or sampling artifact.</p>
 
-<h3>8.5 A worked example</h3>
+<h3>8.6 A worked example</h3>
 <p>Figure 8 shows the method's per-trip product on two real trips with the same symptom and opposite
   causes. Trip A burns 5.2 L/100km above its gentle-driving baseline, almost all of it driving
   behaviour, with a negligible vehicle-baseline; Trip B burns 2.8 above baseline, almost all of it a
@@ -735,7 +768,7 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   excess is transient and kinematic, malfunction excess is steady-state and combustion-linked. On a 194-vehicle public fleet, behaviour and a persistent vehicle-baseline account for measurable 8% and 14% shares of trip-fuel variance; on a controlled bench, a rich-mixture fault burns 6.2% more with an
   emissions signature; the combustion axis is silent for driver-caused excess, and that silence survives
   both a trim-corrected fuel target and the highest-trim vehicles. When fuel magnitude is made
-  uninformative, the signature attributes the cause at 95.9% accuracy in a calibrated semi-synthetic evaluation, where magnitude alone is at chance.
+  uninformative, frozen signatures learned in separate source domains attribute the cause at 88.6% in a calibrated semi-synthetic transfer test (trained upper bound 95.9%), where magnitude alone is at chance.
   Because both axes derive from standard on-board-diagnostics channels, per-trip attribution is
   deployable on existing telematics, and the main obstacle to pushing it further is the absence of a
   public dataset that carries fuel, faults, and behaviour together.</p>

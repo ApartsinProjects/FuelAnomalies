@@ -164,3 +164,16 @@ NOTE: supersedes the earlier -0.039 (P6) combustion value; use -0.028 everywhere
   operating regions. The +6.2% matched-mean rich effect is a group comparison and is unaffected.
 - **E8 counterfactual reference sensitivity**: behaviour-component median at gentle-reference percentile
   q10/q20/q30 = 0.41 / 0.49 / 0.25 L/100km (same order of magnitude; q20 used in paper).
+
+## P13 — Frozen source-signature attribution (EAAI E3; scripts/p13_frozen_attribution.py)
+Driver signature = logistic FROZEN from the external Zenodo aggressive-driving data (kinematic features
+matched to VED: variability, p95, harsh-rate). Fault signature = combustion axis, direction+magnitude
+from the bench. Neither is fit to the VED injection labels. Attribution rule = predict fault iff
+standardized combustion score > kinematic score (argmax, zero-shot).
+- Frozen argmax vs trained-on-injection logistic vs fuel-only, by S:
+  S0.5 0.643/0.644/0.50 ; 1.0 0.769/0.768/0.50 ; 1.5 0.863/0.863/0.50 ; **Sbench1.66 0.886/0.886/0.50** ;
+  2.0 0.924/0.925/0.50 ; 3.0 0.980/0.981/0.51.
+  => FROZEN zero-shot rule MATCHES the trained upper bound; the 95.9% (P8, trained) is an upper bound,
+  the honest transfer number at bench magnitude is ~0.886. Fuel-only stays at chance.
+- Abstention (frozen, S_bench): tau0 cov1.00 acc0.886 ; tau0.5 cov0.86 acc0.929 ; tau1.0 cov0.71 acc0.957 ;
+  tau1.5 cov0.56 acc0.971 ; tau2.0 cov0.41 acc0.982. => abstaining on ambiguous cases trades coverage for accuracy.

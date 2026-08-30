@@ -110,7 +110,11 @@
       "2.0": 0.979,
       "2.5": 0.992,
       "3.0": 0.998
-    }
+    },
+    "frozen_transfer_at_Sbench": 0.886,
+    "trained_upper_bound": 0.959,
+    "abstention_tau1_coverage": 0.71,
+    "abstention_tau1_accuracy": 0.957
   },
   "provenance": "Generated from scripts/p1..p12; see RESULTS.md. All figures/tables/text derive from these values."
 }
