@@ -194,8 +194,7 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   consumption from a physical power formulation with few calibrated parameters. Data-driven models now
   lead on on-board-diagnostics and telematics inputs: tree ensembles are the reliable workhorse and
   have been shown to beat both neural baselines and the engine-control-unit estimate against
-  ground-truth fuel meters [<a href="#r4">4</a>], and kernel methods map engine parameters to fuel rate
-  from OBD-II [<a href="#r9">9</a>]. These models predict consumption accurately, but they estimate a
+  ground-truth fuel meters [<a href="#r4">4</a>], and kernel methods map engine parameters to fuel rate from OBD-II [<a href="#r9">9</a>]. Classic modal-emission models set the physical baselines ([<a href="#r27">27</a>] CMEM, [<a href="#r28">28</a>] MOVES), and recent data-driven fuel models use smartphone telematics [<a href="#r29">29</a>], cascaded real-world regression [<a href="#r30">30</a>], neural drive-cycle models [<a href="#r31">31</a>], and behaviour-aware predictors [<a href="#r32">32</a>]. These models predict consumption accurately, but they estimate a
   single quantity; none decomposes that quantity into the driver and vehicle contributions that an
   operator must separate.</p>
 
@@ -205,8 +204,7 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   reproduces (Section 6.2), and recent reviews survey behaviour-to-fuel machine learning specifically
   [<a href="#r15">15</a>]. Driver behaviour has been classified from OBD signals and used to predict
   fuel consumption [<a href="#r12">12</a>], recognized as a driving style from smartphone inertial
-  sensors [<a href="#r14">14</a>], and linked to efficiency through drive-cycle simulation
-  [<a href="#r13">13</a>]. This literature scores the driver in isolation. It does not separate the
+  sensors [<a href="#r14">14</a>], and linked to efficiency through drive-cycle simulation [<a href="#r13">13</a>]. Large naturalistic-driving studies (SHRP2 [<a href="#r33">33</a>]; UDRIVE [<a href="#r37">37</a>], [<a href="#r38">38</a>]) and a driving-style-recognition survey [<a href="#r36">36</a>] underpin behaviour recognition, eco-driving reviews quantify the fuel impact [<a href="#r34">34</a>], and usage-based insurance applies telematics scoring commercially [<a href="#r35">35</a>]. This literature scores the driver in isolation. It does not separate the
   driver's contribution from the vehicle's, and in single-driver-per-vehicle data the two are
   confounded unless a model controls for one.</p>
 
@@ -214,15 +212,14 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
 <p>Fault-diagnosis work detects sensor and actuator faults in the air-fuel path from telemetry:
   neural detection and isolation of multiple engine-sensor faults [<a href="#r16">16</a>],
   fault-tolerant handling of the mass-air-flow sensor whose signal we use to derive fuel
-  [<a href="#r17">17</a>], and deep-learning fault diagnosis from driving signals [<a href="#r18">18</a>].
+  [<a href="#r17">17</a>], and deep-learning fault diagnosis from driving signals [<a href="#r18">18</a>]. Broader predictive-maintenance research contributes benchmark datasets and methods, including the SCANIA Component X multivariate benchmark [<a href="#r39">39</a>], LSTM remaining-useful-life estimation [<a href="#r40">40</a>], diesel-engine vibration diagnosis [<a href="#r43">43</a>], and recent surveys [<a href="#r41">41</a>], [<a href="#r42">42</a>].
   The EngineFaultDB dataset we use as our malfunction arm was released with a fault-classification
   baseline [<a href="#r2">2</a>]; we repurpose it to quantify the fuel signature of a fault rather than
   to classify faults. These methods target the fault directly and treat fuel efficiency as an input,
   not as the symptom to be attributed.</p>
 
 <h3>2.4 Telemetry anomaly detection</h3>
-<p>The detector toolbox is mature: isolation forest [<a href="#r19">19</a>], one-class methods, and
-  autoencoder or recurrent models. In the automotive setting, however, most of this work targets
+<p>The detector toolbox is mature: isolation forest [<a href="#r19">19</a>], one-class support-vector methods [<a href="#r44">44</a>], change-point detection [<a href="#r45">45</a>], and autoencoder or recurrent models catalogued in recent surveys [<a href="#r47">47</a>] and toolkits such as PyOD [<a href="#r46">46</a>]. In the automotive setting, however, most of this work targets
   controller-area-network intrusion and safety rather than fuel efficiency, for example LSTM
   autoencoders [<a href="#r20">20</a>], recurrent autoencoders for embedded intrusion detection
   [<a href="#r21">21</a>], and spatiotemporal detection for connected vehicles [<a href="#r22">22</a>].
@@ -235,8 +232,7 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   that is a sudden step in fuel level, whereas the excess we attribute is a sustained efficiency shift.</p>
 
 <h3>2.5 Explainable attribution and the nearest prior work</h3>
-<p>Feature-attribution methods such as SHAP [<a href="#r23">23</a>] explain a model's output in terms of
-  its input features. The nearest prior work applies explainability to our exact problem: Barbado and
+<p>Feature-attribution methods such as SHAP [<a href="#r23">23</a>] explain a model's output in terms of its input features, and counterfactual explanations state the minimal input change that would flip a decision [<a href="#r48">48</a>]. The nearest prior work applies explainability to our exact problem: Barbado and
   Corcho detect fuel-consumption anomalies on fleet telematics with interpretable feature relevance and
   counterfactual recommendations [<a href="#r3">3</a>]. Their method identifies which features co-occur
   with an anomaly and what change would return an outlier to normal. It attributes an anomaly to
@@ -244,7 +240,7 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   the vehicle, and its feature relevances are not validated against an external ground truth for either
   cause. Our signature-based decomposition is the increment: we group observables into two physically
   motivated axes, validate each against an independent signal, and measure the resulting cause
-  attribution. Methodologically the setting is a form of weak supervision [<a href="#r25">25</a>]: the
+  attribution. Methodologically the setting is a form of weak supervision [<a href="#r25">25</a>], drawing on transfer learning [<a href="#r49">49</a>], multi-source domain adaptation [<a href="#r50">50</a>], data-programming weak supervision [<a href="#r51">51</a>], and mixture-of-experts evidence fusion [<a href="#r52">52</a>]: the
   target fleet carries the outcome but no cause labels, while each competing cause is labelled only in a
   separate source domain with its own feature space, so cause-specific signatures must be learned from
   the sources and combined on the target without joint supervision.</p>
@@ -898,6 +894,79 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   <li id="r26">E. Romera, L. M. Bergasa, R. Arroyo. Need Data for Driver Behaviour Analysis? Presenting
     the Public UAH-DriveSet. <i>IEEE ITSC</i>, 387&ndash;392, 2016.
     <a href="https://doi.org/10.1109/ITSC.2016.7795584">10.1109/ITSC.2016.7795584</a></li>
+  <li id="r27">F. An, M. Barth, J. Norbeck, M. Ross. Development of Comprehensive Modal Emissions Model:
+    Operating Under Hot-Stabilized Conditions. <i>Transportation Research Record</i>, 1587:52&ndash;62,
+    1997. <a href="https://doi.org/10.3141/1587-07">10.3141/1587-07</a></li>
+  <li id="r28">S. Vallamsundar, J. Lin. MOVES Versus MOBILE: Comparison of Greenhouse Gas and Criteria
+    Pollutant Emissions. <i>Transportation Research Record</i>, 2233:27&ndash;35, 2011.
+    <a href="https://doi.org/10.3141/2233-04">10.3141/2233-04</a></li>
+  <li id="r29">Y. Yao et&nbsp;al. Vehicle Fuel Consumption Prediction Method Based on Driving Behavior Data
+    Collected from Smartphones. <i>Journal of Advanced Transportation</i>, 2020:9263605.
+    <a href="https://doi.org/10.1155/2020/9263605">10.1155/2020/9263605</a></li>
+  <li id="r30">E. Moradi, L. Miranda-Moreno. Vehicular fuel consumption estimation using real-world
+    measures through cascaded machine learning modeling. <i>Transportation Research Part D</i>,
+    88:102576, 2020. <a href="https://doi.org/10.1016/j.trd.2020.102576">10.1016/j.trd.2020.102576</a></li>
+  <li id="r31">J. Topi&cacute;, B. &Scaron;kugor, J. Deur. Neural Network-Based Prediction of Vehicle Fuel
+    Consumption Based on Driving Cycle Data. <i>Sustainability</i>, 14(2):744, 2022.
+    <a href="https://doi.org/10.3390/su14020744">10.3390/su14020744</a></li>
+  <li id="r32">H. I. Ashqar et&nbsp;al. Incorporating driving behavior into vehicle fuel consumption
+    prediction. <i>Discover Sustainability</i>, 5, 2024.
+    <a href="https://doi.org/10.1007/s43621-024-00511-z">10.1007/s43621-024-00511-z</a></li>
+  <li id="r33">T. A. Dingus et&nbsp;al. Driver crash risk factors and prevalence evaluation using
+    naturalistic driving data. <i>PNAS</i>, 113(10):2636&ndash;2641, 2016.
+    <a href="https://doi.org/10.1073/pnas.1513271113">10.1073/pnas.1513271113</a></li>
+  <li id="r34">Y. Huang et&nbsp;al. Eco-driving technology for sustainable road transport: A review.
+    <i>Renewable and Sustainable Energy Reviews</i>, 93:596&ndash;609, 2018.
+    <a href="https://doi.org/10.1016/j.rser.2018.05.030">10.1016/j.rser.2018.05.030</a></li>
+  <li id="r35">D. I. Tselentis, E. I. Vlahogianni, G. Yannis. Innovative motor insurance schemes: A review
+    of current practices and emerging challenges. <i>Accident Analysis and Prevention</i>,
+    98:139&ndash;148, 2017. <a href="https://doi.org/10.1016/j.aap.2016.10.006">10.1016/j.aap.2016.10.006</a></li>
+  <li id="r36">C. M. Mart&iacute;nez, M. Heucke, F.-Y. Wang, B. Gao, D. Cao. Driving Style Recognition for
+    Intelligent Vehicle Control and Advanced Driver Assistance: A Survey. <i>IEEE Trans. Intelligent
+    Transportation Systems</i>, 19(3):666&ndash;676, 2018.
+    <a href="https://doi.org/10.1109/TITS.2017.2706978">10.1109/TITS.2017.2706978</a></li>
+  <li id="r37">Y. Barnard et&nbsp;al. The study design of UDRIVE: the naturalistic driving study across
+    Europe. <i>European Transport Research Review</i>, 8, 2016.
+    <a href="https://doi.org/10.1007/s12544-016-0202-z">10.1007/s12544-016-0202-z</a></li>
+  <li id="r38">N. van Nes et&nbsp;al. The potential of naturalistic driving for in-depth understanding of
+    driver behavior: UDRIVE results and beyond. <i>Safety Science</i>, 119:11&ndash;20, 2019.
+    <a href="https://doi.org/10.1016/j.ssci.2018.12.029">10.1016/j.ssci.2018.12.029</a></li>
+  <li id="r39">Z. Kharazian et&nbsp;al. SCANIA Component X: a real-world multivariate time series dataset for
+    predictive maintenance. <i>Scientific Data</i>, 12, 2025.
+    <a href="https://doi.org/10.1038/s41597-025-04802-6">10.1038/s41597-025-04802-6</a></li>
+  <li id="r40">S. Zheng, K. Ristovski, A. Farahat, C. Gupta. Long Short-Term Memory Network for Remaining
+    Useful Life estimation. <i>IEEE ICPHM</i>, 88&ndash;95, 2017.
+    <a href="https://doi.org/10.1109/ICPHM.2017.7998311">10.1109/ICPHM.2017.7998311</a></li>
+  <li id="r41">O. Serradilla, E. Zugasti, J. Rodriguez, U. Zurutuza. Deep learning models for predictive
+    maintenance: a survey, comparison, challenges and prospects. <i>Applied Intelligence</i>,
+    52:10934&ndash;10964, 2022. <a href="https://doi.org/10.1007/s10489-021-03004-y">10.1007/s10489-021-03004-y</a></li>
+  <li id="r42">W. Zhang, D. Yang, H. Wang. Data-Driven Methods for Predictive Maintenance of Industrial
+    Equipment: A Survey. <i>IEEE Systems Journal</i>, 13(3):2213&ndash;2227, 2019.
+    <a href="https://doi.org/10.1109/JSYST.2019.2905565">10.1109/JSYST.2019.2905565</a></li>
+  <li id="r43">Y. Bai et&nbsp;al. Compression Reconstruction and Fault Diagnosis of Diesel Engine Vibration
+    Signal. <i>Sensors</i>, 22(10):3884, 2022. <a href="https://doi.org/10.3390/s22103884">10.3390/s22103884</a></li>
+  <li id="r44">B. Sch&ouml;lkopf, J. C. Platt, J. Shawe-Taylor, A. J. Smola, R. C. Williamson. Estimating the
+    Support of a High-Dimensional Distribution. <i>Neural Computation</i>, 13(7):1443&ndash;1471, 2001.
+    <a href="https://doi.org/10.1162/089976601750264965">10.1162/089976601750264965</a></li>
+  <li id="r45">S. Aminikhanghahi, D. J. Cook. A survey of methods for time series change point detection.
+    <i>Knowledge and Information Systems</i>, 51(2):339&ndash;367, 2017.
+    <a href="https://doi.org/10.1007/s10115-016-0987-z">10.1007/s10115-016-0987-z</a></li>
+  <li id="r46">Y. Zhao, Z. Nasrullah, Z. Li. PyOD: A Python Toolbox for Scalable Outlier Detection.
+    arXiv:1901.01588, 2019. <a href="https://doi.org/10.48550/arXiv.1901.01588">10.48550/arXiv.1901.01588</a></li>
+  <li id="r47">R. Chalapathy, S. Chawla. Deep Learning for Anomaly Detection: A Survey. arXiv:1901.03407,
+    2019. <a href="https://doi.org/10.48550/arXiv.1901.03407">10.48550/arXiv.1901.03407</a></li>
+  <li id="r48">S. Wachter, B. Mittelstadt, C. Russell. Counterfactual Explanations Without Opening the Black
+    Box: Automated Decisions and the GDPR. <i>Harvard Journal of Law &amp; Technology</i>, 31(2), 2017.
+    <a href="https://doi.org/10.2139/ssrn.3063289">10.2139/ssrn.3063289</a></li>
+  <li id="r49">S. J. Pan, Q. Yang. A Survey on Transfer Learning. <i>IEEE Trans. Knowledge and Data
+    Engineering</i>, 22(10):1345&ndash;1359, 2010. <a href="https://doi.org/10.1109/TKDE.2009.191">10.1109/TKDE.2009.191</a></li>
+  <li id="r50">S. Sun, H. Shi, Y. Wu. A survey of multi-source domain adaptation. <i>Information Fusion</i>,
+    24:84&ndash;92, 2015. <a href="https://doi.org/10.1016/j.inffus.2014.12.003">10.1016/j.inffus.2014.12.003</a></li>
+  <li id="r51">A. Ratner, S. H. Bach, H. Ehrenberg, J. Fries, S. Wu, C. R&eacute;. Snorkel: Rapid Training
+    Data Creation with Weak Supervision. <i>Proc. VLDB Endowment</i>, 11(3):269&ndash;282, 2017.
+    <a href="https://doi.org/10.14778/3157794.3157797">10.14778/3157794.3157797</a></li>
+  <li id="r52">R. A. Jacobs, M. I. Jordan, S. J. Nowlan, G. E. Hinton. Adaptive Mixtures of Local Experts.
+    <i>Neural Computation</i>, 3(1):79&ndash;87, 1991. <a href="https://doi.org/10.1162/neco.1991.3.1.79">10.1162/neco.1991.3.1.79</a></li>
 </ol>
 
 <div class="foot">

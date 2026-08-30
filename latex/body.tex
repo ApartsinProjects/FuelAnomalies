@@ -92,10 +92,16 @@ models now lead on on-board-diagnostics and telematics inputs: tree
 ensembles are the reliable workhorse and have been shown to beat both
 neural baselines and the engine-control-unit estimate against
 ground-truth fuel meters {[}\hyperref[r4]{4}{]}, and kernel methods map
-engine parameters to fuel rate from OBD-II {[}\hyperref[r9]{9}{]}. These
-models predict consumption accurately, but they estimate a single
-quantity; none decomposes that quantity into the driver and vehicle
-contributions that an operator must separate.
+engine parameters to fuel rate from OBD-II {[}\hyperref[r9]{9}{]}.
+Classic modal-emission models set the physical baselines
+({[}\hyperref[r27]{27}{]} CMEM, {[}\hyperref[r28]{28}{]} MOVES), and
+recent data-driven fuel models use smartphone telematics
+{[}\hyperref[r29]{29}{]}, cascaded real-world regression
+{[}\hyperref[r30]{30}{]}, neural drive-cycle models
+{[}\hyperref[r31]{31}{]}, and behaviour-aware predictors
+{[}\hyperref[r32]{32}{]}. These models predict consumption accurately,
+but they estimate a single quantity; none decomposes that quantity into
+the driver and vehicle contributions that an operator must separate.
 
 \subsubsection{2.2 Eco-driving and driving-behaviour
 scoring}\label{eco-driving-and-driving-behaviour-scoring}
@@ -108,8 +114,14 @@ learning specifically {[}\hyperref[r15]{15}{]}. Driver behaviour has
 been classified from OBD signals and used to predict fuel consumption
 {[}\hyperref[r12]{12}{]}, recognized as a driving style from smartphone
 inertial sensors {[}\hyperref[r14]{14}{]}, and linked to efficiency
-through drive-cycle simulation {[}\hyperref[r13]{13}{]}. This literature
-scores the driver in isolation. It does not separate the
+through drive-cycle simulation {[}\hyperref[r13]{13}{]}. Large
+naturalistic-driving studies (SHRP2 {[}\hyperref[r33]{33}{]}; UDRIVE
+{[}\hyperref[r37]{37}{]}, {[}\hyperref[r38]{38}{]}) and a
+driving-style-recognition survey {[}\hyperref[r36]{36}{]} underpin
+behaviour recognition, eco-driving reviews quantify the fuel impact
+{[}\hyperref[r34]{34}{]}, and usage-based insurance applies telematics
+scoring commercially {[}\hyperref[r35]{35}{]}. This literature scores
+the driver in isolation. It does not separate the
 driver\textquotesingle s contribution from the
 vehicle\textquotesingle s, and in single-driver-per-vehicle data the two
 are confounded unless a model controls for one.
@@ -122,31 +134,39 @@ path from telemetry: neural detection and isolation of multiple
 engine-sensor faults {[}\hyperref[r16]{16}{]}, fault-tolerant handling
 of the mass-air-flow sensor whose signal we use to derive fuel
 {[}\hyperref[r17]{17}{]}, and deep-learning fault diagnosis from driving
-signals {[}\hyperref[r18]{18}{]}. The EngineFaultDB dataset we use as
-our malfunction arm was released with a fault-classification baseline
-{[}\hyperref[r2]{2}{]}; we repurpose it to quantify the fuel signature
-of a fault rather than to classify faults. These methods target the
-fault directly and treat fuel efficiency as an input, not as the symptom
-to be attributed.
+signals {[}\hyperref[r18]{18}{]}. Broader predictive-maintenance
+research contributes benchmark datasets and methods, including the
+SCANIA Component X multivariate benchmark {[}\hyperref[r39]{39}{]}, LSTM
+remaining-useful-life estimation {[}\hyperref[r40]{40}{]}, diesel-engine
+vibration diagnosis {[}\hyperref[r43]{43}{]}, and recent surveys
+{[}\hyperref[r41]{41}{]}, {[}\hyperref[r42]{42}{]}. The EngineFaultDB
+dataset we use as our malfunction arm was released with a
+fault-classification baseline {[}\hyperref[r2]{2}{]}; we repurpose it to
+quantify the fuel signature of a fault rather than to classify faults.
+These methods target the fault directly and treat fuel efficiency as an
+input, not as the symptom to be attributed.
 
 \subsubsection{2.4 Telemetry anomaly
 detection}\label{telemetry-anomaly-detection}
 
 The detector toolbox is mature: isolation forest
-{[}\hyperref[r19]{19}{]}, one-class methods, and autoencoder or
-recurrent models. In the automotive setting, however, most of this work
-targets controller-area-network intrusion and safety rather than fuel
-efficiency, for example LSTM autoencoders {[}\hyperref[r20]{20}{]},
-recurrent autoencoders for embedded intrusion detection
-{[}\hyperref[r21]{21}{]}, and spatiotemporal detection for connected
-vehicles {[}\hyperref[r22]{22}{]}. These methods flag that a trip is
-anomalous; they do not assign a fuel anomaly to a driver-versus -vehicle
-cause. Closest in spirit, recent work detects anomalies in OBD snapshots
-and adds a SHAP-based cause investigation with synthetically generated
-anomalies {[}\hyperref[r24]{24}{]}; it investigates which features drive
-a flagged anomaly, whereas we attribute the competing driver-versus
--vehicle cause across heterogeneous datasets that carry no joint
-naturalistic cause labels. Fuel theft or leakage is a related but
+{[}\hyperref[r19]{19}{]}, one-class support-vector methods
+{[}\hyperref[r44]{44}{]}, change-point detection
+{[}\hyperref[r45]{45}{]}, and autoencoder or recurrent models catalogued
+in recent surveys {[}\hyperref[r47]{47}{]} and toolkits such as PyOD
+{[}\hyperref[r46]{46}{]}. In the automotive setting, however, most of
+this work targets controller-area-network intrusion and safety rather
+than fuel efficiency, for example LSTM autoencoders
+{[}\hyperref[r20]{20}{]}, recurrent autoencoders for embedded intrusion
+detection {[}\hyperref[r21]{21}{]}, and spatiotemporal detection for
+connected vehicles {[}\hyperref[r22]{22}{]}. These methods flag that a
+trip is anomalous; they do not assign a fuel anomaly to a driver-versus
+-vehicle cause. Closest in spirit, recent work detects anomalies in OBD
+snapshots and adds a SHAP-based cause investigation with synthetically
+generated anomalies {[}\hyperref[r24]{24}{]}; it investigates which
+features drive a flagged anomaly, whereas we attribute the competing
+driver-versus -vehicle cause across heterogeneous datasets that carry no
+joint naturalistic cause labels. Fuel theft or leakage is a related but
 distinct anomaly, detected as an abrupt change point
 {[}\hyperref[r10]{10}{]}; that is a sudden step in fuel level, whereas
 the excess we attribute is a sustained efficiency shift.
@@ -155,10 +175,12 @@ the excess we attribute is a sustained efficiency shift.
 work}\label{explainable-attribution-and-the-nearest-prior-work}
 
 Feature-attribution methods such as SHAP {[}\hyperref[r23]{23}{]}
-explain a model\textquotesingle s output in terms of its input features.
-The nearest prior work applies explainability to our exact problem:
-Barbado and Corcho detect fuel-consumption anomalies on fleet telematics
-with interpretable feature relevance and counterfactual recommendations
+explain a model\textquotesingle s output in terms of its input features,
+and counterfactual explanations state the minimal input change that
+would flip a decision {[}\hyperref[r48]{48}{]}. The nearest prior work
+applies explainability to our exact problem: Barbado and Corcho detect
+fuel-consumption anomalies on fleet telematics with interpretable
+feature relevance and counterfactual recommendations
 {[}\hyperref[r3]{3}{]}. Their method identifies which features co-occur
 with an anomaly and what change would return an outlier to normal. It
 attributes an anomaly to \emph{features}, not to a \emph{cause class}:
@@ -168,7 +190,11 @@ for either cause. Our signature-based decomposition is the increment: we
 group observables into two physically motivated axes, validate each
 against an independent signal, and measure the resulting cause
 attribution. Methodologically the setting is a form of weak supervision
-{[}\hyperref[r25]{25}{]}: the target fleet carries the outcome but no
+{[}\hyperref[r25]{25}{]}, drawing on transfer learning
+{[}\hyperref[r49]{49}{]}, multi-source domain adaptation
+{[}\hyperref[r50]{50}{]}, data-programming weak supervision
+{[}\hyperref[r51]{51}{]}, and mixture-of-experts evidence fusion
+{[}\hyperref[r52]{52}{]}: the target fleet carries the outcome but no
 cause labels, while each competing cause is labelled only in a separate
 source domain with its own feature space, so cause-specific signatures
 must be learned from the sources and combined on the target without
@@ -1294,4 +1320,139 @@ and UAH-DriveSet for releasing their data openly.
   Data for Driver Behaviour Analysis? Presenting the Public
   UAH-DriveSet. \emph{IEEE ITSC}, 387--392, 2016.
   \href{https://doi.org/10.1109/ITSC.2016.7795584}{10.1109/ITSC.2016.7795584}}
+\item
+  \phantomsection\label{r27}{F. An, M. Barth, J. Norbeck, M. Ross.
+  Development of Comprehensive Modal Emissions Model: Operating Under
+  Hot-Stabilized Conditions. \emph{Transportation Research Record},
+  1587:52--62, 1997.
+  \href{https://doi.org/10.3141/1587-07}{10.3141/1587-07}}
+\item
+  \phantomsection\label{r28}{S. Vallamsundar, J. Lin. MOVES Versus
+  MOBILE: Comparison of Greenhouse Gas and Criteria Pollutant Emissions.
+  \emph{Transportation Research Record}, 2233:27--35, 2011.
+  \href{https://doi.org/10.3141/2233-04}{10.3141/2233-04}}
+\item
+  \phantomsection\label{r29}{Y. Yao et~al. Vehicle Fuel Consumption
+  Prediction Method Based on Driving Behavior Data Collected from
+  Smartphones. \emph{Journal of Advanced Transportation}, 2020:9263605.
+  \href{https://doi.org/10.1155/2020/9263605}{10.1155/2020/9263605}}
+\item
+  \phantomsection\label{r30}{E. Moradi, L. Miranda-Moreno. Vehicular
+  fuel consumption estimation using real-world measures through cascaded
+  machine learning modeling. \emph{Transportation Research Part D},
+  88:102576, 2020.
+  \href{https://doi.org/10.1016/j.trd.2020.102576}{10.1016/j.trd.2020.102576}}
+\item
+  \phantomsection\label{r31}{J. Topić, B. Škugor, J. Deur. Neural
+  Network-Based Prediction of Vehicle Fuel Consumption Based on Driving
+  Cycle Data. \emph{Sustainability}, 14(2):744, 2022.
+  \href{https://doi.org/10.3390/su14020744}{10.3390/su14020744}}
+\item
+  \phantomsection\label{r32}{H. I. Ashqar et~al. Incorporating driving
+  behavior into vehicle fuel consumption prediction. \emph{Discover
+  Sustainability}, 5, 2024.
+  \href{https://doi.org/10.1007/s43621-024-00511-z}{10.1007/s43621-024-00511-z}}
+\item
+  \phantomsection\label{r33}{T. A. Dingus et~al. Driver crash risk
+  factors and prevalence evaluation using naturalistic driving data.
+  \emph{PNAS}, 113(10):2636--2641, 2016.
+  \href{https://doi.org/10.1073/pnas.1513271113}{10.1073/pnas.1513271113}}
+\item
+  \phantomsection\label{r34}{Y. Huang et~al. Eco-driving technology for
+  sustainable road transport: A review. \emph{Renewable and Sustainable
+  Energy Reviews}, 93:596--609, 2018.
+  \href{https://doi.org/10.1016/j.rser.2018.05.030}{10.1016/j.rser.2018.05.030}}
+\item
+  \phantomsection\label{r35}{D. I. Tselentis, E. I. Vlahogianni, G.
+  Yannis. Innovative motor insurance schemes: A review of current
+  practices and emerging challenges. \emph{Accident Analysis and
+  Prevention}, 98:139--148, 2017.
+  \href{https://doi.org/10.1016/j.aap.2016.10.006}{10.1016/j.aap.2016.10.006}}
+\item
+  \phantomsection\label{r36}{C. M. Martínez, M. Heucke, F.-Y. Wang, B.
+  Gao, D. Cao. Driving Style Recognition for Intelligent Vehicle Control
+  and Advanced Driver Assistance: A Survey. \emph{IEEE Trans.
+  Intelligent Transportation Systems}, 19(3):666--676, 2018.
+  \href{https://doi.org/10.1109/TITS.2017.2706978}{10.1109/TITS.2017.2706978}}
+\item
+  \phantomsection\label{r37}{Y. Barnard et~al. The study design of
+  UDRIVE: the naturalistic driving study across Europe. \emph{European
+  Transport Research Review}, 8, 2016.
+  \href{https://doi.org/10.1007/s12544-016-0202-z}{10.1007/s12544-016-0202-z}}
+\item
+  \phantomsection\label{r38}{N. van Nes et~al. The potential of
+  naturalistic driving for in-depth understanding of driver behavior:
+  UDRIVE results and beyond. \emph{Safety Science}, 119:11--20, 2019.
+  \href{https://doi.org/10.1016/j.ssci.2018.12.029}{10.1016/j.ssci.2018.12.029}}
+\item
+  \phantomsection\label{r39}{Z. Kharazian et~al. SCANIA Component X: a
+  real-world multivariate time series dataset for predictive
+  maintenance. \emph{Scientific Data}, 12, 2025.
+  \href{https://doi.org/10.1038/s41597-025-04802-6}{10.1038/s41597-025-04802-6}}
+\item
+  \phantomsection\label{r40}{S. Zheng, K. Ristovski, A. Farahat, C.
+  Gupta. Long Short-Term Memory Network for Remaining Useful Life
+  estimation. \emph{IEEE ICPHM}, 88--95, 2017.
+  \href{https://doi.org/10.1109/ICPHM.2017.7998311}{10.1109/ICPHM.2017.7998311}}
+\item
+  \phantomsection\label{r41}{O. Serradilla, E. Zugasti, J. Rodriguez, U.
+  Zurutuza. Deep learning models for predictive maintenance: a survey,
+  comparison, challenges and prospects. \emph{Applied Intelligence},
+  52:10934--10964, 2022.
+  \href{https://doi.org/10.1007/s10489-021-03004-y}{10.1007/s10489-021-03004-y}}
+\item
+  \phantomsection\label{r42}{W. Zhang, D. Yang, H. Wang. Data-Driven
+  Methods for Predictive Maintenance of Industrial Equipment: A Survey.
+  \emph{IEEE Systems Journal}, 13(3):2213--2227, 2019.
+  \href{https://doi.org/10.1109/JSYST.2019.2905565}{10.1109/JSYST.2019.2905565}}
+\item
+  \phantomsection\label{r43}{Y. Bai et~al. Compression Reconstruction
+  and Fault Diagnosis of Diesel Engine Vibration Signal. \emph{Sensors},
+  22(10):3884, 2022.
+  \href{https://doi.org/10.3390/s22103884}{10.3390/s22103884}}
+\item
+  \phantomsection\label{r44}{B. Schölkopf, J. C. Platt, J. Shawe-Taylor,
+  A. J. Smola, R. C. Williamson. Estimating the Support of a
+  High-Dimensional Distribution. \emph{Neural Computation},
+  13(7):1443--1471, 2001.
+  \href{https://doi.org/10.1162/089976601750264965}{10.1162/089976601750264965}}
+\item
+  \phantomsection\label{r45}{S. Aminikhanghahi, D. J. Cook. A survey of
+  methods for time series change point detection. \emph{Knowledge and
+  Information Systems}, 51(2):339--367, 2017.
+  \href{https://doi.org/10.1007/s10115-016-0987-z}{10.1007/s10115-016-0987-z}}
+\item
+  \phantomsection\label{r46}{Y. Zhao, Z. Nasrullah, Z. Li. PyOD: A
+  Python Toolbox for Scalable Outlier Detection. arXiv:1901.01588, 2019.
+  \href{https://doi.org/10.48550/arXiv.1901.01588}{10.48550/arXiv.1901.01588}}
+\item
+  \phantomsection\label{r47}{R. Chalapathy, S. Chawla. Deep Learning for
+  Anomaly Detection: A Survey. arXiv:1901.03407, 2019.
+  \href{https://doi.org/10.48550/arXiv.1901.03407}{10.48550/arXiv.1901.03407}}
+\item
+  \phantomsection\label{r48}{S. Wachter, B. Mittelstadt, C. Russell.
+  Counterfactual Explanations Without Opening the Black Box: Automated
+  Decisions and the GDPR. \emph{Harvard Journal of Law \& Technology},
+  31(2), 2017.
+  \href{https://doi.org/10.2139/ssrn.3063289}{10.2139/ssrn.3063289}}
+\item
+  \phantomsection\label{r49}{S. J. Pan, Q. Yang. A Survey on Transfer
+  Learning. \emph{IEEE Trans. Knowledge and Data Engineering},
+  22(10):1345--1359, 2010.
+  \href{https://doi.org/10.1109/TKDE.2009.191}{10.1109/TKDE.2009.191}}
+\item
+  \phantomsection\label{r50}{S. Sun, H. Shi, Y. Wu. A survey of
+  multi-source domain adaptation. \emph{Information Fusion}, 24:84--92,
+  2015.
+  \href{https://doi.org/10.1016/j.inffus.2014.12.003}{10.1016/j.inffus.2014.12.003}}
+\item
+  \phantomsection\label{r51}{A. Ratner, S. H. Bach, H. Ehrenberg, J.
+  Fries, S. Wu, C. Ré. Snorkel: Rapid Training Data Creation with Weak
+  Supervision. \emph{Proc. VLDB Endowment}, 11(3):269--282, 2017.
+  \href{https://doi.org/10.14778/3157794.3157797}{10.14778/3157794.3157797}}
+\item
+  \phantomsection\label{r52}{R. A. Jacobs, M. I. Jordan, S. J. Nowlan,
+  G. E. Hinton. Adaptive Mixtures of Local Experts. \emph{Neural
+  Computation}, 3(1):79--87, 1991.
+  \href{https://doi.org/10.1162/neco.1991.3.1.79}{10.1162/neco.1991.3.1.79}}
 \end{enumerate}
