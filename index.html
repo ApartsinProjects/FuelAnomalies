@@ -683,6 +683,39 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
 <div class="tcap"><b>Table 7.</b> Attribution accuracy by signature strength. The frozen source-derived rule
   (no injection-label training) matches the trained upper bound; fuel magnitude alone stays at chance.</div>
 
+<p>The real world does not present pure one-axis changes, so we stress the frozen rule. When both causes
+  act at once, we score dominant-cause accuracy over a grid of driver and fault effect sizes (Figure 8):
+  attribution is accurate off the diagonal and degrades to chance only where the two effects are equal
+  and the cause is genuinely ambiguous. The rule degrades gracefully under departures from ideal
+  conditions at the bench magnitude: additive Gaussian score noise takes accuracy from 0.886 to 0.80
+  (1 SD) and 0.74 (1.5 SD); a systematic combustion-score bias to 0.83 (1 SD); and dropping the
+  fuel-trim channel for a fraction of trips to 0.85 (20% missing) and 0.80 (50%). As a probabilistic
+  scorer (the sigmoid of the score margin) the frozen rule reaches AUROC 0.951, average precision 0.945,
+  and a Brier score of 0.092 at the bench magnitude.</p>
+<figure>
+  <img src="figures/mixed_cause_grid.svg" alt="Mixed-cause dominant-cause accuracy grid">
+  <figcaption><b>Figure 8.</b> Dominant-cause accuracy when both causes act, over driver effect
+    \(S_d\) and fault effect \(S_f\). Attribution is reliable off the diagonal and falls to chance only
+    where the two effects are equal.</figcaption>
+</figure>
+<p>Attribution is not an artifact of one classifier. At the bench magnitude, task-aligned baselines all
+  cluster near the frozen rule and far above chance (Table 8): a raw-threshold rule on harsh-event rate
+  versus fuel trim reaches 0.89, a likelihood-ratio prototype against source-calibrated signature
+  distributions 0.89, and a classifier trained on all features and the injection labels sets the upper
+  bound at 0.95, while the fuel-only baseline stays at 0.51. The signature separation, not the choice of
+  attributor, is what carries the result.</p>
+<table>
+  <tr><th>Attributor (at bench magnitude)</th><th class="num">Accuracy</th><th>Uses injection labels?</th></tr>
+  <tr><td>Fuel magnitude only</td><td class="num">0.51</td><td>n/a (chance)</td></tr>
+  <tr><td>Frozen source-derived argmax</td><td class="num">0.886</td><td>no</td></tr>
+  <tr><td>Raw-threshold rule (harsh rate vs trim)</td><td class="num">0.891</td><td>no</td></tr>
+  <tr><td>Likelihood-ratio prototype (source-calibrated)</td><td class="num">0.886</td><td>no</td></tr>
+  <tr><td>Trained full-feature logistic (upper bound)</td><td class="num">0.952</td><td>yes</td></tr>
+</table>
+<div class="tcap"><b>Table 8.</b> Task-aligned attribution baselines. Every signature-based attributor
+  reaches ~0.89 without injection labels; only the trained upper bound uses them; fuel magnitude is at
+  chance.</div>
+
 <h3>8.5 Robustness of the silent-combustion result</h3>
 <p>Two threats could make the silent combustion cell an artifact rather than a finding; both are ruled
   out.</p>
@@ -703,14 +736,14 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   combustion-linked, not a measurement or sampling artifact.</p>
 
 <h3>8.6 A worked example</h3>
-<p>Figure 8 shows the method's per-trip product on two real trips with the same symptom and opposite
+<p>Figure 9 shows the method's per-trip product on two real trips with the same symptom and opposite
   causes. Trip A burns 5.2 L/100km above its gentle-driving baseline, almost all of it driving
   behaviour, with a negligible vehicle-baseline; Trip B burns 2.8 above baseline, almost all of it a
   persistent vehicle-baseline offset, with negligible behaviour. Fuel per distance alone would flag both
   and explain neither; the decomposition attributes each to its cause.</p>
 <figure>
   <img src="figures/fig7_worked_example.svg" alt="Per-trip decomposition, two example trips">
-  <figcaption><b>Figure 8.</b> Two real trips, same elevated fuel, opposite cause. The decomposition
+  <figcaption><b>Figure 9.</b> Two real trips, same elevated fuel, opposite cause. The decomposition
     separates a driver-dominated trip (A) from a vehicle-dominated trip (B).</figcaption>
 </figure>
 

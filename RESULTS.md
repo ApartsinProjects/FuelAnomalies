@@ -177,3 +177,15 @@ standardized combustion score > kinematic score (argmax, zero-shot).
   the honest transfer number at bench magnitude is ~0.886. Fuel-only stays at chance.
 - Abstention (frozen, S_bench): tau0 cov1.00 acc0.886 ; tau0.5 cov0.86 acc0.929 ; tau1.0 cov0.71 acc0.957 ;
   tau1.5 cov0.56 acc0.971 ; tau2.0 cov0.41 acc0.982. => abstaining on ambiguous cases trades coverage for accuracy.
+
+## P14 — Stress tests (E4) + task-aligned baselines (E5); scripts/p14_stress_baselines.py
+Built on the frozen source-derived scores (p13). All zero-shot unless noted.
+- E4 mixed-cause 2D grid (dominant-cause accuracy vs driver effect Sd x fault effect Sf): high off-diagonal,
+  ~0.5 near the diagonal (ambiguous when both causes equal). Figure figures/mixed_cause_grid.
+- E4 Gaussian score noise: acc 0.886 (sd0) -> 0.857 (0.5) -> 0.798 (1.0) -> 0.740 (1.5). Graceful.
+- E4 systematic combustion bias: 0.886 -> 0.874 (0.5) -> 0.834 (1.0).
+- E4 missing trim (combustion score dropped): 0.886 -> 0.851 (20%) -> 0.798 (50%).
+- E4 probabilistic metrics at S_bench (frozen prob=sigmoid(cz-kz)): AUROC 0.951, AUPRC 0.945, Brier 0.092.
+- E5 baselines at S_bench: frozen argmax 0.886; raw-threshold rule 0.891; likelihood-ratio prototype 0.886;
+  trained full-feature logistic (upper bound) 0.952; fuel-only 0.506 (chance). => multiple signature-based
+  attributors all ~0.88-0.89 zero-shot; fuel magnitude at chance. Robust to attributor choice (W10).

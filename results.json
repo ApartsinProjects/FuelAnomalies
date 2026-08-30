@@ -116,5 +116,20 @@
     "abstention_tau1_coverage": 0.71,
     "abstention_tau1_accuracy": 0.957
   },
-  "provenance": "Generated from scripts/p1..p12; see RESULTS.md. All figures/tables/text derive from these values."
+  "provenance": "Generated from scripts/p1..p12; see RESULTS.md. All figures/tables/text derive from these values.",
+  "stress": {
+    "noise_sd1": 0.798,
+    "bias_1sd": 0.834,
+    "missing_trim_50pct": 0.798,
+    "AUROC": 0.951,
+    "AUPRC": 0.945,
+    "Brier": 0.092
+  },
+  "baselines_at_Sbench": {
+    "frozen": 0.886,
+    "rule": 0.891,
+    "lr_prototype": 0.886,
+    "trained_full": 0.952,
+    "fuel_only": 0.506
+  }
 }
