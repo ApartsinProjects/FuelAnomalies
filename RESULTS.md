@@ -211,3 +211,17 @@ Zenodo's 400 Hz 0.958, as expected for the coarser regime). Addresses reviewer W
   ignition -1.94. Fuel-fault flag rate (excess>0.3 AND combustion elevated): normal 0.022, rich 0.289,
   lean 0.095, ignition 0.100 => TPR(rich)=0.29 vs FPR(non-fuel avg)=0.07. The vehicle-fuel-fault
   signature is SPECIFIC to the rich (over-fuelling) fault; lean/ignition (not fuel faults) do not fire it.
+
+## P17 — CORRECTED attribution (fixes Fable BUG-1..4; supersedes P8/P13 headline)
+scripts/p17_attribution_fixed.py. Fixes: (1) unit-SD axes (P8 left kinematic axis at sd 0.55 vs
+combustion 0.99 -> the old 95.9% trained vs 88.6% frozen gap was largely THIS normalization artifact;
+at unit-SD both ~0.89 at symmetric S=1.66); (2) FEATURE-LEVEL driver injection along the real UAH
+aggressive direction, scored with FROZEN weights (old score-level injection made weights irrelevant);
+(3) MEASURED fuel-only baseline; (4) ASYMMETRIC calibration (driver Cohen's d = 0.65 from UAH 1 Hz;
+fault 1.66 SD from bench).
+- **Frozen source-derived attribution = 0.785** at realistic (S_driver=0.65, S_fault=1.66); trained
+  upper bound 0.812; **falsification: negated driver weights -> 0.599, shuffled -> 0.727** (learned
+  signature genuinely contributes); MEASURED fuel-only = 0.497 (chance).
+- Honest headline is ~0.78-0.81, NOT 88.6/95.9. Driver effect at realistic aggression (d=0.65) is
+  weaker than the bench fault (1.66 SD) -> asymmetric; accuracy rises with driver severity.
+- Also fixes false claim in old 8.3 ("attributor sees vehicle baseline" - P8 X had 2 cols, no baseline).

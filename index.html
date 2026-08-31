@@ -106,7 +106,7 @@ a persistent vehicle-baseline explain 8% and 14% of trip-fuel variance. The rich
 +6.2% excess fuel with an emissions signature, while the combustion axis remains silent for
 driver-caused excess (held-out \(R^2 = -0.03\)), a silence that survives a trim-corrected
 fuel target and holds within the highest-trim vehicles. On semi-synthetic ground truth, where both
-causes raise fuel by the same amount so that magnitude is uninformative, signatures learned only in their source domains, frozen and combined on the target without joint supervision, attribute driver-versus-fault excess at 88.6% at the bench-calibrated effect size (a classifier trained on the injected labels reaches an upper bound of 95.9%), while fuel magnitude alone is at chance. Both axes derive from
+causes raise fuel by the same amount so that magnitude is uninformative, signatures learned only in their source domains, frozen and combined on the target without joint supervision, attribute driver-versus-fault excess at 78.5% at a realistic operating point (rising to about 0.89 when the driver signal matches the fault magnitude), where a matched fuel-only baseline is at chance and negating the frozen weights collapses the result. Both axes derive from
 standard on-board-diagnostics channels, making per-trip attribution deployable on existing telematics.</p>
 
 <h3>Contributions</h3>
@@ -122,8 +122,8 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
       (held-out \(R^2 = -0.03\)), a silence that survives trim-corrected fuel and the
       highest-trim vehicles, ruling out a measurement artifact.</li>
   <li><b>Frozen source-derived signatures</b> learned in separate domains attribute driver-versus-fault
-      excess at 88.6% at a bench-calibrated magnitude (trained upper bound 95.9%) with no joint
-      supervision, where fuel magnitude alone is at chance.</li>
+      excess at 78.5% at a realistic operating point (up to ~0.89 at matched severity) with no joint
+      supervision and a passing falsification control, where a matched fuel-only baseline is at chance.</li>
   <li>A documented survey of the joint fuel + fault + behaviour data gap, and a reproducible pipeline and paper in which every number traces to a script.</li>
 </ul>
 
@@ -175,7 +175,7 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   that behaviour and a persistent vehicle-baseline are separable, measurable shares of trip fuel; the behaviour axis is validated to transfer to two independent datasets; the rich-mixture fault is shown to
   produce measurable excess fuel with an emissions signature; a signature contrast shows the combustion
   axis is silent for driver-caused excess; and the semi-synthetic experiment shows that, when fuel
-  magnitude is made uninformative, signatures frozen from their source domains recover the cause at 88.6% accuracy (95.9% for a classifier trained on the injected labels), while fuel magnitude alone is at chance. The remainder of
+  magnitude is made uninformative, signatures frozen from their source domains recover the cause at 78.5% at a realistic operating point (rising with driver severity), while a matched fuel-only baseline is at chance. The remainder of
   the paper is organized as related work (Section 2), data (Section 3), method and equations
   (Section 4), experimental setup (Section 5), results for the two arms and the attribution
   (Sections 6-8), discussion (Section 9), limitations (Section 10), and conclusion (Section 11).</p>
@@ -251,7 +251,7 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   <tr><td>Eco-driving / behaviour scoring [<a href="#r5">5</a>,<a href="#r12">12</a>]</td><td>driver only</td><td>partial</td><td>no</td><td>n/a</td></tr>
   <tr><td>Engine-fault diagnosis [<a href="#r16">16</a>]</td><td>vehicle only</td><td>partial</td><td>no</td><td>fault label</td></tr>
   <tr><td>Anomaly detection + feature relevance [<a href="#r3">3</a>]</td><td>yes</td><td>yes</td><td>no</td><td>no</td></tr>
-  <tr><td><b>This work</b></td><td><b>yes</b></td><td><b>yes</b></td><td><b>yes (measured, 88.6&ndash;95.9%)</b></td><td><b>yes</b></td></tr>
+  <tr><td><b>This work</b></td><td><b>yes</b></td><td><b>yes</b></td><td><b>yes (measured, 0.79&ndash;0.93)</b></td><td><b>yes</b></td></tr>
 </table>
 <div class="tcap"><b>Table 1.</b> Positioning against the four adjacent literatures and the nearest prior
   work. Only the present method both attributes the driver-versus-vehicle cause and validates its
@@ -640,23 +640,26 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   the quantitative evaluation is next.</p>
 
 <h3>8.3 Attribution accuracy on semi-synthetic ground truth</h3>
-<p>Injecting driver-caused and fault-caused excess into 11,520 real VED trips (139 vehicles) with the
-  same fuel increase for both, so that magnitude is uninformative, the signature attributor recovers the
-  cause with accuracy that rises with signature strength: 0.713 at \(S=0.5\), 0.866 at 1.0, 0.946 at
-  1.5, 0.979 at 2.0, and 0.998 at 3.0, while the fuel-only baseline stays at chance (about 0.50)
-  throughout (Figure 7). At the bench-calibrated magnitude \(S_{\text{bench}}\approx 1.66\) the accuracy
-  is <b>0.959</b> (95% CI [0.956, 0.962], F1 0.959, with near-symmetric errors of about 4% each way).
-  This measures attribution rather than asserting it: the design makes fuel magnitude uninformative by
-  construction, so the accuracy comes entirely from the signature, and by controlling the injected
-  magnitude it sidesteps the trim-blindness of the fleet fuel target and the healthy-fleet range
-  restriction examined next. Two caveats on scope. The injection places each cause purely on its own
-  axis, so the experiment measures how detectable that separation is against real trip-to-trip noise; it
-  presumes rather than proves axis-separability, which rests instead on the bench signature and the
-  silent driver-excess cell. And the measured accuracy sits above the Gaussian-optimal bound of
-  \(\Phi(S/\sqrt 2)\approx 0.88\) at \(S_{\text{bench}}\), because the real within-vehicle deviations are
-  tighter than the median standard deviation used for calibration and the attributor also sees each
-  vehicle's baseline; the two axes are in fact near-independent in the fleet (trip-level correlation
-  \(-0.01\)), which is what makes them separable.</p>
+<p>To measure attribution we give each real VED trip a driver-caused and a fault-caused variant that
+  raise fuel by the <b>same</b> amount, so fuel magnitude is uninformative, and ask a frozen attributor
+  to recover the cause. Each variant perturbs only its own axis, at the feature level: the driver
+  variant shifts the kinematic features along the aggressive direction learned on the external driving
+  data (UAH-DriveSet, at the fleet's 1&nbsp;Hz rate), and the fault variant shifts the fuel trim by the
+  bench's rich-mixture magnitude. The two effect sizes are calibrated from their sources rather than
+  assumed equal: a typical aggressive window is <b>0.65</b> standard deviations on the kinematic score
+  (Cohen's d on UAH), whereas the bench rich fault is <b>1.66</b> within-vehicle standard deviations on
+  the combustion axis. Both axes are standardized to unit variance, the driver signature is the frozen
+  UAH logistic, and nothing is fit to the injection labels.</p>
+<p>At this realistic, asymmetric operating point the frozen source-derived attributor reaches
+  <b>78.5% accuracy</b>, with a trained upper bound of 81.2%, while a classifier given only the matched
+  fuel increase is at chance (<b>49.7%</b>, measured, not assumed). The result is falsifiable and passes:
+  negating the frozen driver weights collapses accuracy to <b>60.0%</b> and shuffling them to 72.7%, so
+  the learned signature genuinely carries the attribution rather than the injection being trivially
+  recoverable (Figure 7). Accuracy rises with driver severity, from 0.79 at the realistic
+  \(d = 0.65\) to 0.89 when the driver signal matches the fault magnitude and 0.93 for severe
+  aggression. The design measures how detectable the two signatures are against real trip-to-trip noise;
+  it presumes rather than proves axis-separability, which rests instead on the bench fault signature and
+  the silent driver-excess cell.</p>
 <p>A real-data check on natural variation corroborates the driver half of this result without any
   injection. Among real VED trips, those whose kinematic deviation dominates carry a genuine excess of
   <b>+0.57 L/100km</b> over expectation, whereas those whose fueling-correction (trim) deviation
@@ -667,73 +670,43 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   fueling-correction signature does not, a real-data counterpart to the silent combustion cell of
   Section 8.1; that the fleet contains no combustion-linked fuel excess is exactly why the malfunction
   signature is anchored on the controlled bench.</p>
-
 <figure>
-  <img src="figures/fig6_attribution_accuracy.svg" alt="Attribution accuracy vs signature strength">
-  <figcaption><b>Figure 7.</b> Attribution accuracy versus signature strength, reaching 95.9% at the
-    bench-calibrated fault magnitude while the fuel-magnitude baseline stays at chance. This classifier
-    is trained on the injected labels and is therefore an upper bound; Section 8.4 reports the transfer
-    result that does not use them.</figcaption>
+  <img src="figures/fig6_attribution_accuracy.svg" alt="Attribution accuracy vs driver severity">
+  <figcaption><b>Figure 7.</b> Attribution accuracy rises with driver aggression severity
+    (Cohen's d on the kinematic score); at the realistic operating point (\(d = 0.65\)) the frozen
+    source-derived attributor reaches 0.785. Negating the frozen driver weights (a falsification
+    control) and using fuel magnitude alone both collapse toward chance.</figcaption>
 </figure>
 
-<h3>8.4 Transfer with frozen source-derived signatures</h3>
-<p>The classifier above is trained on the same injection labels it recovers, so it measures
-  recoverability rather than transfer. We therefore repeat the evaluation with <b>frozen</b> signatures
-  that never see the VED injection labels: the driver signature is a logistic model learned only on the
-  external aggressive-driving dataset (over kinematic features matched to VED: acceleration variability,
-  its 95th percentile, and harsh-event rate), and the fault signature is the combustion axis, whose
-  direction and effect size come from the bench. Each VED trip receives a frozen kinematic score and a
-  frozen combustion score, and the attribution rule is simply which standardized score is larger, a
-  fixed rule with no fitted parameters. At the bench-calibrated magnitude this zero-shot rule reaches <b>88.6% accuracy</b> (Table 7), matching a logistic classifier trained on the injected labels over the same two scores (0.886 vs 0.886) and far above the fuel-only chance level; the full-feature classifier of Section 8.3 sets the upper bound at 95.9%, and the frozen and same-score curves track across effect sizes (0.86 at S = 1.5, 0.92 at S = 2.0). Because
-  the scoring functions are learned in their source domains and combined on the target without joint
-  supervision, this is the multi-source transfer the framework claims, not a rediscovery of the
-  injection rule.</p>
-<p>The frozen rule also supports abstention. Withholding a decision when the two scores are close (a margin \(\tau\)) trades coverage for accuracy: at the bench magnitude, deciding on the 71% of trips with the clearest evidence
-  raises accuracy from 88.6% to 95.7%, and on the clearest 41% to 98.2%. In a maintenance setting an
-  explicit "uncertain" verdict is preferable to a confident wrong intervention.</p>
-
-<table>
-  <tr><th class="num">Signature strength S</th><th class="num">Frozen transfer</th><th class="num">Trained on same scores</th><th class="num">Fuel-only</th></tr>
-  <tr><td class="num">1.0</td><td class="num">0.769</td><td class="num">0.768</td><td class="num">0.50</td></tr>
-  <tr><td class="num">1.5</td><td class="num">0.863</td><td class="num">0.863</td><td class="num">0.50</td></tr>
-  <tr><td class="num">1.66 (bench)</td><td class="num">0.886</td><td class="num">0.886</td><td class="num">0.50</td></tr>
-  <tr><td class="num">2.0</td><td class="num">0.924</td><td class="num">0.925</td><td class="num">0.50</td></tr>
-  <tr><td class="num">3.0</td><td class="num">0.980</td><td class="num">0.981</td><td class="num">0.51</td></tr>
-</table>
-<div class="tcap"><b>Table 7.</b> Attribution accuracy by signature strength. The frozen source-derived rule (no injection-label training) matches a classifier trained on the same two scores with the injection labels; fuel magnitude alone stays at chance.</div>
-
-<p>The real world does not present pure one-axis changes, so we stress the frozen rule. When both causes
-  act at once, we score dominant-cause accuracy over a grid of driver and fault effect sizes (Figure 8):
-  attribution is accurate off the diagonal and degrades to chance only where the two effects are equal
-  and the cause is genuinely ambiguous. The rule degrades gracefully under departures from ideal
-  conditions at the bench magnitude: additive Gaussian score noise takes accuracy from 0.886 to 0.80
-  (1 SD) and 0.74 (1.5 SD); a systematic combustion-score bias to 0.83 (1 SD); and dropping the
-  fuel-trim channel for a fraction of trips to 0.85 (20% missing) and 0.80 (50%). As a probabilistic
-  scorer (the sigmoid of the score margin) the frozen rule reaches AUROC 0.951, average precision 0.945,
-  and a Brier score of 0.092 at the bench magnitude.</p>
+<h3>8.4 Abstention, mixed causes, and baselines</h3>
+<p>The frozen rule supports abstention: withholding a decision when the two scores are close (a margin
+  \(\tau\)) trades coverage for accuracy. At the realistic operating point, deciding on the 61% of
+  trips with the clearest evidence raises accuracy from 78.5% to 88.3%, and on the clearest 31% to
+  93.3%. In a maintenance setting an explicit "uncertain" verdict is preferable to a confident wrong
+  intervention.</p>
+<p>The real world does not present pure one-axis changes. Scoring dominant-cause accuracy over a grid
+  of driver and fault effect sizes (Figure 8), attribution is reliable off the diagonal and falls to
+  chance only where the two effects are equal and the cause is genuinely ambiguous.</p>
 <figure>
   <img src="figures/mixed_cause_grid.svg" alt="Mixed-cause dominant-cause accuracy grid">
-  <figcaption><b>Figure 8.</b> Dominant-cause accuracy when both causes act, over driver effect
-    \(S_d\) and fault effect \(S_f\). Attribution is reliable off the diagonal and falls to chance only
-    where the two effects are equal.</figcaption>
+  <figcaption><b>Figure 8.</b> Dominant-cause accuracy when both causes act, over driver severity
+    \(S_d\) and fault effect \(S_f\); reliable off the diagonal, chance where they are equal.</figcaption>
 </figure>
-<p>Attribution is not an artifact of one classifier. At the bench magnitude, task-aligned baselines all
-  cluster near the frozen rule and far above chance (Table 8): a raw-threshold rule on harsh-event rate
-  versus fuel trim reaches 0.89, a likelihood-ratio prototype against source-calibrated signature
-  distributions 0.89, and a classifier trained on all features and the injection labels sets the upper
-  bound at 0.95, while the fuel-only baseline stays at 0.51. The signature separation, not the choice of
-  attributor, is what carries the result.</p>
+<p>Attribution is not an artifact of one attributor. At the realistic operating point, a
+  likelihood-ratio prototype against source-calibrated signature distributions matches the trained
+  upper bound (0.81), the frozen argmax rule reaches 0.79, and fuel magnitude alone stays at chance
+  (Table 7). The signature separation, not the choice of attributor, carries the result.</p>
 <table>
-  <tr><th>Attributor (at bench magnitude)</th><th class="num">Accuracy</th><th>Uses injection labels?</th></tr>
-  <tr><td>Fuel magnitude only</td><td class="num">0.51</td><td>n/a (chance)</td></tr>
-  <tr><td>Frozen source-derived argmax</td><td class="num">0.886</td><td>no</td></tr>
-  <tr><td>Raw-threshold rule (harsh rate vs trim)</td><td class="num">0.891</td><td>no</td></tr>
-  <tr><td>Likelihood-ratio prototype (source-calibrated)</td><td class="num">0.886</td><td>no</td></tr>
-  <tr><td>Trained full-feature logistic (upper bound)</td><td class="num">0.952</td><td>yes</td></tr>
+  <tr><th>Attributor (realistic operating point)</th><th class="num">Accuracy</th><th>Uses injection labels?</th></tr>
+  <tr><td>Fuel magnitude only</td><td class="num">0.497</td><td>n/a (chance)</td></tr>
+  <tr><td>Negated driver weights (falsification)</td><td class="num">0.599</td><td>no</td></tr>
+  <tr><td>Frozen source-derived argmax</td><td class="num">0.785</td><td>no</td></tr>
+  <tr><td>Likelihood-ratio prototype (source-calibrated)</td><td class="num">0.812</td><td>no</td></tr>
+  <tr><td>Trained upper bound</td><td class="num">0.812</td><td>yes</td></tr>
 </table>
-<div class="tcap"><b>Table 8.</b> Task-aligned attribution baselines. Every signature-based attributor
-  reaches ~0.89 without injection labels; only the trained upper bound uses them; fuel magnitude is at
-  chance.</div>
+<div class="tcap"><b>Table 7.</b> Attributors at the realistic asymmetric operating point. Signature-based
+  rules reach ~0.79&ndash;0.81 without injection labels; negating the frozen driver weights collapses the
+  result (falsification); fuel magnitude alone is at chance.</div>
 
 <h3>8.5 Robustness of the silent-combustion result</h3>
 <p>Two threats could make the silent combustion cell an artifact rather than a finding; both are ruled
@@ -818,7 +791,7 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   excess is transient and kinematic, malfunction excess is steady-state and combustion-linked. On a 194-vehicle public fleet, behaviour and a persistent vehicle-baseline account for measurable 8% and 14% shares of trip-fuel variance; on a controlled bench, a rich-mixture fault burns 6.2% more with an
   emissions signature; the combustion axis is silent for driver-caused excess, and that silence survives
   both a trim-corrected fuel target and the highest-trim vehicles. When fuel magnitude is made
-  uninformative, frozen signatures learned in separate source domains attribute the cause at 88.6% in a calibrated semi-synthetic transfer test (trained upper bound 95.9%), where magnitude alone is at chance.
+  uninformative, frozen signatures learned in separate source domains attribute the cause at 78.5% at a realistic operating point (up to ~0.89 at matched severity) in a calibrated semi-synthetic transfer test with a passing falsification control, where a matched fuel-only baseline is at chance.
   Because both axes derive from standard on-board-diagnostics channels, per-trip attribution is
   deployable on existing telematics, and the main obstacle to pushing it further is the absence of a
   public dataset that carries fuel, faults, and behaviour together.</p>

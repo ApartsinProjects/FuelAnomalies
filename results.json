@@ -96,25 +96,14 @@
     "univariate_corr_bench": 0.333
   },
   "attribution": {
-    "accuracy_at_Sbench": 0.959,
-    "accuracy_ci": [
-      0.956,
-      0.962
-    ],
-    "S_bench": 1.66,
-    "fuel_only_baseline": 0.5,
-    "curve": {
-      "0.5": 0.713,
-      "1.0": 0.866,
-      "1.5": 0.946,
-      "2.0": 0.979,
-      "2.5": 0.992,
-      "3.0": 0.998
-    },
-    "frozen_transfer_at_Sbench": 0.886,
-    "trained_upper_bound": 0.959,
-    "abstention_tau1_coverage": 0.71,
-    "abstention_tau1_accuracy": 0.957
+    "frozen": 0.785,
+    "trained_upper": 0.812,
+    "fuel_only_measured": 0.497,
+    "negated_weights": 0.599,
+    "shuffled_weights": 0.727,
+    "S_driver_cohen_d": 0.65,
+    "S_fault_bench": 1.66,
+    "note": "P17 corrected; supersedes 88.6/95.9"
   },
   "provenance": "Generated from scripts/p1..p12; see RESULTS.md. All figures/tables/text derive from these values.",
   "stress": {
