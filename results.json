@@ -139,5 +139,17 @@
     "corr_excess_combustion": -0.002,
     "fault_specificity_TPR_rich": 0.289,
     "fault_specificity_FPR_nonfuel": 0.072
+  },
+  "method": {
+    "LR_fusion": 0.812,
+    "conformal_a05": [
+      0.459,
+      0.048
+    ],
+    "conformal_a10": [
+      0.689,
+      0.101
+    ],
+    "orthogonal_floor": 0.697
   }
 }

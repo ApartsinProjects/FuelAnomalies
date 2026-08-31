@@ -225,3 +225,12 @@ fault 1.66 SD from bench).
 - Honest headline is ~0.78-0.81, NOT 88.6/95.9. Driver effect at realistic aggression (d=0.65) is
   weaker than the bench fault (1.66 SD) -> asymmetric; accuracy rises with driver severity.
 - Also fixes false claim in old 8.3 ("attributor sees vehicle baseline" - P8 X had 2 cols, no baseline).
+
+## P19 — Conformal LR-fusion attribution (method upgrade for Algorithm 1)
+scripts/p19_conformal.py. Replace margin-argmax with source-calibrated likelihood-ratio fusion +
+split-conformal abstention. LR fusion accuracy = 0.812 (matches trained upper bound -> principled
+fusion recovers what training does, zero-shot). Conformal selective risk (calibrated on held-out
+normal, guarantee P(err|decide)<=alpha): a=0.05 -> coverage 0.459, realized error 0.048; a=0.10 ->
+coverage 0.689, error 0.101; a=0.20 -> coverage 1.0, error 0.192. Guarantee holds empirically.
+Also: orthogonal-weights floor (no driver info, fault axis alone) = 0.697; frozen 0.785 (+0.09),
+negated 0.599 (-0.10). Airtight falsification.

@@ -81,6 +81,11 @@ for _ in range(20):
     Ws=Wk.copy(); rng.shuffle(Ws); sh.append(run(Ws,S_fault)[0])
 R["shuffled_weights_acc_mean"]=round(float(np.mean(sh)),3)
 R["negated_weights_acc"]=round(float(run(-Wk,S_fault)[0]),3)
+# aggression-ORTHOGONAL weights = the true no-driver-information floor (fault axis alone)
+orth=[]
+for _ in range(20):
+    w=rng.standard_normal(len(Wk)); w=w-(w@dirn)/(dirn@dirn)*dirn; orth.append(run(w,S_fault)[0])
+R["orthogonal_weights_floor"]=round(float(np.mean(orth)),3)
 # MEASURED fuel-only baseline: both classes get +6% fuel -> classify on delta-fuel
 fe=np.r_[rng.normal(0.06,0.01,n),rng.normal(0.06,0.01,n)]
 R["fuel_only_measured_acc"]=round(float(accuracy_score(y,cross_val_predict(
