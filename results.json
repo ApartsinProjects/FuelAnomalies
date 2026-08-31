@@ -143,13 +143,16 @@
   "method": {
     "LR_fusion": 0.812,
     "conformal_a05": [
-      0.459,
-      0.048
+      0.309,
+      0.031
     ],
     "conformal_a10": [
-      0.689,
-      0.101
+      0.646,
+      0.088
     ],
-    "orthogonal_floor": 0.697
+    "orthogonal_floor": 0.697,
+    "conformal_delta": 0.1,
+    "deployed_signature_LODO_AUC": 0.694,
+    "trip_level_cohen_d": 1.27
   }
 }

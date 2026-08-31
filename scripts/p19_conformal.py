@@ -50,15 +50,19 @@ pred=(lf>ld).astype(int); conf=np.abs(ld-lf)
 acc=(pred==y).mean()
 R={"S_driver":round(float(S_driver),2),"S_fault":round(float(S_fault),2),"LR_fusion_acc":round(float(acc),3)}
 
-# ---- SPLIT CONFORMAL selective risk: calibrate tau on held-out, guarantee P(err|decide)<=alpha ----
+# ---- SPLIT-CONFORMAL selective risk with a FINITE-SAMPLE (Hoeffding) guarantee ----
+# Calibration set = held-out VEHICLES' injected variants (labelled semi-synthetic trips; split by
+# vehicle so exchangeability holds at the vehicle level). Choose the threshold with the most coverage
+# whose Hoeffding UPPER confidence bound on selective error is <= alpha, so P(test error <= alpha) >= 1-delta.
 vehs=np.unique(g); rng.shuffle(vehs); cut=len(vehs)//2
-cal=np.isin(g,vehs[:cut]); te=~cal
+cal=np.isin(g,vehs[:cut]); te=~cal; delta=0.1
 def tau_for(alpha):
     c=conf[cal]; e=(pred[cal]!=y[cal]).astype(int); order=np.argsort(-c)
-    cs=np.cumsum(e[order])/np.arange(1,len(c)+1)
-    ok=np.where(cs<=alpha)[0]
+    es=np.cumsum(e[order]); ns=np.arange(1,len(c)+1); ehat=es/ns
+    ucb=ehat+np.sqrt(np.log(1.0/delta)/(2*ns))          # Hoeffding upper confidence bound
+    ok=np.where(ucb<=alpha)[0]
     return c[order][ok[-1]] if len(ok) else np.inf
-R["conformal"]={}
+R["conformal_delta"]=delta; R["conformal"]={}
 for a in [0.05,0.10,0.20]:
     t=tau_for(a); acc_mask=conf[te]>=t
     cov=float(acc_mask.mean()); err=float((pred[te][acc_mask]!=y[te][acc_mask]).mean()) if acc_mask.sum() else float("nan")

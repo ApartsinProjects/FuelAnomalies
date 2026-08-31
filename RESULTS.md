@@ -243,3 +243,19 @@ B. P16 #3 OOF normal reference: flag rates normal 0.026 (in-sample 0.022), rich 
    (rich vs normal) = 0.58 -> specific but sensitivity operating-point-dependent (consistent w/ blocked-CV).
 C. s_veh fold-demeaned: plain 0.128 -> fold-demeaned 0.125 -> reseed 0.125 (on trim subset). Fold-bias
    removes only ~0.003 -> vehicle-baseline share NOT a fold artifact.
+
+## Cycle-3 corrections (Fable adversarial pass 3)
+- CONFORMAL FIX (p19): calibration set is held-out VEHICLES' injected labelled variants (NOT "normal
+  trips" - that was wrong). Added Hoeffding finite-sample UCB (delta=0.1): a=0.05 -> coverage 0.309,
+  realized error 0.031; a=0.10 -> 0.646/0.088; a=0.20 -> 1.0/0.192. Guarantee now HOLDS (was 0.101>0.10).
+  Conformal threshold IS calibrated on synthetic labels (carve-out to "no joint supervision"); deployable
+  analogue = calibrate on injections synthesized from the customer fleet's own normal trips.
+- CLOSED-FORM (item 1b): Table 7 = Gaussian theory. Bayes=Phi(sqrt(0.65^2+1.66^2)/2)=0.813 (measured
+  trained/LR 0.812); argmax 0.5*(Phi(.65/sqrt2)+Phi(1.66/sqrt2))=0.778 (measured 0.785); orth floor 0.690
+  (measured 0.697); negated 0.601 (measured 0.599). LR = Bayes rule of the injection model, so 0.812=upper
+  bound is EXPECTED not a discovery. Reframe: empirical agrees with theory (validates unit-var Gaussian
+  score model on real VED); evidential weight = calibration constants + falsification + real-data P16.
+- DEPLOYED SIGNATURE (item 1d): the 4-feature speed-only UAH signature used in 8.3 has LODO AUC=0.694
+  (OOF Cohen d=0.44), DISTINCT from the richer 6.3 signature (AUC 0.829). TRIP-LEVEL (recording-aggregated)
+  Cohen d=1.27 >> window-level 0.65 -> 0.65 is CONSERVATIVE; realistic trip-level operating point gives
+  attribution ~0.86 (sweep 1.5->0.874). Report both; deployed-signature AUC honestly.

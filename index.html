@@ -260,7 +260,7 @@ deployable as a coach-versus-inspect triage on existing telematics.</p>
   <tr><td>Eco-driving / behaviour scoring [<a href="#r5">5</a>,<a href="#r12">12</a>]</td><td>driver only</td><td>partial</td><td>no</td><td>n/a</td></tr>
   <tr><td>Engine-fault diagnosis [<a href="#r16">16</a>]</td><td>vehicle only</td><td>partial</td><td>no</td><td>fault label</td></tr>
   <tr><td>Anomaly detection + feature relevance [<a href="#r3">3</a>]</td><td>yes</td><td>yes</td><td>no</td><td>no</td></tr>
-  <tr><td><b>This work</b></td><td><b>yes</b></td><td><b>yes</b></td><td><b>yes (measured, 0.79&ndash;0.93)</b></td><td><b>yes</b></td></tr>
+  <tr><td><b>This work</b></td><td><b>yes</b></td><td><b>yes</b></td><td><b>yes (measured, 0.785&ndash;0.89)</b></td><td><b>yes</b></td></tr>
 </table>
 <div class="tcap"><b>Table 1.</b> Positioning against the four adjacent literatures and the nearest prior
   work. Only the present method both attributes the driver-versus-vehicle cause and validates its
@@ -349,8 +349,8 @@ deployable as a coach-versus-inspect triage on existing telematics.</p>
 <div class="algo">
   <div class="aname">Algorithm 1 &mdash; Multi-source signature attribution under missing joint labels</div>
   <b>Input:</b> target \(D_T=\{(x_i,y_i)\}\) (no cause labels); sources \(D_A,D_B\) labelling causes A, B;
-  signature families \(s_A,s_B\); abstention margin \(\tau\).<br>
-  <b>Output:</b> per-unit cause \(\in\{A,B,\text{abstain}\}\) with a confidence.
+  signature families \(s_A,s_B\); target risk level \(\alpha\).<br>
+  <b>Output:</b> per-unit cause \(\in\{A,B,\text{none},\text{abstain}\}\) with a selective-risk guarantee.
   <ol>
     <li>Fit expected-outcome model \(M\) on \(D_T\) (grouped OOF); excess \(e_i = y_i - M(x_i)\), grouped out-of-fold.</li>
     <li>Learn signature \(s_A\) on \(D_A\) and \(s_B\) on \(D_B\); <b>freeze</b> both (no target labels used).</li>
@@ -450,6 +450,20 @@ deployable as a coach-versus-inspect triage on existing telematics.</p>
   labels. A falsification control replaces the frozen weights with negated, shuffled, or
   aggression-orthogonal weights; a classifier given only the matched fuel increase is the chance
   baseline.</p>
+<p>Attribution itself is by source-calibrated likelihood-ratio fusion with conformal abstention, not by
+  a bare margin. Under the injection model each cause shifts its own unit-variance score by its
+  calibrated amount, so per cause the log-likelihood ratio of present versus absent is
+  \(\ell_A = \log \phi(z^A; S_A,1) - \log \phi(z^A; 0,1)\) and likewise \(\ell_B\); the unit is
+  attributed to \(\arg\max(\ell_A,\ell_B)\), or to <em>none</em> when both ratios fall below one. The
+  decision statistic is the margin \(m = |\ell_A - \ell_B|\); a threshold \(\tau_\alpha\) is set by split
+  conformal on held-out labelled variants using a Hoeffding upper confidence bound, so that among issued
+  decisions the error rate obeys \(P(\text{error}) \le \alpha\) to a stated confidence. Because the
+  injection is Gaussian by construction, the fusion is the Bayes rule, and the two-class accuracy has the
+  closed form \(\tfrac12[\Phi(S_A/\sqrt2)+\Phi(S_B/\sqrt2)]\) for the score-wise rule and
+  \(\Phi(\lVert\mu_A-\mu_B\rVert/2)\) for the fused rule; the measured values (Section 8.3) agree with
+  these to within 0.01, which is itself a check that the unit-variance score model holds on real fleet
+  data. The evidential weight of the experiment therefore rests on the two calibration constants, the
+  falsification controls, and the real-data contrast of Section 8.3, not on the accuracy number alone.</p>
 
 <h3>4.7 Baselines</h3>
 <p>We compare against the detection and feature-relevance methods the literature offers: an isolation
@@ -671,10 +685,14 @@ deployable as a coach-versus-inspect triage on existing telematics.</p>
   assumed equal: a typical aggressive window is <b>0.65</b> standard deviations on the kinematic score
   (Cohen's d on UAH), whereas the bench rich fault is <b>1.66</b> within-vehicle standard deviations on
   the combustion axis. Both axes are standardized to unit variance, the driver signature is the frozen
-  UAH logistic, and nothing is fit to the injection labels.</p>
+  UAH logistic, and nothing is fit to the injection labels. This deployed signature is the compact
+  four-feature, speed-only model, whose own leave-one-driver-out AUC is 0.694 (weaker than the richer
+  accelerometer-based validation of Section 6.3); the \(d = 0.65\) calibration is the per-window,
+  out-of-sample effect and is conservative, because aggregating to whole trips, as VED records them,
+  raises the aggressive-versus-normal effect to \(d \approx 1.3\), near the fault magnitude.</p>
 <p>At this realistic, asymmetric operating point the frozen source-derived attributor reaches
   <b>78.5% accuracy</b>, with a trained upper bound of 81.2%, while a classifier given only the matched
-  fuel increase (matched between the two classes by construction) is at chance (<b>49.7%</b>), confirming
+  fuel increase (matched between the two classes by construction) is at chance (<b>49.6%</b>), confirming
   no magnitude leak. The result is falsifiable and passes:
   removing the driver information entirely (weights orthogonal to the aggressive direction, leaving the
   fault axis intact) sets the floor at <b>0.70</b>; the frozen signature adds nine points over it
@@ -700,25 +718,28 @@ deployable as a coach-versus-inspect triage on existing telematics.</p>
   <img src="figures/fig6_attribution_accuracy.svg" alt="Attribution accuracy vs driver severity">
   <figcaption><b>Figure 7.</b> Attribution accuracy rises with driver aggression severity
     (Cohen's d on the kinematic score); at the realistic operating point (\(d = 0.65\)) the frozen
-    source-derived attributor reaches 0.785. Negating the frozen driver weights (a falsification
-    control) and using fuel magnitude alone both collapse toward chance.</figcaption>
+    source-derived attributor reaches 0.785. Negating the frozen driver weights drops below the no-driver-information floor (a falsification
+    control); fuel magnitude alone is at chance.</figcaption>
 </figure>
 
 <h3>8.4 Abstention, mixed causes, and baselines</h3>
 <p>The attribution decision carries a calibrated risk guarantee rather than a heuristic margin. Fusing
-  the two axes as source-calibrated likelihood ratios recovers the trained upper bound exactly (0.812,
-  Table 7), and a split-conformal threshold calibrated on held-out normal trips bounds the selective
-  error: at a 5% target the method decides on 46% of trips with a realized error of 4.8%, and at a 10%
-  target on 69% with 10.1%, so \(P(\text{error}\mid\text{decision})\le\alpha\) holds by construction. In
-  a maintenance setting this converts "uncertain" from a heuristic into a controlled abstention with a
-  stated error bound, and an all-ratios-below-one case flags a cause outside the known set.</p>
+  the two axes as source-calibrated likelihood ratios attains 0.812, the Bayes accuracy of the injection
+  model, which the trained classifier also reaches (Table 7); the trained number is therefore a ceiling,
+  not an advantage. A split-conformal threshold, calibrated on held-out vehicles' labelled variants with
+  a Hoeffding upper confidence bound (\(\delta = 0.1\)), then bounds the selective error with a
+  finite-sample guarantee: at a 5% target the method decides on 31% of trips with a realized error of
+  3.1%, and at a 10% target on 65% with 8.8%, both within the target. This converts "uncertain" from a
+  heuristic into a controlled abstention with a stated error bound. The conformal threshold, unlike the
+  frozen signatures, is calibrated on labelled synthetic variants; in deployment it would be recalibrated
+  on injections synthesized from the target fleet's own normal trips, which needs no cause labels.</p>
 <p>The real world does not present pure one-axis changes. Scoring dominant-cause accuracy over a grid
   of driver and fault effect sizes (Figure 8), attribution is reliable off the diagonal and falls to
   chance only where the two effects are equal and the cause is genuinely ambiguous.</p>
 <figure>
   <img src="figures/mixed_cause_grid.svg" alt="Mixed-cause dominant-cause accuracy grid">
   <figcaption><b>Figure 8.</b> Dominant-cause accuracy when both causes act, over driver severity
-    \(S_d\) and fault effect \(S_f\); reliable off the diagonal, chance where they are equal.</figcaption>
+    \(S_d\) and fault effect \(S_f\); reliable off the diagonal, degrading toward the ambiguous equal-effect limit.</figcaption>
 </figure>
 <p>Attribution is not an artifact of one attributor. At the realistic operating point, a
   likelihood-ratio prototype against source-calibrated signature distributions matches the trained
@@ -726,7 +747,7 @@ deployable as a coach-versus-inspect triage on existing telematics.</p>
   (Table 7). The signature separation, not the choice of attributor, carries the result.</p>
 <table>
   <tr><th>Attributor (realistic operating point)</th><th class="num">Accuracy</th><th>Uses injection labels?</th></tr>
-  <tr><td>Fuel magnitude only</td><td class="num">0.497</td><td>n/a (chance)</td></tr>
+  <tr><td>Fuel magnitude only</td><td class="num">0.496</td><td>n/a (chance)</td></tr>
   <tr><td>Aggression-orthogonal weights (no-driver-information floor)</td><td class="num">0.697</td><td>no</td></tr>
   <tr><td>Negated driver weights (falsification)</td><td class="num">0.599</td><td>no</td></tr>
   <tr><td>Frozen source-derived argmax</td><td class="num">0.785</td><td>no</td></tr>
@@ -830,7 +851,7 @@ deployable as a coach-versus-inspect triage on existing telematics.</p>
   (<a href="https://github.com/gsoh/VED">github.com/gsoh/VED</a>, Apache-2.0); EngineFaultDB
   (<a href="https://github.com/leoxthomas/EngineFaultDB">github.com/leoxthomas/EngineFaultDB</a>,
   GPL-3.0); Driving Events (<a href="https://zenodo.org/records/6570972">zenodo.org/records/6570972</a>, CC-BY-4.0); UAH-DriveSet [<a href="#r26">26</a>] (free for research use; obtained from a public mirror as the original server was unavailable, and not redistributed here). The full pipeline (<code>scripts/p1_features.py</code> through
-  <code>scripts/p15_uah_e6.py</code>), results log (<code>RESULTS.md</code>), and this manuscript
+  <code>scripts/p20_driver_fuelcost.py</code>), results log (<code>RESULTS.md</code>), and this manuscript
   are in the project repository; every number traces to a script. Environment: Python 3.14,
   scikit-learn 1.8, pandas 2.3, scipy 1.17, pyarrow.</p>
 <p class="kv"><b>Author contributions.</b> A. Apartsin conceived and implemented the study and drafted
