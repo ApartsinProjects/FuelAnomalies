@@ -575,6 +575,13 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   overlap closely in operating point (standardized mean differences: RPM 0.09, power 0.27, speed 0.09),
   so the comparison is not driven by regime imbalance, and the normal reference is itself moderately
   rich (lambda 0.957, carbon monoxide 2.16%), which biases the +6.2% estimate conservatively downward.</p>
+<p>The fuel signature is specific to the rich mixture. Relative to normal, the rich fault raises the
+  combustion axis by +4.2 percentage points of fuel per air, whereas the lean and low-voltage-ignition
+  faults move it the other way (&minus;2.2 and &minus;1.9). A detector that requires both an excess and
+  an elevated combustion axis therefore fires far more often for the rich fault than for the others
+  (flag rate 0.29 versus a 0.07 average across normal, lean, and ignition). Lean and ignition, which are
+  not over-fuelling faults, do not trigger the vehicle-fuel-fault signature, so the method targets the
+  fuel-relevant fault rather than any deviation from normal.</p>
 
 <figure>
   <img src="figures/fig5_fault_signature.svg" alt="Excess fuel by fault class">
@@ -650,6 +657,16 @@ standard on-board-diagnostics channels, making per-trip attribution deployable o
   tighter than the median standard deviation used for calibration and the attributor also sees each
   vehicle's baseline; the two axes are in fact near-independent in the fleet (trip-level correlation
   \(-0.01\)), which is what makes them separable.</p>
+<p>A real-data check on natural variation corroborates the driver half of this result without any
+  injection. Among real VED trips, those whose kinematic deviation dominates carry a genuine excess of
+  <b>+0.57 L/100km</b> over expectation, whereas those whose fueling-correction (trim) deviation
+  dominates carry none (&minus;0.34, at the level of low-deviation trips; Mann-Whitney
+  \(p<10^{-30}\)). Real trip excess correlates with the kinematic axis (\(r = 0.22\)) but not with the
+  combustion axis (\(r = 0.00\)), and the latter stays flat even within the highest-trim quartile
+  (\(r = -0.03\)). On real trips, then, the driver signature genuinely predicts excess fuel while the
+  fueling-correction signature does not, a real-data counterpart to the silent combustion cell of
+  Section 8.1; that the fleet contains no combustion-linked fuel excess is exactly why the malfunction
+  signature is anchored on the controlled bench.</p>
 
 <figure>
   <img src="figures/fig6_attribution_accuracy.svg" alt="Attribution accuracy vs signature strength">

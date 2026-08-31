@@ -199,3 +199,15 @@ harsh-lat rate, speed std/mean) at 1 Hz; aggressive-vs-normal, leave-one-driver-
 - **LODO AUC: logreg 0.829, RF 0.808; per-driver 0.76-0.92; permutation mean 0.50, p=0.001.**
 => Kinematic/behaviour axis transfers to a SECOND dataset, 6 drivers, at VED-like 1 Hz (lower than
 Zenodo's 400 Hz 0.958, as expected for the coarser regime). Addresses reviewer W7/E6.
+
+## P16 — Real-data strengthening (scripts/p16_strengthen.py)
+#1 Real high-kinematic vs high-combustion(trim) VED trips (natural variation, NO injection):
+  kinematic-dominant excess mean +0.574 L/100km (median 0.457, n=1421); combustion-dominant -0.337
+  (n=1466), at the both-low reference level (-0.339); MWU p=8.6e-37. corr(excess, kinematic z)=+0.222,
+  corr(excess, |trim| z)=-0.002; even in highest-trim quartile corr=-0.029, mean excess -0.049.
+  => On REAL trips the driver signature predicts fuel excess; the fueling-correction signature does not
+  (healthy fleet). Real-data support for the driver axis + real orthogonality (complements synthetic).
+#3 Fault-signature specificity on the real bench: combustion% vs normal = rich +4.17, lean -2.24,
+  ignition -1.94. Fuel-fault flag rate (excess>0.3 AND combustion elevated): normal 0.022, rich 0.289,
+  lean 0.095, ignition 0.100 => TPR(rich)=0.29 vs FPR(non-fuel avg)=0.07. The vehicle-fuel-fault
+  signature is SPECIFIC to the rich (over-fuelling) fault; lean/ignition (not fuel faults) do not fire it.

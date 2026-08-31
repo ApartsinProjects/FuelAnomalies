@@ -142,5 +142,13 @@
       0.758,
       0.915
     ]
+  },
+  "real_data_support": {
+    "kin_dominant_excess": 0.574,
+    "comb_dominant_excess": -0.337,
+    "corr_excess_kinematic": 0.222,
+    "corr_excess_combustion": -0.002,
+    "fault_specificity_TPR_rich": 0.289,
+    "fault_specificity_FPR_nonfuel": 0.072
   }
 }
