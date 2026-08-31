@@ -154,5 +154,22 @@
     "conformal_delta": 0.1,
     "deployed_signature_LODO_AUC": 0.694,
     "trip_level_cohen_d": 1.27
+  },
+  "driver_injection_fuel_cost": {
+    "median_pct": 1.07,
+    "mean_pct": 1.31,
+    "p90_pct": 3.53,
+    "bench_fault_pct": 6.2,
+    "note": "P20; d=0.65 driver perturbation through fuel model M; two causes NOT fuel-matched"
+  },
+  "real_data_attribution_circular": {
+    "lr_fusion_acc_proxy": 0.999,
+    "n_driver_proxy": 662,
+    "n_fault_proxy": 469,
+    "n_contested": 63,
+    "n_total": 11304,
+    "mean_excess_driver_proxy": 1.647,
+    "mean_excess_fault_proxy": 1.579,
+    "note": "P21; NON-RESULT: proxy labels and classifier share the two signature axes so accuracy is circular-by-construction. Demonstrates attribution accuracy is unvalidatable on real VED (no cause labels); motivates calibrated injection. Group sizes/excess are descriptive triage-yield only."
   }
 }

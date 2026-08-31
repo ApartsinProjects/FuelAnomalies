@@ -259,3 +259,23 @@ C. s_veh fold-demeaned: plain 0.128 -> fold-demeaned 0.125 -> reseed 0.125 (on t
   (OOF Cohen d=0.44), DISTINCT from the richer 6.3 signature (AUC 0.829). TRIP-LEVEL (recording-aggregated)
   Cohen d=1.27 >> window-level 0.65 -> 0.65 is CONSERVATIVE; realistic trip-level operating point gives
   attribution ~0.86 (sweep 1.5->0.874). Report both; deployed-signature AUC honestly.
+
+## P20/P21 (Fable items 4 & 5) — 2026-08-31, run locally (7s and 13s; RunPod unnecessary for these CPU-only sklearn jobs)
+- P20 (scripts/p20_driver_fuelcost.py) DRIVER INJECTION REAL FUEL COST: push the feature-level driver
+  perturbation (Cohen d=0.65, along real UAH aggressive direction) through the expected-fuel model M.
+  Raw per-feature step: speed_std +2.40, accel_p95 +0.154, harsh_accel_per_km +0.049, jerk_rms +0.014.
+  RESULT: driver injection raises fuel by +1.07% MEDIAN (mean +1.31%, p90 +3.53%) vs bench fault +6.2%.
+  => The two causes are NOT fuel-matched: a realistic-aggression driver signature costs ~1% fuel, well
+  below the fault's 6.2%. This SHARPENS the thesis (attribution matters: same anomaly-detector trigger,
+  very different magnitude AND cause), and corrects any implicit "equal fuel penalty" assumption.
+- P21 (scripts/p21_realdata_attribution.py) REAL-DATA WEAK-LABEL ATTRIBUTION (no injection): CIRCULAR
+  NON-RESULT, recorded as a methodological finding, NOT a paper number. Proxy labels built from the two
+  signature axes (driver=top-decile kinematic+excess>0; fault=top-decile within-veh combustion+excess>0;
+  contested both-high excluded). LR-fusion accuracy 0.999 EVEN after removing the mutual-exclusion clamp.
+  ROOT CAUSE (verified): the classifier decides on the SAME two axes that define the proxies, so any proxy
+  drawn from those axes is trivially recovered -> accuracy carries ZERO information. CONCLUSION: on VED
+  (no ground-truth cause labels) attribution ACCURACY cannot be validated on real data at all; this is
+  exactly why calibrated semi-synthetic injection is the only route to a ground-truth attribution number.
+  What real data DOES support (no synthetic): group sizes 662 driver-proxy / 469 fault-proxy / 63 contested
+  out of 11,304; both carry real positive excess (driver 1.65, fault 1.58 L/100km). Use as a descriptive
+  triage-yield statement, not an accuracy claim.
