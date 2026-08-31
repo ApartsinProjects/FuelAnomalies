@@ -234,3 +234,12 @@ normal, guarantee P(err|decide)<=alpha): a=0.05 -> coverage 0.459, realized erro
 coverage 0.689, error 0.101; a=0.20 -> coverage 1.0, error 0.192. Guarantee holds empirically.
 Also: orthogonal-weights floor (no driver info, fault axis alone) = 0.697; frozen 0.785 (+0.09),
 negated 0.599 (-0.10). Airtight falsification.
+
+## P18 — Hardening (scripts/p18_harden.py)
+A. P16 #1 TRIM-CORRECTED: kin-dominant excess +0.585 (blind +0.576), comb-dominant -0.342 (blind -0.341),
+   corr(excess,|trim|z)=0.00 either way. Trim-blindness objection FULLY answered; result robust.
+B. P16 #3 OOF normal reference: flag rates normal 0.026 (in-sample 0.022), rich 0.288, lean 0.094,
+   ignition 0.099. Specificity contrast survives OOF. BUT continuous per-sample fuel-fault score AUC
+   (rich vs normal) = 0.58 -> specific but sensitivity operating-point-dependent (consistent w/ blocked-CV).
+C. s_veh fold-demeaned: plain 0.128 -> fold-demeaned 0.125 -> reseed 0.125 (on trim subset). Fold-bias
+   removes only ~0.003 -> vehicle-baseline share NOT a fold artifact.
