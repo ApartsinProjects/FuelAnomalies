@@ -234,7 +234,7 @@ Engine-fault diagnosis {[}\hyperref[r16]{16}{]} & vehicle only & partial
 Anomaly detection + feature relevance {[}\hyperref[r3]{3}{]} & yes & yes
 & no & no \\
 \textbf{This work} & \textbf{yes} & \textbf{yes} & \textbf{yes
-(measured, 0.79--0.93)} & \textbf{yes} \\
+(measured, 0.785--0.89)} & \textbf{yes} \\
 \end{longtable}
 
 \textbf{Table 1.} Positioning against the four adjacent literatures and
@@ -371,9 +371,10 @@ labels
 
 \textbf{Input:} target \(D_T=\{(x_i,y_i)\}\) (no cause labels); sources
 \(D_A,D_B\) labelling causes A, B; signature families \(s_A,s_B\);
-abstention margin \(\tau\).\\
-\textbf{Output:} per-unit cause \(\in\{A,B,\text{abstain}\}\) with a
-confidence.
+target risk level \(\alpha\).\\
+\textbf{Output:} per-unit cause
+\(\in\{A,B,\text{none},\text{abstain}\}\) with a selective-risk
+guarantee.
 
 \begin{enumerate}
 
@@ -555,6 +556,27 @@ two unit-variance scores, and nothing is fit to the injection labels. A
 falsification control replaces the frozen weights with negated,
 shuffled, or aggression-orthogonal weights; a classifier given only the
 matched fuel increase is the chance baseline.
+
+Attribution itself is by source-calibrated likelihood-ratio fusion with
+conformal abstention, not by a bare margin. Under the injection model
+each cause shifts its own unit-variance score by its calibrated amount,
+so per cause the log-likelihood ratio of present versus absent is
+\(\ell_A = \log \phi(z^A; S_A,1) - \log \phi(z^A; 0,1)\) and likewise
+\(\ell_B\); the unit is attributed to \(\arg\max(\ell_A,\ell_B)\), or to
+\emph{none} when both ratios fall below one. The decision statistic is
+the margin \(m = |\ell_A - \ell_B|\); a threshold \(\tau_\alpha\) is set
+by split conformal on held-out labelled variants using a Hoeffding upper
+confidence bound, so that among issued decisions the error rate obeys
+\(P(\text{error}) \le \alpha\) to a stated confidence. Because the
+injection is Gaussian by construction, the fusion is the Bayes rule, and
+the two-class accuracy has the closed form
+\(\tfrac12[\Phi(S_A/\sqrt2)+\Phi(S_B/\sqrt2)]\) for the score-wise rule
+and \(\Phi(\lVert\mu_A-\mu_B\rVert/2)\) for the fused rule; the measured
+values (Section 8.3) agree with these to within 0.01, which is itself a
+check that the unit-variance score model holds on real fleet data. The
+evidential weight of the experiment therefore rests on the two
+calibration constants, the falsification controls, and the real-data
+contrast of Section 8.3, not on the accuracy number alone.
 
 \subsubsection{4.7 Baselines}\label{baselines}
 
@@ -903,13 +925,19 @@ on the kinematic score (Cohen\textquotesingle s d on UAH), whereas the
 bench rich fault is \textbf{1.66} within-vehicle standard deviations on
 the combustion axis. Both axes are standardized to unit variance, the
 driver signature is the frozen UAH logistic, and nothing is fit to the
-injection labels.
+injection labels. This deployed signature is the compact four-feature,
+speed-only model, whose own leave-one-driver-out AUC is 0.694 (weaker
+than the richer accelerometer-based validation of Section 6.3); the
+\(d = 0.65\) calibration is the per-window, out-of-sample effect and is
+conservative, because aggregating to whole trips, as VED records them,
+raises the aggressive-versus-normal effect to \(d \approx 1.3\), near
+the fault magnitude.
 
 At this realistic, asymmetric operating point the frozen source-derived
 attributor reaches \textbf{78.5\% accuracy}, with a trained upper bound
 of 81.2\%, while a classifier given only the matched fuel increase
 (matched between the two classes by construction) is at chance
-(\textbf{49.7\%}), confirming no magnitude leak. The result is
+(\textbf{49.6\%}), confirming no magnitude leak. The result is
 falsifiable and passes: removing the driver information entirely
 (weights orthogonal to the aggressive direction, leaving the fault axis
 intact) sets the floor at \textbf{0.70}; the frozen signature adds nine
@@ -946,8 +974,8 @@ is anchored on the controlled bench.
 aggression severity (Cohen\textquotesingle s d on the kinematic score);
 at the realistic operating point (\(d = 0.65\)) the frozen
 source-derived attributor reaches 0.785. Negating the frozen driver
-weights (a falsification control) and using fuel magnitude alone both
-collapse toward chance.}
+weights drops below the no-driver-information floor (a falsification
+control); fuel magnitude alone is at chance.}
 \end{figure}
 
 \subsubsection{8.4 Abstention, mixed causes, and
@@ -955,14 +983,19 @@ baselines}\label{abstention-mixed-causes-and-baselines}
 
 The attribution decision carries a calibrated risk guarantee rather than
 a heuristic margin. Fusing the two axes as source-calibrated likelihood
-ratios recovers the trained upper bound exactly (0.812, Table 7), and a
-split-conformal threshold calibrated on held-out normal trips bounds the
-selective error: at a 5\% target the method decides on 46\% of trips
-with a realized error of 4.8\%, and at a 10\% target on 69\% with
-10.1\%, so \(P(\text{error}\mid\text{decision})\le\alpha\) holds by
-construction. In a maintenance setting this converts "uncertain" from a
-heuristic into a controlled abstention with a stated error bound, and an
-all-ratios-below-one case flags a cause outside the known set.
+ratios attains 0.812, the Bayes accuracy of the injection model, which
+the trained classifier also reaches (Table 7); the trained number is
+therefore a ceiling, not an advantage. A split-conformal threshold,
+calibrated on held-out vehicles\textquotesingle{} labelled variants with
+a Hoeffding upper confidence bound (\(\delta = 0.1\)), then bounds the
+selective error with a finite-sample guarantee: at a 5\% target the
+method decides on 31\% of trips with a realized error of 3.1\%, and at a
+10\% target on 65\% with 8.8\%, both within the target. This converts
+"uncertain" from a heuristic into a controlled abstention with a stated
+error bound. The conformal threshold, unlike the frozen signatures, is
+calibrated on labelled synthetic variants; in deployment it would be
+recalibrated on injections synthesized from the target
+fleet\textquotesingle s own normal trips, which needs no cause labels.
 
 The real world does not present pure one-axis changes. Scoring
 dominant-cause accuracy over a grid of driver and fault effect sizes
@@ -975,7 +1008,7 @@ ambiguous.
 \includegraphics[width=\linewidth]{mixed_cause_grid.png}
 \caption{\textbf{Figure 8.} Dominant-cause accuracy when both causes
 act, over driver severity \(S_d\) and fault effect \(S_f\); reliable off
-the diagonal, chance where they are equal.}
+the diagonal, degrading toward the ambiguous equal-effect limit.}
 \end{figure}
 
 Attribution is not an artifact of one attributor. At the realistic
@@ -993,7 +1026,7 @@ labels? \\
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-Fuel magnitude only & 0.497 & n/a (chance) \\
+Fuel magnitude only & 0.496 & n/a (chance) \\
 Aggression-orthogonal weights (no-driver-information floor) & 0.697 &
 no \\
 Negated driver weights (falsification) & 0.599 & no \\
@@ -1175,10 +1208,10 @@ CC-BY-4.0); UAH-DriveSet {[}\hyperref[r26]{26}{]} (free for research
 use; obtained from a public mirror as the original server was
 unavailable, and not redistributed here). The full pipeline
 (\texttt{scripts/p1\_features.py} through
-\texttt{scripts/p15\_uah\_e6.py}), results log (\texttt{RESULTS.md}),
-and this manuscript are in the project repository; every number traces
-to a script. Environment: Python 3.14, scikit-learn 1.8, pandas 2.3,
-scipy 1.17, pyarrow.
+\texttt{scripts/p20\_driver\_fuelcost.py}), results log
+(\texttt{RESULTS.md}), and this manuscript are in the project
+repository; every number traces to a script. Environment: Python 3.14,
+scikit-learn 1.8, pandas 2.3, scipy 1.17, pyarrow.
 
 \textbf{Author contributions.} A. Apartsin conceived and implemented the
 study and drafted the manuscript; Y. Aperstein contributed to the study
