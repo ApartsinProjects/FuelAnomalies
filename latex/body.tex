@@ -631,8 +631,10 @@ vehicle\textquotesingle s offset on one random half of its trips and
 evaluating the fuel variance it explains on the held-out half gives a
 cross-fitted share of \textbf{0.136--0.138} (stable across a minimum of
 5, 10, 15, or 20 trips per vehicle), essentially unchanged from the
-0.143 in-sample value, and an empirical-Bayes shrinkage estimate agrees
-(0.138). The offsets are highly reliable: the split-half correlation of
+0.143 in-sample value, an empirical-Bayes shrinkage estimate agrees
+(0.138), and demeaning residuals within each fold before forming the
+offsets changes the share by less than 0.005, so it is not a fold-bias
+artifact. The offsets are highly reliable: the split-half correlation of
 per-vehicle baselines is \textbf{r = 0.95} (160 vehicles with at least
 ten trips). A persistent, statistically stable per-vehicle component
 therefore survives honest out-of-sample estimation. We label it a
@@ -791,10 +793,15 @@ fuel per air, whereas the lean and low-voltage-ignition faults move it
 the other way (−2.2 and −1.9). A detector that requires both an excess
 and an elevated combustion axis therefore fires far more often for the
 rich fault than for the others (flag rate 0.29 versus a 0.07 average
-across normal, lean, and ignition). Lean and ignition, which are not
-over-fuelling faults, do not trigger the vehicle-fuel-fault signature,
-so the method targets the fuel-relevant fault rather than any deviation
-from normal.
+across normal, lean, and ignition, with an out-of-fold normal
+reference). Lean and ignition, which are not over-fuelling faults, do
+not trigger the vehicle-fuel -fault signature, so the method targets the
+fuel-relevant fault rather than any deviation from normal. The signature
+is specific but its sensitivity is operating-point-dependent: the
+per-sample fuel-fault score ranks rich above normal only weakly (AUC
+0.58), because a rich fault\textquotesingle s fuel penalty is expressed
+mainly at higher load, consistent with the non-portability across
+operating regions in Section 8.1.
 
 \begin{figure}
 \centering
@@ -921,16 +928,16 @@ A real-data check on natural variation corroborates the driver half of
 this result without any injection. Among real VED trips, those whose
 kinematic deviation dominates carry a genuine excess of \textbf{+0.57
 L/100km} over expectation, whereas those whose fueling-correction (trim)
-deviation dominates carry none (−0.34, at the level of low-deviation
-trips; Mann-Whitney \(p<10^{-30}\)). Real trip excess correlates with
-the kinematic axis (\(r = 0.22\)) but not with the combustion axis
-(\(r = 0.00\)), and the latter stays flat even within the highest-trim
-quartile (\(r = -0.03\)). On real trips, then, the driver signature
-genuinely predicts excess fuel while the fueling-correction signature
-does not, a real-data counterpart to the silent combustion cell of
-Section 8.1; that the fleet contains no combustion-linked fuel excess is
-exactly why the malfunction signature is anchored on the controlled
-bench.
+deviation dominates carry none (−0.34, unchanged under a trim-corrected
+fuel target, at the level of low-deviation trips; Mann-Whitney
+\(p<10^{-30}\)). Real trip excess correlates with the kinematic axis
+(\(r = 0.22\)) but not with the combustion axis (\(r = 0.00\)), and the
+latter stays flat even within the highest-trim quartile (\(r = -0.03\)).
+On real trips, then, the driver signature genuinely predicts excess fuel
+while the fueling-correction signature does not, a real-data counterpart
+to the silent combustion cell of Section 8.1; that the fleet contains no
+combustion-linked fuel excess is exactly why the malfunction signature
+is anchored on the controlled bench.
 
 \begin{figure}
 \centering
