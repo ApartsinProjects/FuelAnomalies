@@ -721,17 +721,22 @@ coach-versus-inspect triage on existing telematics.</p>
   aggression. The design measures how detectable the two signatures are against real trip-to-trip noise;
   it presumes rather than proves axis-separability, which rests instead on the bench fault signature and
   the silent driver-excess cell.</p>
-<p>The equal-fuel constraint is deliberately adversarial, and a real-data measurement shows how much it
-  gives away. Pushing the calibrated driver perturbation through the expected-fuel model raises fuel by
-  only <b>+1.1% at the median</b> (+3.5% at the 90th percentile), against the bench fault's <b>+6.2%</b>:
-  in reality the two causes are not fuel-matched, and excess magnitude itself carries cause information
-  that the injection design withholds from the attributor. The 78.5% equal-magnitude accuracy is therefore
-  a <b>conservative floor</b>; a deployed system may fuse magnitude as an additional likelihood term and do
-  strictly better. The asymmetry also reconciles the two arms physically: a typical aggressive episode is
-  a small persistent fuel cost and a rich fault a large one, which is exactly why the operational question
-  is cause rather than size in the overlapping small-excess band where most flagged trips live, mild faults
-  sitting at +1&ndash;2% too and driver excess reaching +3.5% at the 90th percentile, so magnitude alone
-  cannot separate them there and the signatures are the discriminative evidence. This trip-level +1.1%
+<p>The equal-fuel constraint is deliberately adversarial, and two measured facts show both what it gives
+  away and why it costs almost nothing. First, pushing the calibrated driver perturbation through the
+  expected-fuel model raises fuel by only <b>+1.1% at the median</b> (+3.5% at the 90th percentile),
+  against the bench fault's <b>+6.2%</b>: in expectation the two causes are not fuel-matched, so magnitude
+  does carry cause information. Second, that information is nearly unusable per trip. Single-trip excess
+  magnitude alone attributes at just <b>0.562</b>, barely above chance, because trip-to-trip fuel variation
+  (out-of-fold residual standard deviation 17%) swamps the five-point mean gap; adding magnitude as a third
+  likelihood channel to the signature fusion moves accuracy only from 0.812 to <b>0.815</b>. The
+  equal-magnitude accuracy is therefore a floor, but a tight one: withholding magnitude costs about
+  0.003 at the single-trip level, and the closed-form separations confirm it (magnitude effect size
+  \(d = 0.30\), giving Bayes accuracy \(\Phi(0.15) = 0.56\), against the signatures' combined
+  \(d \approx 1.8\)). The same measurement closes the obvious shortcut of simply thresholding the excess:
+  at the trip level that rule is near chance, so the cause-specific signatures, not the fuel magnitude,
+  carry the attribution. The physical asymmetry still holds, a typical aggressive episode being a small
+  persistent cost and a rich fault a large one, and over many trips of a vehicle the magnitude gap does
+  become usable; but per trip the signatures are the discriminative evidence. This trip-level +1.1%
   (a \(d = 0.65\) shift from each trip's own driving) is a smaller, differently-referenced quantity than
   the +0.47 L/100km (~5%) behaviour counterfactual of Section 6.2, which contrasts observed driving against
   a gentle 20th-percentile reference, a much wider gap.</p>

@@ -279,3 +279,20 @@ C. s_veh fold-demeaned: plain 0.128 -> fold-demeaned 0.125 -> reseed 0.125 (on t
   What real data DOES support (no synthetic): group sizes 662 driver-proxy / 469 fault-proxy / 63 contested
   out of 11,304; both carry real positive excess (driver 1.65, fault 1.58 L/100km). Use as a descriptive
   triage-yield statement, not an accuracy claim.
+
+## P22 (Fable Edit 6) — magnitude-fusion, DEMONSTRATE the floor — 2026-08-31 (9s local)
+scripts/p22_magnitude_fusion.py: add per-trip excess-magnitude as a THIRD likelihood channel to the
+p19 fusion, calibrated to REAL per-cause fuel effects (driver +1.07% median via model M, fault +6.2%
+bench), with magnitude NOISE = real OOF fuel residual sd = 17.1%.
+RESULT: 2-channel (equal-mag) 0.812 -> 3-channel (with magnitude) 0.815 (gain +0.003). Magnitude-ONLY
+0.562 (near chance). Equal-mag control 0.808 ~ floor.
+VERIFIED vs closed form: magnitude d=(6.2-1.07)/17.12=0.30 -> Bayes Phi(0.15)=0.560 matches magonly
+0.562; 3ch sqrt(1.77^2+0.30^2)=1.795 -> Phi(0.897)=0.815 matches. All invariants pass (I1 3>=2, I2
+magonly>0.5, I3 equal-mag recovers floor).
+INTERPRETATION (stronger than "loose floor"): per-trip fuel magnitude is nearly useless for attribution
+because trip-to-trip noise (17%) swamps the 5-pt gap -> (a) the equal-fuel floor is TIGHT (magnitude
+adds 0.003), (b) closes the "just threshold the excess" objection with a number: thresholding attributes
+at 0.562 (chance) per trip while signatures give 0.812. Signatures, not magnitude, carry the attribution.
+Over many trips of a vehicle the magnitude gap becomes usable; per trip it is not. Paper 8.3 corrected
+(removed the earlier overstatement that fusing magnitude does "strictly better" -> honest +0.003 + the
+threshold-rebuttal). results.json magnitude_fusion.

@@ -162,6 +162,17 @@
     "bench_fault_pct": 6.2,
     "note": "P20; d=0.65 driver perturbation through fuel model M; two causes NOT fuel-matched"
   },
+  "magnitude_fusion": {
+    "acc_2channel_equalmag_floor": 0.812,
+    "acc_3channel_with_magnitude": 0.815,
+    "gain": 0.003,
+    "acc_magnitude_only": 0.562,
+    "mag_noise_sd_pct": 17.12,
+    "driver_fuel_pct_median": 1.07,
+    "fault_fuel_pct": 6.2,
+    "closed_form_magonly": "Phi((6.2-1.07)/17.12/2)=Phi(0.15)=0.56 matches 0.562",
+    "note": "P22 (Fable Edit 6): equal-fuel floor is TIGHT not loose. Per-trip magnitude near-useless (d=0.30) so thresholding excess attributes at chance; signatures carry attribution. Invariants I1(3>=2) I2(magonly>0.5) I3(equalmag recovers floor) all pass."
+  },
   "real_data_attribution_circular": {
     "lr_fusion_acc_proxy": 0.999,
     "n_driver_proxy": 662,
