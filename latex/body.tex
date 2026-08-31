@@ -390,9 +390,13 @@ confidence.
   Validate: confirm \(s_A\) separates cause A in \(D_A\) and \(s_B\)
   separates cause B in \(D_B\).
 \item
-  Attribute: \(A\) if \(z^A_i - z^B_i > \tau\); \(B\) if
-  \(z^B_i - z^A_i > \tau\); else \textbf{abstain}. Confidence
-  \(= |z^A_i - z^B_i|\).
+  Fuse: form source-calibrated per-cause likelihood ratios and attribute
+  to the largest; a cause with all ratios below one yields
+  \textbf{none}.
+\item
+  Abstain: calibrate a threshold on target-normal data by split
+  conformal, so that decisions carry a finite-sample selective-risk
+  guarantee \(P(\text{error}\mid\text{decision}) \le \alpha\).
 \end{enumerate}
 
 For excess fuel, \(M\) is the expected-fuel model (Section 4.3), cause A
@@ -526,26 +530,31 @@ attribution}\label{semi-synthetic-attribution}
 Because no real dataset labels a trip\textquotesingle s excess by cause,
 we construct ground truth by injection. From each real base trip we form
 a driver-caused and a fault-caused variant that raise fuel by the
-\emph{same} amount \(\Delta f\), so that fuel magnitude carries no
-information about the cause. The driver variant adds signal to the
-kinematic axis and leaves the combustion axis at its real value; the
-fault variant adds signal to the combustion axis and leaves kinematics
-unchanged. The injected strength \(S\) is expressed in units of the
-natural within-vehicle standard deviation of the axis, so that real
-trip-to-trip variation supplies the confounding noise. Writing \(z^k\)
-and \(z^c\) for the real within-vehicle-standardized kinematic and
-combustion deviations,
+\emph{same} amount, so that fuel magnitude carries no information about
+the cause. Each variant perturbs only its own axis, at the
+\emph{feature} level rather than at the score level, so that the frozen
+signature weights genuinely determine the outcome. The driver variant
+shifts the real kinematic feature vector along the aggressive direction
+\(\mathbf{d}\) learned on the external driving data, while the fault
+variant shifts the fuel trim; writing \(\mathbf{x}\) for the
+standardized kinematic features and \(c\) for the combustion axis,
 
-\begin{equation} \text{driver:}\;(z^k+S,\;z^c), \qquad \text{fault:}\;(z^k,\;z^c+S). \end{equation}
+\begin{equation} \text{driver:}\;(\mathbf{x}+a\,\mathbf{d},\;c), \qquad \text{fault:}\;(\mathbf{x},\;c+S_{\text{fault}}). \end{equation}
 
-We calibrate \(S\) to the measured rich-mixture fault: its combustion
-shift of 3.0\% fuel-per-air, divided by the median within-vehicle
-long-term-trim standard deviation of 1.79\%, gives
-\(S_{\text{bench}} = 1.66\) (from the unrounded shift and standard
-deviation). A logistic attributor is trained on the two axis-deviations
-\((z^k, z^c)\) together with the vehicle baseline, under GroupKFold by
-vehicle; a control classifier that sees only the fuel excess
-\(\Delta f\) is the chance baseline.
+The two effect sizes are calibrated from their \emph{sources}, not
+assumed equal. The fault shift is the bench rich-mixture combustion
+deviation, 3.0\% fuel per air, over the median within-vehicle
+long-term-trim standard deviation of 1.79\%, giving
+\(S_{\text{fault}} = 1.66\). The driver step \(a\) is set once so that
+the frozen kinematic score shifts by \(S_{\text{driver}}\) standard
+deviations, where \(S_{\text{driver}} = 0.65\) is the measured
+Cohen\textquotesingle s \(d\) of that score between aggressive and
+normal driving in the external dataset. The driver signature is the
+frozen logistic learned on the source; the attribution rule compares the
+two unit-variance scores, and nothing is fit to the injection labels. A
+falsification control replaces the frozen weights with negated,
+shuffled, or aggression-orthogonal weights; a classifier given only the
+matched fuel increase is the chance baseline.
 
 \subsubsection{4.7 Baselines}\label{baselines}
 
@@ -891,10 +900,14 @@ injection labels.
 
 At this realistic, asymmetric operating point the frozen source-derived
 attributor reaches \textbf{78.5\% accuracy}, with a trained upper bound
-of 81.2\%, while a classifier given only the matched fuel increase is at
-chance (\textbf{49.7\%}, measured, not assumed). The result is
-falsifiable and passes: negating the frozen driver weights collapses
-accuracy to \textbf{60.0\%} and shuffling them to 72.7\%, so the learned
+of 81.2\%, while a classifier given only the matched fuel increase
+(matched between the two classes by construction) is at chance
+(\textbf{49.7\%}), confirming no magnitude leak. The result is
+falsifiable and passes: removing the driver information entirely
+(weights orthogonal to the aggressive direction, leaving the fault axis
+intact) sets the floor at \textbf{0.70}; the frozen signature adds nine
+points over it (0.785), while negating the weights costs ten points
+below it (0.60) and shuffling them lands between (0.73), so the learned
 signature genuinely carries the attribution rather than the injection
 being trivially recoverable (Figure 7). Accuracy rises with driver
 severity, from 0.79 at the realistic \(d = 0.65\) to 0.89 when the
@@ -933,12 +946,16 @@ collapse toward chance.}
 \subsubsection{8.4 Abstention, mixed causes, and
 baselines}\label{abstention-mixed-causes-and-baselines}
 
-The frozen rule supports abstention: withholding a decision when the two
-scores are close (a margin \(\tau\)) trades coverage for accuracy. At
-the realistic operating point, deciding on the 61\% of trips with the
-clearest evidence raises accuracy from 78.5\% to 88.3\%, and on the
-clearest 31\% to 93.3\%. In a maintenance setting an explicit
-"uncertain" verdict is preferable to a confident wrong intervention.
+The attribution decision carries a calibrated risk guarantee rather than
+a heuristic margin. Fusing the two axes as source-calibrated likelihood
+ratios recovers the trained upper bound exactly (0.812, Table 7), and a
+split-conformal threshold calibrated on held-out normal trips bounds the
+selective error: at a 5\% target the method decides on 46\% of trips
+with a realized error of 4.8\%, and at a 10\% target on 69\% with
+10.1\%, so \(P(\text{error}\mid\text{decision})\le\alpha\) holds by
+construction. In a maintenance setting this converts "uncertain" from a
+heuristic into a controlled abstention with a stated error bound, and an
+all-ratios-below-one case flags a cause outside the known set.
 
 The real world does not present pure one-axis changes. Scoring
 dominant-cause accuracy over a grid of driver and fault effect sizes
@@ -970,6 +987,8 @@ labels? \\
 \bottomrule\noalign{}
 \endlastfoot
 Fuel magnitude only & 0.497 & n/a (chance) \\
+Aggression-orthogonal weights (no-driver-information floor) & 0.697 &
+no \\
 Negated driver weights (falsification) & 0.599 & no \\
 Frozen source-derived argmax & 0.785 & no \\
 Likelihood-ratio prototype (source-calibrated) & 0.812 & no \\
