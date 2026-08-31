@@ -14,11 +14,11 @@ not merely its size.
 We treat this as an attribution problem. For a trip that consumed more
 fuel than its route and conditions warrant, let the excess be the
 difference between observed and expected consumption; the task is to
-decompose that excess into a driver-behaviour component and a vehicle
-component (the vehicle-baseline defined in Section 4.4). Raw fuel per
-distance cannot perform this decomposition, because both an aggressive
-driving style and a degraded engine inflate the same scalar. The
-question is operationally valuable and, on public data, largely
+decompose that excess into a driver-behaviour component and a persistent
+vehicle component, which Section 4.4 formalizes as the vehicle-baseline.
+Raw fuel per distance cannot perform this decomposition, because both an
+aggressive driving style and a degraded engine inflate the same scalar.
+The question is operationally valuable and, on public data, largely
 unanswered: fuel-consumption models predict the scalar accurately
 without decomposing its causes; eco-driving and behaviour-scoring work
 quantifies the driver in isolation; and predictive-maintenance work
@@ -46,13 +46,13 @@ the datasets that pair fuel with fault labels lack driver context or
 ship only dimensionality-reduced features, and the driving-behaviour
 datasets lack fuel. We therefore adopt a two-arm design on the datasets
 that each carry one ground truth, and bridge them with a semi-synthetic
-experiment that supplies the competing-cause labels no real dataset
-provides. The fleet-telemetry arm (VED) grounds the decomposition and
-the driver side; the engine-fault arm (EngineFaultDB) grounds the
-malfunction signature; two independent labelled driving datasets
-validate the kinematic axis; and a controlled injection with
-source-calibrated effect sizes measures attribution accuracy where no
-real dataset can, as a conservative floor.
+experiment, controlled injections into real trips, that supplies the
+competing-cause labels no real dataset provides. The fleet-telemetry arm
+(VED) grounds the decomposition and the driver side; the engine-fault
+arm (EngineFaultDB) grounds the malfunction signature; two independent
+labelled driving datasets validate the kinematic axis; and a controlled
+injection with source-calibrated effect sizes measures attribution
+accuracy where no real dataset can, as a conservative floor.
 
 The evidence chain (Figure 1) runs as follows: an expected-fuel model
 and its variance decomposition establish that behaviour and a persistent
@@ -161,16 +161,16 @@ than fuel efficiency, for example LSTM autoencoders
 {[}\hyperref[r20]{20}{]}, recurrent autoencoders for embedded intrusion
 detection {[}\hyperref[r21]{21}{]}, and spatiotemporal detection for
 connected vehicles {[}\hyperref[r22]{22}{]}. These methods flag that a
-trip is anomalous; they do not assign a fuel anomaly to a driver-versus
--vehicle cause. Closest in spirit, recent work detects anomalies in OBD
-snapshots and adds a SHAP-based cause investigation with synthetically
-generated anomalies {[}\hyperref[r24]{24}{]}; it investigates which
-features drive a flagged anomaly, whereas we attribute the competing
-driver-versus -vehicle cause across heterogeneous datasets that carry no
-joint naturalistic cause labels. Fuel theft or leakage is a related but
-distinct anomaly, detected as an abrupt change point
-{[}\hyperref[r10]{10}{]}; that is a sudden step in fuel level, whereas
-the excess we attribute is a sustained efficiency shift.
+trip is anomalous; they do not assign a fuel anomaly to a
+driver-versus-vehicle cause. Closest in spirit, recent work detects
+anomalies in OBD snapshots and adds a SHAP-based cause investigation
+with synthetically generated anomalies {[}\hyperref[r24]{24}{]}; it
+investigates which features drive a flagged anomaly, whereas we
+attribute the competing driver-versus-vehicle cause across heterogeneous
+datasets that carry no joint naturalistic cause labels. Fuel theft or
+leakage is a related but distinct anomaly, detected as an abrupt change
+point {[}\hyperref[r10]{10}{]}; that is a sudden step in fuel level,
+whereas the excess we attribute is a sustained efficiency shift.
 
 \subsubsection{2.5 Explainable attribution and the nearest prior
 work}\label{explainable-attribution-and-the-nearest-prior-work}
@@ -284,10 +284,10 @@ mixture, 2 lean mixture, and 3 low-voltage ignition. The rich-mixture
 label is confidently identified from its emission signature (elevated
 carbon monoxide); the lean-versus-ignition mapping of labels 2 and 3 is
 taken from the source paper\textquotesingle s listing order, as the
-definitive mapping resides in a table published only as an image. This
-uncertainty does not affect our result, which concerns the rich-mixture
-fault. The bench carries no driver context, so it grounds the
-malfunction fuel signature but not driving behaviour.
+definitive mapping resides in a table published only as an image. Our
+result concerns the rich-mixture fault, whose label is unambiguous. The
+bench carries no driver context, so it grounds the malfunction fuel
+signature but not driving behaviour.
 
 \subsubsection{3.3 Driving Events (behaviour
 validation)}\label{driving-events-behaviour-validation}
@@ -299,9 +299,9 @@ windows as aggressive manoeuvres (right or left turn, braking,
 acceleration, lane change) or non-aggressive events. After joining
 sensor rows to labelled windows we obtain \textbf{169 events, 143
 aggressive and 26 non-aggressive}. Two properties matter for
-interpretation and are stated up front: the sensing regime differs from
-VED (400 Hz smartphone inertial versus 1 Hz OBD kinematics), and the
-class balance is skewed toward aggressive events.
+interpretation: the sensing regime differs from VED (400 Hz smartphone
+inertial versus 1 Hz OBD kinematics), and the class balance is skewed
+toward aggressive events.
 
 \subsubsection{3.4 The joint-data gap}\label{the-joint-data-gap}
 
@@ -367,7 +367,7 @@ The remaining subsections instantiate each step for excess fuel; the
 formulation itself is a form of weak supervision across heterogeneous
 sources {[}\hyperref[r25]{25}{]}.
 
-Algorithm 1 --- Multi-source signature attribution under missing joint
+Algorithm 1: Multi-source signature attribution under missing joint
 labels
 
 \textbf{Input:} target \(D_T=\{(x_i,y_i)\}\) (no cause labels); sources
@@ -537,15 +537,15 @@ the cause. This equal-fuel constraint is deliberately adversarial: in
 reality the two causes are not fuel-matched (Section 8.3 measures a
 realistic driver shift at +1.1\% median fuel against the
 fault\textquotesingle s +6.2\%), so withholding magnitude makes the
-resulting accuracy a floor rather than an optimistic estimate, though
-Section 8.3 shows the floor is tight because per-trip magnitude is
-near-useless. Each variant perturbs only its own axis, at the
-\emph{feature} level rather than at the score level, so that the frozen
-signature weights genuinely determine the outcome. The driver variant
-shifts the real kinematic feature vector along the aggressive direction
-\(\mathbf{d}\) learned on the external driving data, while the fault
-variant shifts the fuel trim; writing \(\mathbf{x}\) for the
-standardized kinematic features and \(c\) for the combustion axis,
+resulting accuracy a floor rather than an optimistic estimate; Section
+8.3 quantifies how tight the floor is. Each variant perturbs only its
+own axis, at the \emph{feature} level rather than at the score level, so
+that the frozen signature weights genuinely determine the outcome. The
+driver variant shifts the real kinematic feature vector along the
+aggressive direction \(\mathbf{d}\) learned on the external driving
+data, while the fault variant shifts the fuel trim; writing
+\(\mathbf{x}\) for the standardized kinematic features and \(c\) for the
+combustion axis,
 
 \begin{equation} \text{driver:}\;(\mathbf{x}+a\,\mathbf{d},\;c), \qquad \text{fault:}\;(\mathbf{x},\;c+S_{\text{fault}}). \end{equation}
 
@@ -608,18 +608,16 @@ replacement over 1,000 draws and report the 2.5th and 97.5th
 percentiles; for the behaviour-validation study the bootstrap resamples
 events, and the permutation test uses 1,000 label permutations with the
 leave-one-driver-out cross-validation repeated inside each. On the
-bench, cross-validation must shuffle folds: the records are grouped by
-fault and ordered within each group, so a non-shuffled 5-fold split
-partitions the rich subset into disjoint operating ranges and the model,
-forced to extrapolate, returns a spuriously negative coefficient of
-determination; the rows are exchangeable for this regression, so
-shuffled folds are correct. Software: Python 3.14, scikit-learn 1.8,
-pandas 2.3, scipy 1.17, and pyarrow. Datasets are obtained from their
-original sources and are not redistributed; the pipeline scripts
-regenerate every number. The expected-fuel conclusions are not specific
-to the gradient-boosted model: under the same vehicle-grouped protocol a
-ridge baseline reaches \(R^2 = 0.663\) and a random forest 0.640,
-against the boosted model\textquotesingle s 0.673 and a mean
+bench, folds are shuffled: the records are ordered within each fault
+group, so contiguous folds would partition the rich subset into disjoint
+operating ranges and force extrapolation, and the rows are exchangeable
+for this regression. Software: Python 3.14, scikit-learn 1.8, pandas
+2.3, scipy 1.17, and pyarrow. Datasets are obtained from their original
+sources and are not redistributed; the pipeline regenerates every
+reported number. The expected-fuel conclusions are not specific to the
+gradient-boosted model: under the same vehicle-grouped protocol a ridge
+baseline reaches \(R^2 = 0.663\) and a random forest 0.640, against the
+boosted model\textquotesingle s 0.673 and a mean
 predictor\textquotesingle s 0.00. Engine-state channels (RPM, load) are
 deliberately excluded from the expected-fuel model; adding them raises
 predictive \(R^2\) to 0.738 but they are engine outputs rather than
@@ -634,11 +632,9 @@ The expected-fuel model reaches a held-out coefficient of determination
 of \textbf{0.673} (95\% CI {[}0.628, 0.709{]}) with a mean absolute
 percentage error of 13.3\% (95\% CI {[}12.3, 14.3{]}), stable across
 seeds. This accuracy is in the range reported for OBD-based fuel models
-on other fleets {[}\hyperref[r4]{4},\hyperref[r9]{9}{]}, though the
-datasets differ and the numbers are not directly comparable; the
-model\textquotesingle s role here is to define a well-calibrated
-expectation from which excess is measured, not to set a new accuracy
-record.
+on other fleets {[}\hyperref[r4]{4},\hyperref[r9]{9}{]}. The
+model\textquotesingle s role is to define a well-calibrated expectation
+from which excess is measured.
 
 \subsubsection{6.2 Variance decomposition and the
 vehicle-baseline}\label{variance-decomposition-and-the-vehicle-baseline}
@@ -654,8 +650,7 @@ unexplained by vehicle size. This is the component that an operator
 would want to route to inspection, and it is invisible to a model that
 does not represent the vehicle.
 
-The vehicle-baseline is not an in-sample artifact of estimating a group
-mean from the same trips it is scored on. Estimating each
+The vehicle-baseline survives out-of-sample estimation. Estimating each
 vehicle\textquotesingle s offset on one random half of its trips and
 evaluating the fuel variance it explains on the held-out half gives a
 cross-fitted share of \textbf{0.136--0.138} (stable across a minimum of
@@ -824,7 +819,7 @@ and an elevated combustion axis therefore fires far more often for the
 rich fault than for the others (flag rate 0.29 versus a 0.07 average
 across normal, lean, and ignition, with an out-of-fold normal
 reference). Lean and ignition, which are not over-fuelling faults, do
-not trigger the vehicle-fuel -fault signature, so the method targets the
+not trigger the vehicle-fuel-fault signature, so the method targets the
 fuel-relevant fault rather than any deviation from normal. The signature
 is specific but its sensitivity is operating-point-dependent: the
 per-sample fuel-fault score ranks rich above normal only weakly (AUC
@@ -876,27 +871,27 @@ Combustion (AFR / fuel trim) & −0.028 & 0.903* \\
 physically forced (a rich mixture is extra fuel) and is not the claim;
 see below.
 
-Why the bench cell is not the claim. On the bench, air-fuel ratio and
-fuel are physically coupled, so a combustion axis explaining
-fault-excess is expected rather than discovered. The multivariate
-\(R^2\) of 0.903 is carried mainly by carbon monoxide (\(R^2 = 0.73\))
-and hydrocarbons (0.44), the unburnt-fuel emission products, with
-air-fuel ratio and lambda perfectly collinear (\(r = 1.0\)) at 0.12
-each; the univariate correlation of 0.33 understates the multivariate
-fit because a single air-fuel-ratio transform misses the emission
-channels. It is also interpolation, not generalization: under
-leave-operating-region-out cross-validation (RPM×power terciles) the
-all-sensor fit falls to \(R^2 = -0.48\) and a deployment-transferable
-subset (air-fuel ratio, lambda, oxygen; excluding the bench-only CO and
-HC analyzers) to 0.12, so the 0.903 reflects near-neighbour operating
-points rather than a portable predictor. We therefore treat this cell as
-a physical consistency check and rest the claim on the silent
-driver-excess cell and the attribution accuracy below. Of the
-\(2\times2\), one cell is physically forced, one is structurally absent,
-and the two evidential cells are the silent combustion axis on
-driver-excess and the kinematic axis carrying the driver signal; we
-therefore call this a signature contrast rather than a full double
-dissociation.
+The bench cell is a physical consistency check, not the claim. On the
+bench, air-fuel ratio and fuel are physically coupled, so a combustion
+axis explaining fault-excess is expected rather than discovered. The
+multivariate \(R^2\) of 0.903 is carried mainly by carbon monoxide
+(\(R^2 = 0.73\)) and hydrocarbons (0.44), the unburnt-fuel emission
+products, with air-fuel ratio and lambda perfectly collinear
+(\(r = 1.0\)) at 0.12 each; the univariate correlation of 0.33
+understates the multivariate fit because a single air-fuel-ratio
+transform misses the emission channels. It is also interpolation, not
+generalization: under leave-operating-region-out cross-validation
+(RPM×power terciles) the all-sensor fit falls to \(R^2 = -0.48\) and a
+deployment-transferable subset (air-fuel ratio, lambda, oxygen;
+excluding the bench-only CO and HC analyzers) to 0.12, so the 0.903
+reflects near-neighbour operating points rather than a portable
+predictor. We therefore treat this cell as a physical consistency check
+and rest the claim on the silent driver-excess cell and the attribution
+accuracy below. Of the \(2\times2\), one cell is physically forced, one
+is structurally absent, and the two evidential cells are the silent
+combustion axis on driver-excess and the kinematic axis carrying the
+driver signal; we therefore call this a signature contrast rather than a
+full double dissociation.
 
 \begin{figure}
 \centering
@@ -919,22 +914,22 @@ per-trip driver-versus-vehicle split. A pooled model that omits the
 vehicle term leaves 1.23 L/100km of per-vehicle systematic effect
 unattributed. None of these produces the decomposition our method does;
 because there is no cause-labelled real benchmark, this is a capability
-contrast, and the quantitative evaluation is next.
+contrast; Section 8.3 provides the quantitative evaluation.
 
 \subsubsection{8.3 Attribution accuracy on semi-synthetic ground
 truth}\label{attribution-accuracy-on-semi-synthetic-ground-truth}
 
 To measure attribution we give each real VED trip a driver-caused and a
-fault-caused variant that raise fuel by the \textbf{same} amount, a
-deliberately adversarial constraint that withholds magnitude information
-from the attributor (its physical justification, and why it makes the
-result a floor, follow below), and ask a frozen attributor to recover
-the cause. Each variant perturbs only its own axis, at the feature
-level: the driver variant shifts the kinematic features along the
-aggressive direction learned on the external driving data (UAH-DriveSet,
-at the fleet\textquotesingle s 1~Hz rate), and the fault variant shifts
-the fuel trim by the bench\textquotesingle s rich-mixture magnitude. The
-two effect sizes are calibrated from their sources rather than assumed
+fault-caused variant that raise fuel by the \textbf{same} amount, then
+ask a frozen attributor to recover the cause. The equal-fuel constraint
+withholds magnitude information from the attributor; its physical
+justification, and why it makes the result a floor, follow below. Each
+variant perturbs only its own axis, at the feature level: the driver
+variant shifts the kinematic features along the aggressive direction
+learned on the external driving data (UAH-DriveSet, at the
+fleet\textquotesingle s 1~Hz rate), and the fault variant shifts the
+fuel trim by the bench\textquotesingle s rich-mixture magnitude. The two
+effect sizes are calibrated from their sources rather than assumed
 equal: a typical aggressive window is \textbf{0.65} standard deviations
 on the kinematic score (Cohen\textquotesingle s d on UAH), whereas the
 bench rich fault is \textbf{1.66} within-vehicle standard deviations on
@@ -942,36 +937,34 @@ the combustion axis. Both axes are standardized to unit variance, the
 driver signature is the frozen UAH logistic, and nothing is fit to the
 injection labels. This deployed signature is the compact four-feature,
 speed-only model, whose own leave-one-driver-out AUC is 0.694 (weaker
-than the richer accelerometer-based validation of Section 6.3); the
+than the richer accelerometer-based validation of Section 6.3). The
 \(d = 0.65\) calibration is the per-window, out-of-sample effect and is
-conservative, because aggregating to whole trips, as VED records them,
-raises the aggressive-versus-normal effect to \(d \approx 1.3\), near
-the fault magnitude.
+conservative: aggregating to whole trips, as VED records them, raises
+the aggressive-versus-normal effect to \(d \approx 1.3\), near the fault
+magnitude.
 
 At this realistic, asymmetric operating point the frozen source-derived
 attributor reaches \textbf{78.5\% accuracy}, with a trained upper bound
-of 81.2\%, while a classifier given only the matched fuel increase
-(matched between the two classes by construction) is at chance
-(\textbf{49.6\%}), confirming no magnitude leak. These measured values
-agree to within 0.01 with the closed-form predictions of the Gaussian
-score model (0.778 and 0.813; Section 4.6): the
+of 81.2\%, while a classifier given only the matched fuel increase is at
+chance (\textbf{49.6\%}), confirming no magnitude leak. These measured
+values agree to within 0.01 with the closed-form predictions of the
+Gaussian score model (0.778 and 0.813; Section 4.6). The
 experiment\textquotesingle s evidential content is that this score model
 holds against real fleet trip-to-trip noise and that the frozen weights
-pass falsification, not the accuracy value itself, which the two
-source-calibrated effect sizes determine. The result is falsifiable and
-passes: removing the driver information entirely (weights orthogonal to
-the aggressive direction, leaving the fault axis intact) sets the floor
-at \textbf{0.70}; the frozen signature adds nine points over it (0.785),
-while negating the weights costs ten points below it (0.60) and
-shuffling them lands between (0.73), so the learned signature genuinely
-carries the attribution rather than the injection being trivially
-recoverable (Figure 7). Accuracy rises with driver severity, from 0.79
-at the realistic \(d = 0.65\) to 0.89 when the driver signal matches the
-fault magnitude, and 0.93 for severe aggression beyond the
-matched-severity range. The design measures how detectable the two
-signatures are against real trip-to-trip noise; it presumes rather than
-proves axis-separability, which rests instead on the bench fault
-signature and the silent driver-excess cell.
+pass falsification; the accuracy value itself is determined by the two
+source-calibrated effect sizes. The result is falsifiable and passes.
+Removing the driver information entirely (weights orthogonal to the
+aggressive direction, leaving the fault axis intact) sets the floor at
+\textbf{0.70}. The frozen signature adds nine points over it (0.785),
+negating the weights costs ten points below it (0.60), and shuffling
+them lands between (0.73), so the learned signature genuinely carries
+the attribution rather than the injection being trivially recoverable
+(Figure 7). Accuracy rises with driver severity, from 0.79 at the
+realistic \(d = 0.65\) to 0.89 when the driver signal matches the fault
+magnitude, and 0.93 for severe aggression beyond the matched-severity
+range. The design measures how detectable the two signatures are against
+real trip-to-trip noise; axis-separability itself is established by the
+bench fault signature and the silent driver-excess cell.
 
 The equal-fuel constraint is deliberately adversarial, and two measured
 facts show both what it gives away and why it costs almost nothing.
@@ -992,32 +985,32 @@ level, and the closed-form separations confirm it (magnitude effect size
 \(d = 0.30\), giving Bayes accuracy \(\Phi(0.15) = 0.56\), against the
 signatures\textquotesingle{} combined \(d \approx 1.8\)). The same
 measurement closes the obvious shortcut of simply thresholding the
-excess: at the trip level that rule is near chance, so the
-cause-specific signatures, not the fuel magnitude, carry the
-attribution. The physical asymmetry still holds, a typical aggressive
-episode being a small persistent cost and a rich fault a large one, and
-over many trips of a vehicle the magnitude gap does become usable; but
-per trip the signatures are the discriminative evidence. This trip-level
-+1.1\% (a \(d = 0.65\) shift from each trip\textquotesingle s own
-driving) is a smaller, differently-referenced quantity than the +0.47
-L/100km (\textasciitilde5\%) behaviour counterfactual of Section 6.2,
-which contrasts observed driving against a gentle 20th-percentile
-reference, a much wider gap.
+excess: at the trip level that rule is near chance. The physical
+asymmetry still holds, a typical aggressive episode being a small
+persistent cost and a rich fault a large one, and over many trips of a
+vehicle the magnitude gap does become usable; but per trip the
+signatures are the discriminative evidence. This trip-level +1.1\% (a
+\(d = 0.65\) shift from each trip\textquotesingle s own driving) is a
+smaller, differently-referenced quantity than the +0.47 L/100km
+(\textasciitilde5\%) behaviour counterfactual of Section 6.2, which
+contrasts observed driving against a gentle 20th-percentile reference
+and therefore spans a much wider gap.
 
 A real-data check on natural variation corroborates the driver half of
 this result without any injection. Among real VED trips, those whose
 kinematic deviation dominates carry a genuine excess of \textbf{+0.57
 L/100km} over expectation, whereas those whose fueling-correction (trim)
-deviation dominates carry none (−0.34, unchanged under a trim-corrected
-fuel target, at the level of low-deviation trips; Mann-Whitney
-\(p<10^{-30}\)). Real trip excess correlates with the kinematic axis
-(\(r = 0.22\)) but not with the combustion axis (\(r = 0.00\)), and the
-latter stays flat even within the highest-trim quartile (\(r = -0.03\)).
-On real trips, then, the driver signature genuinely predicts excess fuel
-while the fueling-correction signature does not, a real-data counterpart
-to the silent combustion cell of Section 8.1; that the fleet contains no
-combustion-linked fuel excess is exactly why the malfunction signature
-is anchored on the controlled bench.
+deviation dominates carry none: their −0.34 sits at the level of
+low-deviation trips and is unchanged under a trim-corrected fuel target
+(Mann-Whitney \(p<10^{-30}\)). Real trip excess correlates with the
+kinematic axis (\(r = 0.22\)) but not with the combustion axis
+(\(r = 0.00\)), and the latter stays flat even within the highest-trim
+quartile (\(r = -0.03\)). On real trips, then, the driver signature
+genuinely predicts excess fuel while the fueling-correction signature
+does not, a real-data counterpart to the silent combustion cell of
+Section 8.1; that the fleet contains no combustion-linked fuel excess is
+exactly why the malfunction signature is anchored on the controlled
+bench.
 
 \begin{figure}
 \centering
@@ -1068,11 +1061,11 @@ sizes, the one input never observed on a real faulted vehicle deserves
 an explicit sensitivity analysis: the fault constant
 \(S_{\text{fault}}\), which transfers the bench air-fuel deviation onto
 the fleet\textquotesingle s trim scale. Sweeping it from 0.5 to 3.0
-while holding the driver constant fixed, attribution accuracy moves
+while holding the driver constant fixed moves attribution accuracy
 smoothly from \textbf{0.66 to 0.83} (empirical injection and closed-form
-Gaussian prediction agreeing to within 0.01), staying well above chance
-across a six-fold range and rising with fault severity; the value used
-here, 1.66, sits mid-curve at 0.785. A targeted search of public
+Gaussian prediction agreeing to within 0.01), well above chance across
+the six-fold range and rising with fault severity. The value used here,
+1.66, sits mid-curve at 0.785. A targeted search of public
 on-board-diagnostics corpora found none that pairs a confirmed fueling
 fault (a P0171/P0172 diagnostic code) with logged closed-loop fuel trim,
 so the field value of this constant is an open measurement rather than a
@@ -1192,12 +1185,11 @@ loop. The accuracy curve of Section 8.3 sets expectations for smaller
 faults: real degradations weaker than the bench rich fault correspond to
 \(S<1.66\) and are attributed less confidently, degrading gracefully
 rather than failing abruptly. The deployment value is latency as much as
-accuracy: because per-trip fuel magnitude is near-chance as an
+accuracy. Because per-trip fuel magnitude is near-chance as an
 attributor (Section 8.3), a magnitude-threshold system must integrate
-over many trips to push the mean gap through the trip-to-trip noise,
-whereas the signatures attribute on a single trip with a risk-controlled
-abstention, collapsing detection-to-decision from a driving history to
-one trip.
+over many trips to push the mean gap through the trip-to-trip noise; the
+signatures attribute on a single trip with risk-controlled abstention,
+collapsing detection-to-decision from a driving history to one trip.
 
 \subsubsection{9.3 What the vehicle-baseline
 is}\label{what-the-vehicle-baseline-is}
@@ -1222,19 +1214,17 @@ vehicles and trips. A narrower and more immediately reachable target
 would already help: even a handful of real vehicles logging closed-loop
 fuel trim under a confirmed fueling fault (a stored P0171/P0172 code)
 would measure the bench-to-fleet transfer constant \(S_{\text{fault}}\)
-that Section 8.4 currently sweeps rather than observes. A targeted
-search of public OBD corpora found none pairing a fueling-fault label
-with logged trims, so this remains open. Such data would allow
-single-trip competing-cause attribution to be measured directly and the
-semi-synthetic bridge to be replaced by real ground truth.
+that Section 8.4 currently sweeps rather than observes. Such data would
+allow single-trip competing-cause attribution to be measured directly
+and the semi-synthetic bridge to be replaced by real ground truth.
 
 \subsection{10. Scope and limitations}\label{limits}
 
 Driver and fault ground truths live in different datasets, so the
-signature contrast is cross-dataset; the semi-synthetic experiment
+signature contrast is cross-dataset. The semi-synthetic experiment
 provides the single-trip competing-cause evaluation that no real dataset
-supports, but it assumes additive, axis-separable effects, and a real
-fault that co-moved both axes would make attribution harder than the
+supports; it assumes additive, axis-separable effects, and a real fault
+that co-moved both axes would make attribution harder than the
 controlled estimate. The fault effect size \(S_{\text{fault}}\) that
 sets the fault arm is transferred from the bench and not yet observed on
 a real faulted vehicle; Section 8.4 sweeps it over a six-fold range
@@ -1252,10 +1242,10 @@ malfunction arm is a controlled test bench with no driver context, and
 its fuel-relevant fault is the rich mixture; the lean-versus-ignition
 label mapping follows the source paper. VED is a single-city,
 single-climate, gasoline-only fleet, and its telematics are resampled to
-1 Hz, so fine transient dynamics are smoothed; the behaviour-axis
+1 Hz, so fine transient dynamics are smoothed. The behaviour-axis
 transfer is shown on two labelled datasets, at 400 Hz for amplitude
-features and at the fleet's own 1 Hz rate for VED-like kinematic
-features, rather than for the exact VED feature set.
+features and at the fleet\textquotesingle s own 1 Hz rate for VED-like
+kinematic features, rather than for the exact VED feature set.
 
 \subsubsection{10.1 Responsible use}\label{responsible-use}
 
@@ -1279,21 +1269,19 @@ of trip-fuel variance; on a controlled bench, a rich-mixture fault burns
 for driver-caused excess, and that silence survives both a
 trim-corrected fuel target and the highest-trim vehicles. The two causes
 are not even fuel-matched, a realistic aggressive-driving shift costing
-+1.1\% median fuel against the fault\textquotesingle s +6.2\%, so
-magnitude is cause-informative in expectation; yet per-trip fuel noise
-leaves it near chance as a single-trip attributor (0.56), so the
-signatures carry the attribution and thresholding the excess does not.
-In a controlled injection that deliberately withholds that magnitude,
++1.1\% median fuel against the fault\textquotesingle s +6.2\%; yet
+per-trip fuel noise leaves magnitude near chance as a single-trip
+attributor (0.56), so the signatures, not the excess size, carry the
+attribution. In a controlled injection that withholds that magnitude,
 frozen signatures learned in separate source domains attribute the cause
 at 78.5\% at a realistic operating point (up to \textasciitilde0.89 at
 matched severity), matching the closed-form score model and passing a
-falsification control where a fuel-only baseline is at chance; since
-real magnitudes differ by cause this is a floor, though a tight one, as
-adding magnitude lifts it by only 0.003. Because both axes derive from
-standard on-board-diagnostics channels, per-trip attribution is
-deployable on existing telematics, and the main obstacle to pushing it
-further is the absence of a public dataset that carries fuel, faults,
-and behaviour together.
+falsification control where a fuel-only baseline is at chance. This
+equal-magnitude accuracy is a tight floor: adding magnitude lifts it by
+only 0.003. Because both axes derive from standard on-board-diagnostics
+channels, per-trip attribution is deployable on existing telematics, and
+the main obstacle to pushing it further is the absence of a public
+dataset that carries fuel, faults, and behaviour together.
 
 \subsection{Data and code availability}\label{repro}
 
