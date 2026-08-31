@@ -221,7 +221,7 @@ aggressive direction, scored with FROZEN weights (old score-level injection made
 fault 1.66 SD from bench).
 - **Frozen source-derived attribution = 0.785** at realistic (S_driver=0.65, S_fault=1.66); trained
   upper bound 0.812; **falsification: negated driver weights -> 0.599, shuffled -> 0.727** (learned
-  signature genuinely contributes); MEASURED fuel-only = 0.497 (chance).
+  signature genuinely contributes); MEASURED fuel-only = 0.496 (chance).
 - Honest headline is ~0.78-0.81, NOT 88.6/95.9. Driver effect at realistic aggression (d=0.65) is
   weaker than the bench fault (1.66 SD) -> asymmetric; accuracy rises with driver severity.
 - Also fixes false claim in old 8.3 ("attributor sees vehicle baseline" - P8 X had 2 cols, no baseline).
@@ -296,3 +296,20 @@ at 0.562 (chance) per trip while signatures give 0.812. Signatures, not magnitud
 Over many trips of a vehicle the magnitude gap becomes usable; per trip it is not. Paper 8.3 corrected
 (removed the earlier overstatement that fusing magnitude does "strictly better" -> honest +0.003 + the
 threshold-rebuttal). results.json magnitude_fusion.
+
+## P23 (Fable pass-2) — S_fault sensitivity + combustion aggregation — 2026-08-31 (local)
+scripts/p23_sfault_sensitivity.py. Motivated by Fable pass-2: (i) headline is arithmetic in two
+calibrated constants; S_fault (bench-AFR -> fleet-trim transfer) is the one never observed on a real
+faulted vehicle; (ii) per-sample fault sensitivity (AUC 0.58/TPR 0.29) is a single-reading number.
+(A) S_fault SWEEP [0.5..3.0] at S_driver=0.65 (empirical injection vs closed-form, agree <0.01):
+    0.5->0.66, 0.8->0.70, 1.0->0.72, 1.33->0.76, 1.66->0.785, 2.0->0.805, 2.5->0.825, 3.0->0.834.
+    => accuracy above chance across a 6x range; assumed 1.66 sits mid-curve; genuine fault (drives trim
+    beyond normal variation) occupies the upper part. WEB SCOUT (web-researcher): NO public dataset pairs
+    a confirmed fueling DTC (P0171/P0172) with logged closed-loop trims (VED/HCRL/Barreto have trims no
+    faults; DEFault/EngineAD/EdgeImpulse have faults no usable trims). So S_fault is an open field
+    measurement; paper 8.4 SWEEPS it + 9.4/10 name it as the reachable missing benchmark.
+(B) Combustion AGGREGATION AUC (EngineFaultDB, mean combustion score over n rich vs normal): per-sample
+    0.54 (d=0.41) -> n=5 0.76 -> n=10 0.80 -> n=20 0.92 -> n=50 0.99. Invariant (monotone & >=0.9 by 20)
+    PASSES. Added to Sec 7: the single-reading 0.58 weakness is not the regime attribution operates in
+    (persistent per-vehicle signal). results.json: sfault_sensitivity, combustion_aggregation.
+Fuel-only canonical value re-confirmed 0.496 (was 0.497 stale in results.json/RESULTS.md; synced).

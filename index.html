@@ -108,7 +108,9 @@ driver-caused excess (held-out \(R^2 = -0.03\)), a silence that survives a trim-
 fuel target and holds within the highest-trim vehicles. On real fleet trips, and without any injection,
 kinematic-dominant trips carry +0.57 L/100km of excess fuel while trim-dominant trips carry none; and
 the two causes are not even fuel-matched in reality, a realistic aggressive-driving shift costing +1.1%
-median fuel against the rich fault's +6.2%, so excess magnitude itself is cause-informative. To measure
+median fuel against the rich fault's +6.2%, so excess magnitude is cause-informative in expectation, yet
+trip-to-trip fuel noise leaves it near chance as a per-trip attributor (0.56): the signatures, not the
+excess size, carry the attribution. To measure
 attribution accuracy where no real dataset can (on the target there is no ground-truth cause, and any
 proxy drawn from the two axes is circular with the attributor), we use a controlled injection deliberately
 constrained so both causes raise fuel identically and magnitude carries no information: signatures learned
@@ -116,8 +118,9 @@ only in their source domains, frozen and combined on the target without joint su
 driver-versus-fault excess at 78.5% at a source-calibrated operating point (rising to about 0.89 when the
 driver signal matches the fault magnitude), agreeing to within 0.01 with the closed-form prediction of the
 score model, passing a negated-weights falsification, and beating a matched fuel-only baseline pinned at
-chance. Because real fuel magnitudes differ by cause, this equal-magnitude accuracy is a conservative
-floor. A conformal abstention rule gives each issued decision a finite-sample selective-risk guarantee.
+chance. Because real magnitudes differ by cause, this equal-magnitude accuracy is a floor, but a tight
+one: adding real fuel magnitude lifts it by only 0.003, since per-trip noise swamps the gap. A conformal
+abstention rule gives each issued decision a finite-sample selective-risk guarantee.
 Both axes derive from standard on-board-diagnostics channels, making per-trip attribution deployable as a
 coach-versus-inspect triage on existing telematics.</p>
 
@@ -139,9 +142,10 @@ coach-versus-inspect triage on existing telematics.</p>
       signatures learned in separate domains attribute driver-versus-fault excess at 78.5% at a realistic
       operating point (up to ~0.89 at matched severity) with no joint supervision, matching the closed-form
       prediction of the score model, passing a negated-weights falsification, and beating a fuel-only
-      baseline at chance; because real fuel magnitudes differ by cause this is a conservative floor. A
-      likelihood-ratio fusion with split-conformal abstention gives each decision a finite-sample
-      selective-risk guarantee.</li>
+      baseline at chance; the equal-magnitude accuracy is a floor that adding real fuel magnitude lifts by
+      only 0.003, since per-trip noise renders magnitude near-useless (thresholding the excess attributes
+      at 0.56), so the signatures carry the attribution. A likelihood-ratio fusion with split-conformal
+      abstention gives each decision a finite-sample selective-risk guarantee.</li>
   <li>A documented survey of the joint fuel + fault + behaviour data gap, and a reproducible pipeline and paper in which every number traces to a script.</li>
 </ul>
 
@@ -446,7 +450,8 @@ coach-versus-inspect triage on existing telematics.</p>
   <em>same</em> amount, so that fuel magnitude carries no information about the cause. This equal-fuel
   constraint is deliberately adversarial: in reality the two causes are not fuel-matched (Section 8.3
   measures a realistic driver shift at +1.1% median fuel against the fault's +6.2%), so withholding
-  magnitude makes the resulting accuracy a conservative floor rather than an optimistic estimate. Each variant
+  magnitude makes the resulting accuracy a floor rather than an optimistic estimate, though Section 8.3
+  shows the floor is tight because per-trip magnitude is near-useless. Each variant
   perturbs only its own axis, at the <em>feature</em> level rather than at the score level, so that the
   frozen signature weights genuinely determine the outcome. The driver variant shifts the real kinematic
   feature vector along the aggressive direction \(\mathbf{d}\) learned on the external driving data,
@@ -630,7 +635,11 @@ coach-versus-inspect triage on existing telematics.</p>
   -fault signature, so the method targets the fuel-relevant fault rather than any deviation from normal.
   The signature is specific but its sensitivity is operating-point-dependent: the per-sample fuel-fault
   score ranks rich above normal only weakly (AUC 0.58), because a rich fault's fuel penalty is expressed
-  mainly at higher load, consistent with the non-portability across operating regions in Section 8.1.</p>
+  mainly at higher load, consistent with the non-portability across operating regions in Section 8.1. This
+  single-reading weakness is not the regime in which attribution operates: a fault is a persistent
+  per-vehicle condition, and the combustion-axis AUC for the mean score over \(n\) readings rises from
+  0.54 at \(n = 1\) to 0.80 at \(n = 10\), <b>0.92 at \(n = 20\)</b>, and 0.99 at \(n = 50\), so the
+  aggregated signal a real deployment sees is strongly separable even where a single sample is not.</p>
 
 <figure>
   <img src="figures/fig5_fault_signature.svg" alt="Excess fuel by fault class">
@@ -717,8 +726,8 @@ coach-versus-inspect triage on existing telematics.</p>
   (0.785), while negating the weights costs ten points below it (0.60) and shuffling them lands between
   (0.73), so the learned signature genuinely carries the attribution rather than the injection being
   trivially recoverable (Figure 7). Accuracy rises with driver severity, from 0.79 at the realistic
-  \(d = 0.65\) to 0.89 when the driver signal matches the fault magnitude and 0.93 for severe
-  aggression. The design measures how detectable the two signatures are against real trip-to-trip noise;
+  \(d = 0.65\) to 0.89 when the driver signal matches the fault magnitude, and 0.93 for severe aggression
+  beyond the matched-severity range. The design measures how detectable the two signatures are against real trip-to-trip noise;
   it presumes rather than proves axis-separability, which rests instead on the bench fault signature and
   the silent driver-excess cell.</p>
 <p>The equal-fuel constraint is deliberately adversarial, and two measured facts show both what it gives
@@ -728,7 +737,8 @@ coach-versus-inspect triage on existing telematics.</p>
   does carry cause information. Second, that information is nearly unusable per trip. Single-trip excess
   magnitude alone attributes at just <b>0.562</b>, barely above chance, because trip-to-trip fuel variation
   (out-of-fold residual standard deviation 17%) swamps the five-point mean gap; adding magnitude as a third
-  likelihood channel to the signature fusion moves accuracy only from 0.812 to <b>0.815</b>. The
+  likelihood channel to the two-axis signature fusion (the 0.812 likelihood-ratio combination of
+  Section 8.4) moves accuracy only to <b>0.815</b>. The
   equal-magnitude accuracy is therefore a floor, but a tight one: withholding magnitude costs about
   0.003 at the single-trip level, and the closed-form separations confirm it (magnitude effect size
   \(d = 0.30\), giving Bayes accuracy \(\Phi(0.15) = 0.56\), against the signatures' combined
@@ -778,6 +788,18 @@ coach-versus-inspect triage on existing telematics.</p>
   <figcaption><b>Figure 8.</b> Dominant-cause accuracy when both causes act, over driver severity
     \(S_d\) and fault effect \(S_f\); reliable off the diagonal, degrading toward the ambiguous equal-effect limit.</figcaption>
 </figure>
+<p>Because the accuracy is determined by the two source-calibrated effect sizes, the one input never
+  observed on a real faulted vehicle deserves an explicit sensitivity analysis: the fault constant
+  \(S_{\text{fault}}\), which transfers the bench air-fuel deviation onto the fleet's trim scale. Sweeping
+  it from 0.5 to 3.0 while holding the driver constant fixed, attribution accuracy moves smoothly from
+  <b>0.66 to 0.83</b> (empirical injection and closed-form Gaussian prediction agreeing to within 0.01),
+  staying well above chance across a six-fold range and rising with fault severity; the value used here,
+  1.66, sits mid-curve at 0.785. A targeted search of public on-board-diagnostics corpora found none that
+  pairs a confirmed fueling fault (a P0171/P0172 diagnostic code) with logged closed-loop fuel trim, so
+  the field value of this constant is an open measurement rather than a settled one. A genuine fueling
+  fault, which by construction drives the closed-loop trim beyond normal within-vehicle variation, occupies
+  the upper, higher-accuracy part of this curve; the exact operating point awaits a fault-labelled trim
+  dataset, the field's key missing benchmark (Section 9).</p>
 <p>Attribution is not an artifact of one attributor. At the realistic operating point, a
   likelihood-ratio prototype against source-calibrated signature distributions matches the trained
   upper bound (0.81), the frozen argmax rule reaches 0.79, and fuel magnitude alone stays at chance
@@ -843,7 +865,11 @@ coach-versus-inspect triage on existing telematics.</p>
   an inspection queue, while a large behaviour component feeds driver coaching, in both cases with the
   attribution's uncertainty attached and a human in the loop. The accuracy curve of Section 8.3 sets
   expectations for smaller faults: real degradations weaker than the bench rich fault correspond to
-  \(S<1.66\) and are attributed less confidently, degrading gracefully rather than failing abruptly.</p>
+  \(S<1.66\) and are attributed less confidently, degrading gracefully rather than failing abruptly. The
+  deployment value is latency as much as accuracy: because per-trip fuel magnitude is near-chance as an
+  attributor (Section 8.3), a magnitude-threshold system must integrate over many trips to push the mean
+  gap through the trip-to-trip noise, whereas the signatures attribute on a single trip with a
+  risk-controlled abstention, collapsing detection-to-decision from a driving history to one trip.</p>
 <h3>9.3 What the vehicle-baseline is</h3>
 <p>The vehicle-baseline is a real 14% of trip-fuel variance, three-quarters of it unexplained by engine
   size or weight. Its mechanism is not labelled in VED and plausibly bundles tuning, tire pressure,
@@ -851,15 +877,22 @@ coach-versus-inspect triage on existing telematics.</p>
   mechanical fault, which remains a diagnosis step.</p>
 <h3>9.4 The benchmark the field needs</h3>
 <p>Naming what would close the joint-data gap (Section 3.4) turns it into an agenda: a fleet logged with true fuel-flow meters, OBD trims, driver identifiers,
-  and verified maintenance or fault records on the same vehicles and trips. Such a dataset would allow
-  single-trip competing-cause attribution to be trained and measured directly, and the semi-synthetic
-  bridge to be replaced by real ground truth.</p>
+  and verified maintenance or fault records on the same vehicles and trips. A narrower and more immediately
+  reachable target would already help: even a handful of real vehicles logging closed-loop fuel trim under
+  a confirmed fueling fault (a stored P0171/P0172 code) would measure the bench-to-fleet transfer constant
+  \(S_{\text{fault}}\) that Section 8.4 currently sweeps rather than observes. A targeted search of public
+  OBD corpora found none pairing a fueling-fault label with logged trims, so this remains open. Such data
+  would allow single-trip competing-cause attribution to be measured directly and the semi-synthetic bridge
+  to be replaced by real ground truth.</p>
 
 <h2 id="limits">10. Scope and limitations</h2>
 <p>Driver and fault ground truths live in different datasets, so the signature contrast is
   cross-dataset; the semi-synthetic experiment provides the single-trip competing-cause evaluation that
   no real dataset supports, but it assumes additive, axis-separable effects, and a real fault that
-  co-moved both axes would make attribution harder than the controlled estimate. VED has effectively one
+  co-moved both axes would make attribution harder than the controlled estimate. The fault effect size
+  \(S_{\text{fault}}\) that sets the fault arm is transferred from the bench and not yet observed on a real
+  faulted vehicle; Section 8.4 sweeps it over a six-fold range (accuracy 0.66 to 0.83, above chance
+  throughout) rather than relying on the single assumed value. VED has effectively one
   driver per vehicle, so per-trip driver-versus-vehicle causation is not identifiable from observation
   alone; the decomposition is model-based and its attribution is validated on injected ground truth.
   This last point is a hard boundary, not a choice of convenience: proxy cause labels constructed on the
@@ -883,11 +916,13 @@ coach-versus-inspect triage on existing telematics.</p>
   emissions signature; the combustion axis is silent for driver-caused excess, and that silence survives
   both a trim-corrected fuel target and the highest-trim vehicles. The two causes are not even
   fuel-matched, a realistic aggressive-driving shift costing +1.1% median fuel against the fault's +6.2%,
-  so magnitude itself is cause-informative. In a controlled injection that deliberately withholds that
+  so magnitude is cause-informative in expectation; yet per-trip fuel noise leaves it near chance as a
+  single-trip attributor (0.56), so the signatures carry the attribution and thresholding the excess does
+  not. In a controlled injection that deliberately withholds that
   magnitude, frozen signatures learned in separate source domains attribute the cause at 78.5% at a
   realistic operating point (up to ~0.89 at matched severity), matching the closed-form score model and
   passing a falsification control where a fuel-only baseline is at chance; since real magnitudes differ by
-  cause, this is a conservative floor.
+  cause this is a floor, though a tight one, as adding magnitude lifts it by only 0.003.
   Because both axes derive from standard on-board-diagnostics channels, per-trip attribution is
   deployable on existing telematics, and the main obstacle to pushing it further is the absence of a
   public dataset that carries fuel, faults, and behaviour together.</p>
@@ -897,7 +932,7 @@ coach-versus-inspect triage on existing telematics.</p>
   (<a href="https://github.com/gsoh/VED">github.com/gsoh/VED</a>, Apache-2.0); EngineFaultDB
   (<a href="https://github.com/leoxthomas/EngineFaultDB">github.com/leoxthomas/EngineFaultDB</a>,
   GPL-3.0); Driving Events (<a href="https://zenodo.org/records/6570972">zenodo.org/records/6570972</a>, CC-BY-4.0); UAH-DriveSet [<a href="#r26">26</a>] (free for research use; obtained from a public mirror as the original server was unavailable, and not redistributed here). The full pipeline (<code>scripts/p1_features.py</code> through
-  <code>scripts/p20_driver_fuelcost.py</code>), results log (<code>RESULTS.md</code>), and this manuscript
+  <code>scripts/p23_sfault_sensitivity.py</code>), results log (<code>RESULTS.md</code>), and this manuscript
   are in the project repository; every number traces to a script. Environment: Python 3.14,
   scikit-learn 1.8, pandas 2.3, scipy 1.17, pyarrow.</p>
 <p class="kv"><b>Author contributions.</b> A. Apartsin conceived and implemented the study and drafted

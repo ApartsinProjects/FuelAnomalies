@@ -98,7 +98,7 @@
   "attribution": {
     "frozen": 0.785,
     "trained_upper": 0.812,
-    "fuel_only_measured": 0.497,
+    "fuel_only_measured": 0.496,
     "negated_weights": 0.599,
     "shuffled_weights": 0.727,
     "S_driver_cohen_d": 0.65,
@@ -161,6 +161,21 @@
     "p90_pct": 3.53,
     "bench_fault_pct": 6.2,
     "note": "P20; d=0.65 driver perturbation through fuel model M; two causes NOT fuel-matched"
+  },
+  "sfault_sensitivity": {
+    "S_driver": 0.65,
+    "S_fault_current": 1.66,
+    "sweep_empirical": {"0.5": 0.662, "0.8": 0.698, "1.0": 0.722, "1.33": 0.758, "1.66": 0.785, "2.0": 0.805, "2.5": 0.825, "3.0": 0.834},
+    "empirical_vs_closedform_max_gap": 0.006,
+    "web_scout": "No public dataset pairs a confirmed fueling DTC (P0171/P0172) with logged closed-loop trims; S_fault is an open field measurement. Paper 8.4 sweeps it; 9.4/10 name it as the reachable missing benchmark.",
+    "note": "P23-A: headline stays above chance across a 6x range of the untested transfer constant; assumed 1.66 sits mid-curve."
+  },
+  "combustion_aggregation": {
+    "persample_AUC": 0.541,
+    "persample_cohens_d": 0.41,
+    "aggregation_AUC": {"1": 0.541, "5": 0.758, "10": 0.803, "20": 0.918, "50": 0.988},
+    "invariant_monotone_ge0.9_by20": true,
+    "note": "P23-B: single-reading fault AUC 0.54-0.58 rises to 0.92 at n=20, 0.99 at n=50 -> the persistent-per-vehicle regime attribution operates in is strongly separable."
   },
   "magnitude_fusion": {
     "acc_2channel_equalmag_floor": 0.812,
