@@ -313,3 +313,17 @@ faulted vehicle; (ii) per-sample fault sensitivity (AUC 0.58/TPR 0.29) is a sing
     PASSES. Added to Sec 7: the single-reading 0.58 weakness is not the regime attribution operates in
     (persistent per-vehicle signal). results.json: sfault_sensitivity, combustion_aggregation.
 Fuel-only canonical value re-confirmed 0.496 (was 0.497 stale in results.json/RESULTS.md; synced).
+
+## P24 — construct-matched operating points (foreground realistic trip-level) — 2026-09-01
+scripts/p24_operating_points.py. Motivation (user: "numbers seem small"): the headline 0.785 is the
+DELIBERATELY CONSERVATIVE window-level (d=0.65, magnitude withheld) point. p14's AUROC 0.951 is from the
+SUPERSEDED symmetric score-level S=1.66 injection and must NOT be quoted beside 0.785 (construct mismatch).
+Recomputed accuracy + AUROC/AUPRC from the SAME p17 feature-level asymmetric injection at two points:
+- window-level d=0.65 (conservative floor): acc 0.785, AUROC 0.878, AUPRC 0.871
+- trip-level d~1.3 (realistic; VED records whole trips, aggregation raises aggressive-vs-normal effect
+  0.65->~1.3): acc 0.856, AUROC 0.931, AUPRC 0.928
+Cross-check: 0.856 matches severity sweep interpolation (d=1.0->0.827, 1.5->0.874). VERIFIED.
+Paper reframed to FOREGROUND trip-level 0.856/AUROC 0.93 as realistic, keep 0.785 as conservative floor
+(abstract, 8.3, contributions, conclusion, Fig7 caption). Also: abstract behaviour phrasing -> "up to 37%
+(8% uniquely)"; 9.2 absolute-scale value sentence (small % = large recurring fleet cost). results.json
+operating_points + stress AUROC annotated SUPERSEDED.

@@ -110,9 +110,15 @@
     "noise_sd1": 0.798,
     "bias_1sd": 0.834,
     "missing_trim_50pct": 0.798,
-    "AUROC": 0.951,
-    "AUPRC": 0.945,
-    "Brier": 0.092
+    "AUROC_symmetric_SUPERSEDED": 0.951,
+    "AUPRC_symmetric_SUPERSEDED": 0.945,
+    "Brier": 0.092,
+    "note": "p14 AUROC/AUPRC are at the SYMMETRIC score-level S=1.66 (pre-BUG-fix); NOT construct-matched to the 0.785 operating point. Do NOT quote beside 0.785. Use operating_points (p24) for construct-matched ranking metrics."
+  },
+  "operating_points": {
+    "window_level_d0.65": {"accuracy": 0.785, "AUROC": 0.878, "AUPRC": 0.871},
+    "trip_level_d1.3": {"accuracy": 0.856, "AUROC": 0.931, "AUPRC": 0.928},
+    "note": "P24; construct-matched to p17 feature-level asymmetric injection (driver d, fault S_fault=1.66). Cross-checks the severity sweep (d=1.0->0.827, 1.5->0.874, so d=1.3->0.856). Paper foregrounds trip-level as realistic, window-level 0.785 as conservative floor."
   },
   "baselines_at_Sbench": {
     "frozen": 0.886,

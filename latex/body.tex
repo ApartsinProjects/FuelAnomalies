@@ -943,12 +943,14 @@ conservative: aggregating to whole trips, as VED records them, raises
 the aggressive-versus-normal effect to \(d \approx 1.3\), near the fault
 magnitude.
 
-At this realistic, asymmetric operating point the frozen source-derived
-attributor reaches \textbf{78.5\% accuracy}, with a trained upper bound
-of 81.2\%, while a classifier given only the matched fuel increase is at
-chance (\textbf{49.6\%}), confirming no magnitude leak. These measured
-values agree to within 0.01 with the closed-form predictions of the
-Gaussian score model (0.778 and 0.813; Section 4.6). The
+At the conservative window-level operating point (\(d = 0.65\)) the
+frozen source-derived attributor reaches \textbf{78.5\% accuracy} (AUROC
+0.88), with a trained upper bound of 81.2\%; at the realistic trip-level
+point (\(d \approx 1.3\)) it reaches \textbf{0.856} (AUROC 0.93). A
+classifier given only the matched fuel increase is at chance
+(\textbf{49.6\%}), confirming no magnitude leak. These measured values
+agree to within 0.01 with the closed-form predictions of the Gaussian
+score model (0.778 and 0.813; Section 4.6). The
 experiment\textquotesingle s evidential content is that this score model
 holds against real fleet trip-to-trip noise and that the frozen weights
 pass falsification; the accuracy value itself is determined by the two
@@ -959,12 +961,13 @@ aggressive direction, leaving the fault axis intact) sets the floor at
 negating the weights costs ten points below it (0.60), and shuffling
 them lands between (0.73), so the learned signature genuinely carries
 the attribution rather than the injection being trivially recoverable
-(Figure 7). Accuracy rises with driver severity, from 0.79 at the
-realistic \(d = 0.65\) to 0.89 when the driver signal matches the fault
-magnitude, and 0.93 for severe aggression beyond the matched-severity
-range. The design measures how detectable the two signatures are against
-real trip-to-trip noise; axis-separability itself is established by the
-bench fault signature and the silent driver-excess cell.
+(Figure 7). Accuracy rises with driver severity, from 0.785 at the
+window-level \(d = 0.65\), to 0.856 at the trip-level \(d \approx 1.3\),
+0.89 when the driver signal matches the fault magnitude, and 0.93 for
+severe aggression beyond that range. The design measures how detectable
+the two signatures are against real trip-to-trip noise;
+axis-separability itself is established by the bench fault signature and
+the silent driver-excess cell.
 
 The equal-fuel constraint is deliberately adversarial, and two measured
 facts show both what it gives away and why it costs almost nothing.
@@ -1017,10 +1020,10 @@ bench.
 \includegraphics[width=\linewidth]{fig6_attribution_accuracy.png}
 \caption{\textbf{Figure 7.} Attribution accuracy rises with driver
 aggression severity (Cohen\textquotesingle s d on the kinematic score);
-at the realistic operating point (\(d = 0.65\)) the frozen
-source-derived attributor reaches 0.785. Negating the frozen driver
-weights drops below the no-driver-information floor (a falsification
-control); fuel magnitude alone is at chance.}
+the conservative window-level point (\(d = 0.65\)) gives 0.785 and the
+realistic trip-level point (\(d \approx 1.3\)) gives 0.856. Negating the
+frozen driver weights drops below the no-driver-information floor (a
+falsification control); fuel magnitude alone is at chance.}
 \end{figure}
 
 \subsubsection{8.4 Abstention, mixed causes, and
@@ -1181,8 +1184,13 @@ can therefore be computed online and routed: a persistent
 vehicle-baseline offset feeds an inspection queue, while a large
 behaviour component feeds driver coaching, in both cases with the
 attribution\textquotesingle s uncertainty attached and a human in the
-loop. The accuracy curve of Section 8.3 sets expectations for smaller
-faults: real degradations weaker than the bench rich fault correspond to
+loop. The percentages are individually small but operationally large: a
+persistent +6\% fault, or the behaviour gap that reaches roughly +5\%
+against a gentle-driving reference, is a recurring cost on every trip of
+every affected vehicle, so fleet-wide it compounds into a fuel and
+emissions line item that routing to the correct remedy directly reduces.
+The accuracy curve of Section 8.3 sets expectations for smaller faults:
+real degradations weaker than the bench rich fault correspond to
 \(S<1.66\) and are attributed less confidently, degrading gracefully
 rather than failing abruptly. The deployment value is latency as much as
 accuracy. Because per-trip fuel magnitude is near-chance as an
@@ -1274,14 +1282,15 @@ per-trip fuel noise leaves magnitude near chance as a single-trip
 attributor (0.56), so the signatures, not the excess size, carry the
 attribution. In a controlled injection that withholds that magnitude,
 frozen signatures learned in separate source domains attribute the cause
-at 78.5\% at a realistic operating point (up to \textasciitilde0.89 at
-matched severity), matching the closed-form score model and passing a
-falsification control where a fuel-only baseline is at chance. This
-equal-magnitude accuracy is a tight floor: adding magnitude lifts it by
-only 0.003. Because both axes derive from standard on-board-diagnostics
-channels, per-trip attribution is deployable on existing telematics, and
-the main obstacle to pushing it further is the absence of a public
-dataset that carries fuel, faults, and behaviour together.
+at accuracy 0.856 and AUROC 0.93 at the realistic trip-level operating
+point (0.785 at a conservative window-level floor), matching the
+closed-form score model and passing a falsification control where a
+fuel-only baseline is at chance. This equal-magnitude accuracy is a
+tight floor: adding magnitude lifts it by only 0.003. Because both axes
+derive from standard on-board-diagnostics channels, per-trip attribution
+is deployable on existing telematics, and the main obstacle to pushing
+it further is the absence of a public dataset that carries fuel, faults,
+and behaviour together.
 
 \subsection{Data and code availability}\label{repro}
 

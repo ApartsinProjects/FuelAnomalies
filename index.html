@@ -101,8 +101,9 @@ by a rich mixture, is steady-state and combustion-linked, expressed as an air-fu
 the unburnt-fuel emission products. No public dataset carries fuel, mechanical-fault labels, and driver behaviour jointly. We therefore adopt a two-arm design on real data: a fleet-telemetry arm on the
 Vehicle Energy Dataset (VED; 197 gasoline vehicles, 14,460 trips) and a controlled engine-fault arm on
 EngineFaultDB, with the behaviour axis externally validated on two independent labelled driving datasets.
-An expected-fuel model reaches held-out \(R^2 = 0.673\) (95% CI [0.628, 0.709]); driving behaviour and
-a persistent vehicle-baseline explain 8% and 14% of trip-fuel variance. The rich-mixture fault burns
+An expected-fuel model reaches held-out \(R^2 = 0.673\) (95% CI [0.628, 0.709]); driving behaviour
+accounts for up to 37% of trip-fuel variance (8% of it uniquely, beyond route and weather) and a
+persistent vehicle-baseline for a further 14%. The rich-mixture fault burns
 +6.2% excess fuel with an emissions signature, while the combustion axis remains silent for
 driver-caused excess (held-out \(R^2 = -0.03\)), a silence that survives a trim-corrected
 fuel target and holds within the highest-trim vehicles. On real fleet trips, without any injection,
@@ -113,12 +114,13 @@ the rich fault's +6.2%, yet trip-to-trip fuel noise leaves magnitude near chance
 accuracy: the target fleet has no ground-truth cause, and any proxy built from the two axes is circular
 with the attributor. We therefore use a controlled injection, constrained so both causes raise fuel
 identically and magnitude carries no information. Signatures learned only in their source domains, then
-frozen and combined on the target without joint supervision, attribute driver-versus-fault excess at 78.5%
-at a source-calibrated operating point, rising to about 0.89 when the driver signal matches the fault
-magnitude. The measured accuracy agrees to within 0.01 with the closed-form prediction of the score model,
-survives a negated-weights falsification, and beats a matched fuel-only baseline pinned at chance. Because
-real magnitudes differ by cause, the equal-magnitude accuracy is a floor, and a tight one: adding real
-fuel magnitude lifts it by only 0.003, since per-trip noise swamps the gap. A conformal abstention rule
+frozen and combined on the target without joint supervision, attribute driver-versus-fault excess at
+accuracy 0.856 and AUROC 0.93 at the realistic trip-level operating point. At a deliberately conservative
+floor that equalizes the two causes' fuel use and drops to a weaker window-level driver effect, accuracy
+is 0.785, nine points above a no-driver-information floor, matching the closed-form prediction of the score
+model, and passing a negated-weights falsification while a fuel-only baseline stays at chance. Because real
+magnitudes differ by cause, that equal-magnitude accuracy is a floor, and a tight one: adding real fuel
+magnitude lifts it by only 0.003, since per-trip noise swamps the gap. A conformal abstention rule
 gives each issued decision a finite-sample selective-risk guarantee.
 Both axes derive from standard on-board-diagnostics channels, so a fleet can decide, from a single trip's
 ordinary telematics, whether an over-consuming vehicle needs its driver coached or its engine inspected.</p>
@@ -138,10 +140,11 @@ ordinary telematics, whether an over-consuming vehicle needs its driver coached 
       while trim-dominant trips carry none; and the two causes are not fuel-matched, a realistic
       aggressive-driving shift costing +1.1% median fuel against the rich fault's +6.2%.</li>
   <li>A <b>controlled-injection evaluation</b> with source-calibrated effect sizes: frozen source-derived
-      signatures learned in separate domains attribute driver-versus-fault excess at 78.5% at a realistic
-      operating point (up to ~0.89 at matched severity) with no joint supervision, matching the closed-form
-      prediction of the score model, passing a negated-weights falsification, and beating a fuel-only
-      baseline at chance. The equal-magnitude accuracy is a tight floor: adding real fuel magnitude lifts
+      signatures learned in separate domains attribute driver-versus-fault excess at accuracy 0.856 and
+      AUROC 0.93 at the realistic trip-level operating point (0.785 at a deliberately conservative
+      window-level floor, up to ~0.89 at matched severity) with no joint supervision, matching the
+      closed-form prediction of the score model, passing a negated-weights falsification, and beating a
+      fuel-only baseline at chance. The equal-magnitude accuracy is a tight floor: adding real fuel magnitude lifts
       it by only 0.003, because per-trip noise renders magnitude near-useless (thresholding the excess
       attributes at 0.56). A likelihood-ratio fusion with split-conformal
       abstention gives each decision a finite-sample selective-risk guarantee.</li>
@@ -705,9 +708,10 @@ ordinary telematics, whether an over-consuming vehicle needs its driver coached 
   accelerometer-based validation of Section 6.3). The \(d = 0.65\) calibration is the per-window,
   out-of-sample effect and is conservative: aggregating to whole trips, as VED records them,
   raises the aggressive-versus-normal effect to \(d \approx 1.3\), near the fault magnitude.</p>
-<p>At this realistic, asymmetric operating point the frozen source-derived attributor reaches
-  <b>78.5% accuracy</b>, with a trained upper bound of 81.2%, while a classifier given only the matched
-  fuel increase is at chance (<b>49.6%</b>), confirming no magnitude leak. These measured values agree to
+<p>At the conservative window-level operating point (\(d = 0.65\)) the frozen source-derived attributor
+  reaches <b>78.5% accuracy</b> (AUROC 0.88), with a trained upper bound of 81.2%; at the realistic
+  trip-level point (\(d \approx 1.3\)) it reaches <b>0.856</b> (AUROC 0.93). A classifier given only the
+  matched fuel increase is at chance (<b>49.6%</b>), confirming no magnitude leak. These measured values agree to
   within 0.01 with the closed-form predictions of the Gaussian score model (0.778 and 0.813; Section 4.6).
   The experiment's evidential content is that this score model holds against real fleet trip-to-trip noise
   and that the frozen weights pass falsification; the accuracy value itself is determined by the two
@@ -715,9 +719,9 @@ ordinary telematics, whether an over-consuming vehicle needs its driver coached 
   entirely (weights orthogonal to the aggressive direction, leaving the fault axis intact) sets the floor
   at <b>0.70</b>. The frozen signature adds nine points over it (0.785), negating the weights costs ten
   points below it (0.60), and shuffling them lands between (0.73), so the learned signature genuinely
-  carries the attribution rather than the injection being trivially recoverable (Figure 7). Accuracy rises with driver severity, from 0.79 at the realistic
-  \(d = 0.65\) to 0.89 when the driver signal matches the fault magnitude, and 0.93 for severe aggression
-  beyond the matched-severity range. The design measures how detectable the two signatures are against real trip-to-trip noise;
+  carries the attribution rather than the injection being trivially recoverable (Figure 7). Accuracy rises with driver severity, from 0.785 at the window-level
+  \(d = 0.65\), to 0.856 at the trip-level \(d \approx 1.3\), 0.89 when the driver signal matches the fault
+  magnitude, and 0.93 for severe aggression beyond that range. The design measures how detectable the two signatures are against real trip-to-trip noise;
   axis-separability itself is established by the bench fault signature and the silent driver-excess
   cell.</p>
 <p>The equal-fuel constraint is deliberately adversarial, and two measured facts show both what it gives
@@ -752,8 +756,8 @@ ordinary telematics, whether an over-consuming vehicle needs its driver coached 
 <figure>
   <img src="figures/fig6_attribution_accuracy.svg" alt="Attribution accuracy vs driver severity">
   <figcaption><b>Figure 7.</b> Attribution accuracy rises with driver aggression severity
-    (Cohen's d on the kinematic score); at the realistic operating point (\(d = 0.65\)) the frozen
-    source-derived attributor reaches 0.785. Negating the frozen driver weights drops below the no-driver-information floor (a falsification
+    (Cohen's d on the kinematic score); the conservative window-level point (\(d = 0.65\)) gives 0.785
+    and the realistic trip-level point (\(d \approx 1.3\)) gives 0.856. Negating the frozen driver weights drops below the no-driver-information floor (a falsification
     control); fuel magnitude alone is at chance.</figcaption>
 </figure>
 
@@ -851,7 +855,10 @@ ordinary telematics, whether an over-consuming vehicle needs its driver coached 
   for the kinematic axis, and the short- and long-term fuel trims for the combustion axis. The per-trip
   decomposition can therefore be computed online and routed: a persistent vehicle-baseline offset feeds
   an inspection queue, while a large behaviour component feeds driver coaching, in both cases with the
-  attribution's uncertainty attached and a human in the loop. The accuracy curve of Section 8.3 sets
+  attribution's uncertainty attached and a human in the loop. The percentages are individually small but
+  operationally large: a persistent +6% fault, or the behaviour gap that reaches roughly +5% against a
+  gentle-driving reference, is a recurring cost on every trip of every affected vehicle, so fleet-wide it
+  compounds into a fuel and emissions line item that routing to the correct remedy directly reduces. The accuracy curve of Section 8.3 sets
   expectations for smaller faults: real degradations weaker than the bench rich fault correspond to
   \(S<1.66\) and are attributed less confidently, degrading gracefully rather than failing abruptly. The
   deployment value is latency as much as accuracy. Because per-trip fuel magnitude is near-chance as an
@@ -905,10 +912,10 @@ ordinary telematics, whether an over-consuming vehicle needs its driver coached 
   fuel-matched, a realistic aggressive-driving shift costing +1.1% median fuel against the fault's +6.2%;
   yet per-trip fuel noise leaves magnitude near chance as a single-trip attributor (0.56), so the
   signatures, not the excess size, carry the attribution. In a controlled injection that withholds that
-  magnitude, frozen signatures learned in separate source domains attribute the cause at 78.5% at a
-  realistic operating point (up to ~0.89 at matched severity), matching the closed-form score model and
-  passing a falsification control where a fuel-only baseline is at chance. This equal-magnitude accuracy
-  is a tight floor: adding magnitude lifts it by only 0.003.
+  magnitude, frozen signatures learned in separate source domains attribute the cause at accuracy 0.856
+  and AUROC 0.93 at the realistic trip-level operating point (0.785 at a conservative window-level floor),
+  matching the closed-form score model and passing a falsification control where a fuel-only baseline is at
+  chance. This equal-magnitude accuracy is a tight floor: adding magnitude lifts it by only 0.003.
   Because both axes derive from standard on-board-diagnostics channels, per-trip attribution is
   deployable on existing telematics, and the main obstacle to pushing it further is the absence of a
   public dataset that carries fuel, faults, and behaviour together.</p>
